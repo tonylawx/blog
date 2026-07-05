@@ -1,41 +1,22 @@
-# Website
+# tonylaw.cc
 
-This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
+Personal blog + portfolio of Tony Law — software engineer & options trader.
 
-## Installation
+Built with [Docusaurus v3](https://docusaurus.io), bilingual (English default / Chinese secondary), deployed on Vercel.
 
-```bash
-yarn
-```
-
-## Local Development
+## Develop
 
 ```bash
-yarn start
+npm install
+npm start        # http://localhost:3000
+npm run build    # static output in build/
 ```
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+## Structure
 
-## Build
-
-```bash
-yarn build
-```
-
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
-
-## Deployment
-
-Using SSH:
-
-```bash
-USE_SSH=true yarn deploy
-```
-
-Not using SSH:
-
-```bash
-GIT_USER=<Your GitHub username> yarn deploy
-```
-
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+- `blog/` — blog posts (Markdown/MDX)
+- `src/pages/` — homepage, projects, about
+- `src/components/` — Hero, FeaturedPosts, ProjectCard
+- `src/data/projects.ts` — project metadata
+- `i18n/zh/` — Chinese translations
+- `docusaurus.config.ts` — site config
