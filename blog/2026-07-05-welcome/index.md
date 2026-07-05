@@ -11,6 +11,8 @@ Welcome — this is the first post on my new blog. I'm a software engineer and
 options trader, and I plan to write about markets, code, and the tools I build
 along the way.
 
+<!-- truncate -->
+
 ## What to expect
 
 - Notes on **options trading** and the systems I use to research them

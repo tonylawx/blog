@@ -1,14 +1,15 @@
 import React from 'react';
 import Layout from '@theme/Layout';
+import Translate, {translate} from '@docusaurus/Translate';
 import {projects} from '../data/projects';
 import ProjectCard from '../components/ProjectCard';
 
 export default function ProjectsPage(): JSX.Element {
   return (
-    <Layout title="Projects" description="Things I've built.">
+    <Layout title={translate({message: 'Projects'})} description={translate({message: "Things I've built."})}>
       <main className="container margin-vert--xl">
-        <h1>Projects</h1>
-        <p>Things I've built — open-source tools, side projects, and experiments.</p>
+        <h1><Translate>Projects</Translate></h1>
+        <p><Translate>Things I've built — open-source tools, side projects, and experiments.</Translate></p>
         <div
           style={{
             display: 'grid',

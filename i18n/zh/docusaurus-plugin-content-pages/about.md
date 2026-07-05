@@ -14,7 +14,7 @@ slug: about
 - **Option Screener** —— 期权研究与筛选，对接券商
 - **Blog** —— 本站，用 Docusaurus 搭建
 
-完整列表见 [Projects](/zh/projects)。
+完整列表见 [项目](/zh/projects)。
 
 ## 技能
 
