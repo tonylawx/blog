@@ -675,6 +675,10 @@ git commit -m "feat(projects): data model, card component, projects page"
 - Consumes: `projects` and `ProjectCard` (Task 6), blog plugin global data (Task 5).
 - Produces: a homepage with three sections — Hero, Latest Posts (3 most recent), featured Projects.
 
+> **IMPLEMENTATION NOTE (discovered during T7):** The brief's original `FeaturedPosts` recipe (`useGlobalData()['docusaurus-plugin-content-blog']['default'].blogPosts`) is broken on Docusaurus 3.10 — blog plugin content is NOT exposed via global data on standalone (non-blog) pages. The working approach is a small custom plugin at `plugins/latest-posts/index.js` (CommonJS, since Docusaurus's plugin resolver uses `require.resolve`) that reads `allContent['docusaurus-plugin-content-blog'].default.blogPosts` inside its `allContentLoaded` lifecycle hook and republishes the latest N via `setGlobalData({posts})`. `FeaturedPosts` then consumes that via the plugin's global data. This is the documented Docusaurus escape hatch for cross-plugin content access. The plugin is registered in `docusaurus.config.ts` `plugins: [...]`. The code blocks below show the original (broken) intent for Hero/index.tsx (still valid); FeaturedPosts must use the plugin-data path instead.
+
+> Also: the default scaffold's `src/components/HomepageFeatures/` and `src/pages/index.module.css` (used only by the old landing page) become dead code after this rewrite and are removed.
+
 - [ ] **Step 1: Write `src/components/Hero.tsx`**
 
 ```tsx
