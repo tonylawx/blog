@@ -1,0 +1,32 @@
+{
+  "theme.blog.paginator.navAriaTitle": {
+    "message": "博文列表分页导航"
+  },
+  "theme.blog.paginator.newerEntries": {
+    "message": "较新的文章"
+  },
+  "theme.blog.paginator.olderEntries": {
+    "message": "较旧的文章"
+  },
+  "theme.blog.post.readingTime.plurals": {
+    "message": "约 {minutes} 分钟阅读"
+  },
+  "theme.blog.sidebar.navAriaTitle": {
+    "message": "最近博文导航"
+  },
+  "theme.CodeBlock.copied": {
+    "message": "已复制"
+  },
+  "theme.CodeBlock.copy": {
+    "message": "复制"
+  },
+  "theme.NotFound.title": {
+    "message": "页面不存在"
+  },
+  "theme.common.tags": {
+    "message": "标签"
+  },
+  "theme.tags.tagsPageTitle": {
+    "message": "标签"
+  }
+}
