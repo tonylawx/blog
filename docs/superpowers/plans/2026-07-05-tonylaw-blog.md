@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- **Node version:** 18.x or 20.x (Docusaurus v3 requirement). Verify before Task 1: `node -v` shows `v18.x` or `v20.x`.
+- **Node version:** 18.x, 20.x, or 22.x+ (Docusaurus v3.10 supports Node 24 too). Verify before Task 1: `node -v` shows ≥18.
 - **Package manager:** npm (ships with Node). Use `npm ci` after the lockfile exists, `npm install` before.
 - **Default locale:** `en` (no URL prefix). Second locale: `zh` at `/zh/...`.
 - **Site URL:** `https://tonylaw.cc`. **baseUrl:** `/`.
