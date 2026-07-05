@@ -8,8 +8,10 @@ const config: Config = {
   baseUrl: '/',
   favicon: 'img/favicon.ico',
 
-  // GitHub pages edit URL — not used (deploying to Vercel), but harmless.
-  onBrokenLinks: 'warn',
+  // Strict broken-link checking — re-enabled for launch now that all
+  // navbar/footer/hero-linked pages (/blog, /projects, /about + locale
+  // variants) exist. The build will fail on any dangling link.
+  onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
 
   // Even if not hosting on GitHub, set this for correct build output.
@@ -95,6 +97,10 @@ const config: Config = {
   ],
 
   themeConfig: {
+    image: 'img/og.png',
+    metadata: [
+      {name: 'twitter:card', content: 'summary_large_image'},
+    ],
     colorMode: {
       defaultMode: 'light',
       respectPrefersColorScheme: true,
