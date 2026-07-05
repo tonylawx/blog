@@ -43,8 +43,9 @@ Run:
 ```bash
 cd ~/Documents
 npx --yes create-docusaurus@latest blog-tmp classic --typescript
-# Move scaffold contents into the existing blog dir (preserves docs/spec)
-rsync -a blog-tmp/ blog/ --exclude=node_modules
+# Copy scaffold into the existing blog dir, preserving our docs/ (spec + plan)
+# and .git. Excluding docs/ keeps the default tutorial out of docs/superpowers/.
+rsync -a blog-tmp/ blog/ --exclude=node_modules --exclude=.git --exclude=docs
 rm -rf blog-tmp
 cd blog
 ```
@@ -72,17 +73,18 @@ npm start
 ```
 Expected: dev server at `http://localhost:3000` shows the default Docusaurus landing page. Stop with Ctrl-C.
 
-- [ ] **Step 5: Delete default content we will not use**
+- [ ] **Step 5: Remove default content we will not use**
 
-Remove the default docs tutorial and sample posts (we keep `blog/` and `src/pages/` structure but clear contents in later tasks):
+Remove the scaffold's example markdown page (we keep `src/pages/index.tsx` — overwritten in Task 7 — and the default blog posts, replaced in Task 5):
 
 Run:
 ```bash
 cd ~/Documents/blog
-rm -rf docs
-# Keep src/pages/index.tsx — we overwrite it in Task 7
-# Keep blog/* — we replace in Task 5
+rm -f src/pages/markdown.md
+# Verify our planning docs are intact:
+ls docs/superpowers/specs docs/superpowers/plans
 ```
+Expected: both spec and plan `.md` files still listed under `docs/superpowers/`.
 
 - [ ] **Step 6: Confirm `.gitignore` covers build artifacts**
 
@@ -178,6 +180,9 @@ const config: Config = {
     [
       'classic',
       {
+        // No docs section — disable the docs plugin so it doesn't render
+        // docs/superpowers/* (our spec & plan) as public docs pages.
+        docs: false,
         blog: {
           showReadingTime: true,
           feedOptions: {
@@ -189,7 +194,7 @@ const config: Config = {
         theme: {
           customCss: './src/css/custom.css',
         },
-      } satisfies Config['presets'][0][1] extends infer _ ? any : any,
+      },
     },
   ],
 
@@ -240,12 +245,12 @@ const config: Config = {
 export default config;
 ```
 
-> Note: the `satisfies ... any` on the preset tuple is a placeholder to avoid a TS circular-typing headache in the scaffold; the build will type-check it. If `npm run build` complains about that line, drop the `satisfies` clause entirely.
+> Note: `docs: false` disables the classic preset's docs plugin. We have no docs section; without this, the plugin would try to render `docs/superpowers/*` (our internal spec & plan) as public docs pages.
 
 - [ ] **Step 2: Build to verify config is valid**
 
 Run: `npm run build`
-Expected: build succeeds. If it fails on the `satisfies` clause noted above, remove that clause and rebuild.
+Expected: build succeeds.
 
 - [ ] **Step 3: Dev check — locale switcher present**
 
