@@ -4,7 +4,7 @@ import type {Config} from '@docusaurus/types';
 const config: Config = {
   title: 'Tony Law',
   tagline: 'Software engineer & options trader',
-  url: 'https://tonylaw.cc',
+  url: 'https://www.tonylaw.cc',
   baseUrl: '/',
   favicon: 'img/favicon.ico',
 
