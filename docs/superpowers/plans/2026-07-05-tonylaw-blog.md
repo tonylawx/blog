@@ -280,6 +280,10 @@ git commit -m "feat(config): base i18n + navbar + footer + theme"
 Overwrite `src/css/custom.css` with:
 
 ```css
+/* Inter font — @import MUST be the first rule (CSS spec: imports precede all
+ * other rules), or browsers silently ignore it. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 /**
  * Docusaurus custom theme. Extends Infima CSS variables.
  * https://docusaurus.io/docs/styling-layout
@@ -328,8 +332,8 @@ Overwrite `src/css/custom.css` with:
   --home-card-bg: #111827;
 }
 
-/* Use Inter from Google Fonts via @import (no local font build step) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Use Inter from Google Fonts via @import (no local font build step).
+   The @import lives at the top of this file — see comment there. */
 
 html {
   font-family: var(--ifm-font-family-base);
