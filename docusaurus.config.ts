@@ -80,6 +80,16 @@ const config: Config = {
         indexBlog: true,
         indexPages: true,
         language: ['en', 'zh'],
+        // The stub docs plugin at `routeBasePath: 'notes'` is registered only
+        // to keep the SearchBar alive (upstream issue #211). `indexDocs: false`
+        // already tells this plugin not to treat the stub as a docs source, but
+        // because its routeBasePath differs from the default `/docs`, the stub's
+        // `/notes/notes` page (and `/zh/notes/notes` for zh) still leaks into
+        // the index as a generic page. `ignoreFiles` matches against the route
+        // (no baseUrl, no trailing slash), so `^notes` excludes the en stub and
+        // `^zh/notes` excludes the zh stub. Blog/pages routes never start with
+        // these prefixes, so they remain indexed.
+        ignoreFiles: [/^notes/, /^zh\/notes/],
       },
     ],
   ],
