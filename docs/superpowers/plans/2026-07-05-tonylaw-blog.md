@@ -394,7 +394,7 @@ tonylaw:
   title: Software engineer & options trader
   url: https://tonylaw.cc
   image_url: https://github.com/tonylawx.png
-  social_urls:
+  socials:
     github: https://github.com/tonylawx
 ```
 
