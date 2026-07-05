@@ -1217,7 +1217,16 @@ Create `vercel.json`:
 
 > `framework: "docusaurus-2"` is Vercel's preset id for Docusaurus v3 as well (Vercel maps it correctly). If `npm run build` is auto-detected, this file is belt-and-suspenders.
 
-- [ ] **Step 2: (Optional, before launch) Replace favicon and og placeholders**
+- [ ] **Step 2: Re-enable strict broken-link checking**
+
+Now that `/projects` (Task 6) and `/about` (Task 8) exist, flip the config back to strict — this is the final safety net before the site goes live.
+
+In `docusaurus.config.ts`, change `onBrokenLinks: 'warn'` back to `onBrokenLinks: 'throw'`.
+
+Run: `npm run build`
+Expected: build still succeeds (no broken links remain). If it throws, a navbar/footer link points at a page that doesn't exist — fix the link before deploying.
+
+- [ ] **Step 3: (Optional, before launch) Replace favicon and og placeholders**
 
 Put a real `favicon.ico` and a 1200×630 `og.png` into `static/img/`. If skipping, the scaffold defaults remain (acceptable for a first deploy).
 
@@ -1230,7 +1239,7 @@ In `docusaurus.config.ts`, add to the `themeConfig` object a basic image + metad
     ],
 ```
 
-- [ ] **Step 3: Push everything to GitHub**
+- [ ] **Step 4: Push everything to GitHub**
 
 Run:
 ```bash
@@ -1241,7 +1250,7 @@ git push origin main
 ```
 Expected: all tasks (3–10) pushed; `main` on GitHub matches local.
 
-- [ ] **Step 4: Create the Vercel project and connect it**
+- [ ] **Step 5: Create the Vercel project and connect it**
 
 Option A (CLI — fastest):
 ```bash
@@ -1262,9 +1271,9 @@ Expected: a `*.vercel.app` production URL is printed. Visit it — full site loa
 
 Option B (browser): go to https://vercel.com/new, import `tonylawx/blog`, accept auto-detected Docusaurus settings, click Deploy.
 
-- [ ] **Step 5: Verify RSS, sitemap, og on the production URL**
+- [ ] **Step 6: Verify RSS, sitemap, og on the production URL**
 
-Replace `DEPLOY_URL` with the actual `*.vercel.app` URL from Step 4.
+Replace `DEPLOY_URL` with the actual `*.vercel.app` URL from Step 5.
 
 Run:
 ```bash
@@ -1275,7 +1284,7 @@ curl -s "$DEPLOY_URL" | grep -i 'og:image'       # → <meta property="og:image"
 ```
 Expected: all three return content (200 / 200 / an og:image meta tag).
 
-- [ ] **Step 6: Commit the vercel config**
+- [ ] **Step 7: Commit the vercel config**
 
 ```bash
 git add vercel.json docusaurus.config.ts
