@@ -52,6 +52,36 @@ const config: Config = {
   // route tree) can render a "Latest Posts" section via `usePluginData`.
   plugins: [
     './plugins/latest-posts',
+    // Minimal docs-plugin instance. We disable docs in the `classic` preset
+    // (above) so that docs/superpowers/* (spec & plan) never render as public
+    // pages. But `@easyops-cn/docusaurus-search-local`'s SearchBar unconditionally
+    // calls `useActiveVersion` from `@docusaurus/plugin-content-docs/client`,
+    // which throws if no docs-plugin instance with the default id exists
+    // (https://github.com/easyops-cn/docusaurus-search-local/issues/211). So we
+    // register a stub docs plugin here — pointed at a tiny `docs-internal/`
+    // folder and an unlinked route base — purely to keep the search bar alive.
+    // `indexDocs: false` on the search plugin means this stub is NOT indexed.
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        path: 'docs-internal',
+        routeBasePath: 'notes',
+        include: ['**/*.md', '**/*.mdx'],
+        showLastUpdateAuthor: false,
+        showLastUpdateTime: false,
+        editUrl: undefined,
+      },
+    ],
+    [
+      '@easyops-cn/docusaurus-search-local',
+      {
+        hashed: true,
+        indexDocs: false,
+        indexBlog: true,
+        indexPages: true,
+        language: ['en', 'zh'],
+      },
+    ],
   ],
 
   themeConfig: {
