@@ -47,6 +47,13 @@ const config: Config = {
     ],
   ],
 
+  // Custom plugins. `latest-posts` exposes the most recent blog posts as
+  // global data so the homepage (a standalone page outside the blog plugin's
+  // route tree) can render a "Latest Posts" section via `usePluginData`.
+  plugins: [
+    './plugins/latest-posts',
+  ],
+
   themeConfig: {
     colorMode: {
       defaultMode: 'light',

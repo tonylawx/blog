@@ -28,5 +28,20 @@
   },
   "theme.tags.tagsPageTitle": {
     "message": "标签"
+  },
+  "Read the blog": {
+    "message": "阅读博客"
+  },
+  "Contact": {
+    "message": "联系方式"
+  },
+  "Latest Posts": {
+    "message": "最新文章"
+  },
+  "View all →": {
+    "message": "查看全部 →"
+  },
+  "Projects": {
+    "message": "项目"
   }
 }
