@@ -1018,6 +1018,8 @@ git commit -m "feat(about): bilingual resume-style about page"
 **Interfaces:**
 - Produces: a search bar in the navbar (auto-injected by the plugin) that builds a client-side index over all blog/page content in both locales.
 
+> **IMPLEMENTATION NOTE (discovered during T9):** `@easyops-cn/docusaurus-search-local@0.55.2`'s SearchBar unconditionally calls `useActiveVersion` from the docs plugin, which crashes SSG when the preset has `docs: false` (upstream issue #211). Workaround: register a stub `@docusaurus/plugin-content-docs` instance at `routeBasePath: 'notes'` with content in `docs-internal/` (a one-paragraph stub page, not navbar-linked). This satisfies the hook without rendering `docs/superpowers/*` (the preset keeps `docs: false`). The stub's `/notes` route is then excluded from the search index via `ignoreFiles: [/^notes/, /^zh\/notes/]` (v0.55.2's actual option — there is no `excludeRoutes`). The `/notes` URL exists but is unlinked and unindexed.
+
 - [ ] **Step 1: Install the plugin**
 
 Run:
