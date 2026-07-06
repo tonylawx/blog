@@ -113,6 +113,7 @@ const config: Config = {
       title: 'Tony Law',
       items: [
         {to: '/blog', label: 'Blog', position: 'left'},
+        {to: '/links', label: 'Links', position: 'left'},
         {to: '/blog/tags', label: 'Tags', position: 'left'},
         {to: '/blog/archive', label: 'Archive', position: 'left'},
         {to: '/projects', label: 'Projects', position: 'left'},

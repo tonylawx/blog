@@ -396,5 +396,8 @@
   },
   "Archive": {
     "message": "归档"
+  },
+  "Links": {
+    "message": "链接"
   }
 }
