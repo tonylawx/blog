@@ -1,0 +1,67 @@
+---
+title: "如何让你的 agent 拉出一坨漂亮的屎"
+date: 2026-06-30
+authors: [tonylaw]
+---
+
+AGENT · SKILL · 微信公众号 · 模板
+
+
+0 · GitHub
+
+直接拿仓库
+
+这个 skill 就放在 GitHub：**https://github.com/tonylawx/html-to-wechat-article**
+
+它不是让 agent 重新发明审美，而是告诉 agent：微信公众号的 HTML 哪些能留，哪些会炸，哪些必须在发草稿前换成微信图床。
+
+1 · Install
+
+装到 skills 目录
+
+mkdir -p ~/.codex/skills  
+git clone https://github.com/tonylawx/html-to-wechat-article ~/.codex/skills/html-to-wechat-article
+
+装完之后，agent 下次看到微信公众号 HTML，就知道该先找这个 skill，而不是凭感觉乱写一套。
+
+2 · Prompt
+
+直接这样叫它
+
+使用 **html-to-wechat-article** skill，把这份 HTML 修成微信公众号 **draft/add** 可发版本。保留当前视觉样式，去掉微信会炸的编辑器结构；本地图片要准备好上传替换；不要加来源链接，不要重写文章。
+
+这段话的重点不是礼貌，是边界。你把模板、图片、发布方式、不要碰什么说清楚，agent 才不会一边修 HTML，一边把你的版式改成另一坨东西。
+
+3 · Pitfalls
+
+它管的不是玄学，是微信的坑
+
+**图片：**正文图上传后返回的是 URL，封面图要的是 thumb\_media\_id，两条路别混。
+
+**结构：**layout table、leaf、data-\*、隐藏块，很多在浏览器里看不见，但进微信就会露馅。
+
+**排版：**中文正文不要两端对齐。微信手机端一拉字距，漂亮文章立刻变事故现场。
+
+4 · Before / After
+
+看图就够了
+
+左边是容易翻车的编辑器导出，右边是更适合进草稿箱的结构。不是花活，是少踩坑。
+
+
+5 · Rule
+
+漂亮的💩，来自清晰的边界
+
+别指望 agent 天生懂微信。你给它模板，它就按模板来；你给它素材路径，它就知道上传哪张图；你告诉它不要重写，它就别去乱改文章。
+
+这就是这个 skill 的用途：把“差不多能看”的 HTML，变成“可以放心发草稿箱”的 HTML。
+
+
+
+关键词：Agent Skill · 微信公众号排版 · WeChat HTML · GitHub · draft/add
+
+
+---
+
+> 原文链接：[如何让你的 agent 拉出一坨漂亮的屎](https://mp.weixin.qq.com/s/Mb6Mc8AmXjLpZe3DvxHlzQ)
