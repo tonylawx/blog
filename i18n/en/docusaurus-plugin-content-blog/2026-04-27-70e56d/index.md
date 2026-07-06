@@ -1,0 +1,114 @@
+---
+title: "The Odyssey That Accompanies a Lifetime"
+date: 2026-04-27
+authors: [tonylaw]
+description: "An essay on leaving the old self behind, weathering fate, and setting sail again. Why every arrival is only the next departure from shore."
+---
+
+Every time you think you have arrived, it is only the next departure from shore.
+
+In *Infernal Affairs*, the most agonizing thing about Chen Yongren's life is not that he became an undercover cop. It is that he lived too long between two worlds. The dark side did not believe him, and the light side might not truly catch him either. He clearly had an identity, yet he could not fully become any single one. He was clearly executing a mission, yet he seemed perpetually pinned in a crevice by fate.
+
+So sometimes I wonder — being a "double-crosser" is not necessarily about betrayal. More often, it resembles a kind of destiny: you are fated to never fully surrender to an old world, nor to easily reach a new one. You can only exist in the in-between, betraying the old version of yourself again and again, and reconfirming again and again who you really are.
+
+## 01 The Old Self Cannot Live the New Self's Whole Life
+
+I am also 25, born on the 25th, and I feel I carry a sliver of that "double-crosser" fate.
+
+Of course, not betraying others. More often, it is betraying the old self. Betraying the orders I once believed in without doubt, betraying the arrangements that looked prudent, betraying the lifestyle that kept me quiet, dignified, and slowly going numb.
+
+**A person must betray himself at certain moments. Otherwise, the old self will live the new self's whole life for him.**
+
+To move forward is not to arrive in a straight line at some certain endpoint. It is to reconfirm who you are across one deviation, one sinking, one landing, one setting sail after another.
+
+## 02 Only After Leaving Shore Does a Person Truly Begin
+
+For many years, I thought life was a road. Only later did I slowly realize it is more like the Odyssey period. In life, you often think you have a sea chart, but in truth you can never really own one.
+
+At first we are simply placed into an established order — family, school, era, evaluation, expectation — pushing us forward like a tide. Back then I also believed that as long as I followed along, I would arrive at some promised kind of life.
+
+Then one day I realized that route looked less and less like my life.
+
+So I began to leave shore.
+
+Leaving is not always dramatic. More often, it is just a person standing in place, suddenly unable to convince himself to keep staying. In that moment there is no applause, no flowers, only a deep sense of weightlessness: familiar things are receding, and the new direction has not yet appeared.
+
+**But perhaps true life begins precisely from this weightlessness.**
+
+## The Wind and Waves
+
+Later I saw some wind and waves. Waves of desire, waves of money, waves of relationships, waves of health. They arrive without dignity and without reason, often pushing a person into the middle of the sea overnight.
+
+Fate is not responsible for loving people. It only reveals them. It reveals greed, and it reveals fear; it reveals wishful thinking, and it reveals unyielding refusal.
+
+## 03 Why "The Living Beihai"
+
+My online name is "活着的北海" — "The Living Beihai."
+
+Beihai here is of course not just a name. It is more like a spiritual coordinate I have borrowed: a person who, after seeing the giant wheel of the era, the weight of the old order, and the inertia of collective narrative, still casts his gaze further out.
+
+But I added "living" in front of it, because at this age I no longer blindly believe in pure heroism. Heroic narratives too easily stop in some beautiful pose. What is truly hard is: still being alive after seeing disillusionment; still not handing yourself over after being repeatedly schooled by fate — and moreover, being the one who first presses the button on the nuclear warhead.
+
+**To live is not to scrape by. To live is to have not yet surrendered to fate.**
+
+So "The Living Beihai" is not about casting myself as some grim figure, nor about borrowing a name to look tragic. It is only a reminder: a person can lose many things, but cannot lose the ability to start over. As long as you are still alive, you can still re-judge the wind, re-choose the route, and re-become yourself.
+
+## The Name of the Public Account
+
+Why is the public account called "自然躲过核弹的自然选择号" — "The Natural Selection That Naturally Dodged the Nuclear Bomb"? Because there has always been a ship in my heart.
+
+"Natural Selection" to me is not just the name of a science-fiction vessel. It is more like the ship fate hands a person when he finally decides to leave the old world. The nuclear bomb is like the old order's final recall signal, and like the resolved insistence of a familiar world; and its dodging the bomb means that some lives must break away from their original coordinates in order to continue.
+
+**Not every departure is betrayal. Departure is to leave a still-unverified possibility for the future.**
+
+## 04 The Sirens Often Appear in the Shape of an Island
+
+Midway, I also thought I had encountered an island.
+
+After drifting long enough, a person inevitably comes to believe in some kind of song. It sounds like a destination, like love, like finally no longer having to face the wind and waves alone. The voice is gentle, familiar, even making you willing to momentarily let down your guard.
+
+Only later did I realize the Sirens in the Odyssey never appear in the shape of monsters. They sing on an island to tempt you — more like comfort, more like the answer you most want to believe when you are exhausted, and you think you can finally come ashore.
+
+Of course I cannot blame everything on the song. Odysseus, hearing the Sirens, at least knew to tie himself to the mast. Back then I trusted my own clarity too much, believing I could tell love from illusion, a destination from a reef.
+
+**The most ridiculous thing about people is often that at the moment of greatest confidence, they are closest to being lost.**
+
+## 05 After the Major Illness, the World Begins to Recede
+
+Before the major illness, I thought many things could be solved by will. As long as I was clear-eyed enough, hard-working enough, decisive enough, I could slowly correct life toward the direction I wanted. Back then I believed in action, in choice, in the idea that a person could, through one departure after another, wrestle fate back into his own hands.
+
+After the major illness, I learned that life does not entirely obey a person's will.
+
+The body can suddenly stop, plans can suddenly fail, relationships can suddenly reveal their true shape, and many things you thought were solid will, in some quiet moment, show their real texture. A major illness is like a forced receding of the tide — making the world temporarily shed its ornaments, and letting a person see clearly where he is actually standing.
+
+After that, I became less rushed.
+
+Not that I no longer wanted to win, nor that I no longer wanted to move forward, but I no longer blindly believed that every exertion must immediately yield a result. I no longer easily mistook depletion for striving, obsession for deep affection, or self-deception for taking the big picture into account.
+
+I also became harder to persuade.
+
+Those words that used to sound so correct now often ring hollow. Those things packaged as responsibility, dignity, stability, maturity — if they cannot bring a person closer to his true self, they lose their persuasive power with me.
+
+After a major illness, a person gains an additional kind of calm distance. You discover that some islands are only mirages, some companions are only the sound of the tide, and some goodbyes are not loss — but, after the tide recedes, finally seeing the reef that was hidden underwater.
+
+## 06 Not Arrival, but Departure Again
+
+I was not reborn.
+
+Real life is not like that. Real life is: on some days I am clear-headed, on some days I am still lost; in some moments I feel I have figured it out, in others I find I have only changed the form of my confusion. A person does not suddenly become strong. A person only, after breaking apart again and again, can still gather himself back together.
+
+So birthdays become a little delicate.
+
+What it reminds me of is not "what have I gained again," but "what am I in the process of losing." Time is diminishing, the body is changing, relationships are being sifted, and the old self is also constantly dying. The further a person walks, the more he understands that many things will not keep waiting for you. Many words, if said later, lose their meaning; many roads, if delayed too long, no longer belong to you.
+
+So living in the present is no longer a casual phrase.
+
+It is more like a plain and severe honesty: if today you can still love, then love more earnestly; if today you can still walk, then do not keep waiting for "later"; if today you can still hear the voice inside, then stop minding the eyes of the world.
+
+Right now, I am lost again.
+
+But this time, I am no longer in a rush to explain being lost as failure. Being lost is perhaps only that, after the old sea chart has failed, the new sea surface has not yet taken shape. It is not an endpoint; it is the fog before the next leg of the voyage begins.
+
+Life is perhaps like this. Every time you think you have arrived, it is the next departure from shore; every time you think you have walked out of some city, you meet a deeper version of yourself; every time you think the story has ended, fate pushes the boat back out to sea.
+
+I have not yet died. I am standing at the shore again. The next Odyssey is about to set sail.

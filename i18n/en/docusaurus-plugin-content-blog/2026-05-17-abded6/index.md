@@ -1,0 +1,16 @@
+---
+title: "Jobless, Playing with AI and US Stocks All Day — What Good Could Come of It?"
+date: 2026-05-17
+authors: [tonylaw]
+description: "A short, candid reflection on letting go of what drains you, and on no longer needing to prove your worth to anyone."
+---
+
+I used to not understand what people meant by "I'm drawn to strength." Translated, it just means they favor the rich and disdain the poor.
+
+I also used to not understand what people meant by "when it really matters, I don't know how to decide." Translated, it just means I was an overgrown child.
+
+I used to believe people change slowly, over time.
+
+Now I know that sometimes heaven steps in personally, and clears away everything that was draining you.
+
+Things are good now. I no longer need to prove to anyone that I'm worth it. Heaven has told me I am.

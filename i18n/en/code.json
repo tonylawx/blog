@@ -1,0 +1,35 @@
+{
+  "博客": {
+    "message": "Blog"
+  },
+  "链接": {
+    "message": "Links"
+  },
+  "关于我": {
+    "message": "About"
+  },
+  "项目": {
+    "message": "Projects"
+  },
+  "归档": {
+    "message": "Archive"
+  },
+  "Read the blog": {
+    "message": "Read the blog"
+  },
+  "Contact": {
+    "message": "Contact"
+  },
+  "Latest Posts": {
+    "message": "Latest Posts"
+  },
+  "View all →": {
+    "message": "View all →"
+  },
+  "Projects": {
+    "message": "Projects"
+  },
+  "美股 · 期权 · 资讯 · 观点": {
+    "message": "US Stocks · Options · Insights · Views"
+  }
+}

@@ -1,0 +1,138 @@
+---
+title: "When I Started Practicing OPC, I Realized My Past Self Was Actually an Excellent Agent"
+date: 2026-05-13
+authors: [tonylaw]
+description: "AI agents, result rules, and feedback loops. Many AIs are not bad at doing work — they are very good at producing the appearance of work being almost done. Output is not the same as a result, and finishing is not the same as being finished."
+---
+
+*AI Agent · Result rules · Feedback loops*
+
+# When I Started Practicing OPC, I Realized My Past Self Was Actually an Excellent Agent
+
+A lot of AI is not unable to do work.
+
+It is simply very good at first producing the appearance of "the work is almost done."
+
+There is an answer. There is a structure. There is a format. There even appears to be a page.
+
+You glance at it and feel the progress bar is at eighty percent. But the moment you look closely, run it, verify it — you find the truly troublesome part is still sitting right there.
+
+## Before We Start
+
+Judging whether it is right, finding where it is wrong, deciding how to fix it, confirming whether it can be delivered. These things, much of the time, are still being done by you.
+
+It was also in this moment that I suddenly realized something: my past self was, all along, an excellent agent.
+
+## 00 I Used to Think I Just Had Good Execution
+
+When I worked before, I always thought of myself as an execution person.
+
+A request came in — I picked it up. The plan was unclear — I filled it in. Time was tight — I absorbed it. Something was stuck — I pushed it forward. Something broke — I went and investigated.
+
+Doing these things for long enough, in the end it usually gets summarized into a few light phrases: "Good execution." "Easy to work with." "I trust handing this to you."
+
+It sounds like praise, but it is also like a kind of compression. Many complex capabilities get compressed into one handy label.
+
+It was only when I started building workflows, tuning AI, and watching the results that I realized: those apparently ordinary skills from before were not ordinary at all.
+
+**A lot of what AI does now is hand in a surface-level answer first, then wait for you to do quality control. What I did before was, before handing it off, try to find the problems myself first.**
+
+## 01 Output Is Not a Result, and "Finished" Is Not Finished
+
+Later I realized more and more clearly that the problem is not whether the AI produced output.
+
+The problem is whether the output counts as a result.
+
+The Agent does the hands-on work. The Harness watches the process. The most critical thing in the middle is the result rule.
+
+Put plainly, it is one sentence: producing output does not mean done — getting the result means done.
+
+Not "written" means done — it has to work. Not "answered" means done — it has to hit the point. Not "the pipeline ran once" means done — it has to hold up under inspection.
+
+Without this layer of rules, the AI easily stops at "close enough."
+
+## Core Mechanism
+
+The AI first produces a plausible version: looks like an article, like code, like a page, like a plan. Then it leaves the truly troublesome part for the human to discover.
+
+If you find it, it fixes it. If you do not find it, it just stops there. That is also why many people feel more and more tired the more they use AI.
+
+## 02 What Is Truly Valuable Is the Feedback Loop
+
+So I now feel more and more that the single output does not matter that much.
+
+What truly matters is the feedback loop.
+
+The AI should not stop after one pass, nor wait for a human to point out a problem before continuing. After producing output, it should itself look back: is the result right, where did it fail, why did it fail, how should the next round be fixed.
+
+Code is like this. It is not "let it write the code and that is the end" — it is let it run the tests, read the errors, read the logs, and continue fixing based on the results.
+
+Pages are like this too. It is not "generate a good-looking interface and that is the end" — it is let it click through itself, walk the flow, run end-to-end tests, and confirm the user can actually make it all the way to the end.
+
+## Surface Check
+
+**Looking done does not mean it actually works.**
+
+Whether the page clicks through, whether the API connects, whether data was written, whether exceptions blow up, whether the user gets stuck halfway — these you only know by running it.
+
+## Closed-Loop Check
+
+**The AI has to know where it did not pass.**
+
+Without a feedback loop, the AI is like a person who only writes code but never runs it. He looks fast, but he does not know whether he has actually finished.
+
+## 03 Without a Closed Loop, You Become the System Bottleneck
+
+What cuts even deeper: if the AI cannot form its own closed loop, then you yourself become the efficiency bottleneck.
+
+It produces. You inspect. You judge. You fill in context. You find problems. You decide the next step. It then continues fixing based on your feedback.
+
+It sounds like human–AI collaboration. But often what is really happening is: the AI is mass-producing semi-finished goods at high speed, while the human does final bottom-line cleanup at low speed.
+
+At that point, what truly limits efficiency is no longer the AI — it is you.
+
+Not because you are not fast enough, but because the whole system compresses the final judgment, acceptance, and error-correction back onto you.
+
+## 04 I Finally Understood That Being Reliable Is Actually Expensive
+
+And because of this, I came to a new understanding of my past self.
+
+I used to think I was just a little more responsible, a little more thorough, a little more prone to overthinking. Now I understand it was more than that.
+
+I was not just picking up tasks. I understood the goal behind the task. I did not just complete the surface action. I judged whether the result would hold up. I did not wait for others to find errors. I first walked through the places most likely to go wrong myself.
+
+I even formed a small closed loop in my head: first do it, then check it, find problems, fix them, then confirm whether it could be delivered.
+
+**The phrase "reliable" is actually very expensive. Behind it is not diligence — it is whether a person can proactively find problems, proactively correct deviations, and proactively push things toward the true result.**
+
+## 05 The Best Upgrade Is Not Always Being the One Who Catches Everything
+
+So the biggest change OPC brought me was not just an efficiency boost.
+
+It let me, for the first time, see myself from a different vantage point.
+
+My past self was not only an executor. My past self was someone who proactively checked, proactively fixed problems, and proactively caught things at the bottom. In today's language: my past self was an excellent agent.
+
+But I also now understand more and more that I cannot always be the one catching things at the bottom.
+
+Doing that in the past was capability. Continuing to do only that today becomes drain.
+
+So what I really want to do is not have the AI write a little more, answer a little more, generate a little more — but to slowly turn those instincts I used to have into rules inside the system.
+
+· · ·
+
+It used to be that I knew where things easily go wrong; going forward, I want the Harness to know too.
+
+It used to be that I judged what truly finished looks like; going forward, I want the result rule to be written in too.
+
+It used to be that I caught things by experience; going forward, I want the feedback loop to be able to run on its own.
+
+A person's best upgrade
+
+is not forever fixing bugs himself.
+
+It is letting the system also learn what truly being done means.
+
+Press and hold the image below to follow the public account for ongoing thinking on AI, systems, and productivity.
+
+![QR code](./temp_q98s7evz3.jpg)

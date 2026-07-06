@@ -1,0 +1,38 @@
+---
+title: "US Market Daily Analysis — 2026-05-11"
+date: 2026-05-12
+authors: [tonylaw]
+description: "The four major indices posted modest gains, with the Philadelphia Semiconductor Index continuing to strengthen. The market's main thread remains concentrated in AI and large-cap tech. Short-term sentiment is biased strong, but concentration is clearly elevated: the tech sector's market cap exceeds $23 trillion, roughly 37% of the S&P; adding broad tech leaders like AMZN, GOOG, and META makes the weight pressure even more pronounced."
+---
+
+## 0 Market Assessment
+
+The four major indices posted modest gains, with the Philadelphia Semiconductor Index continuing to strengthen. The market's main thread remains concentrated in AI and large-cap tech. Short-term sentiment is biased strong, but concentration is clearly elevated: tech sector market cap exceeds $23 trillion, at roughly 37% of the S&P weight; layering in broad tech leaders such as AMZN, GOOG, and META makes the weight pressure even more pronounced.
+
+The core variable this week is US President Trump's China visit May 13–15, with the main meetings concentrated on the 14th. The 2017 visit produced more than $250 billion in commercial agreements; this round the market is focused on aircraft, agriculture, energy, LNG, chips, supply-chain stability, and a US–China trade management mechanism. If deals land, it is incremental upside for related names; if expectations disappoint, it can quickly convert into short-side pressure.
+
+## 1 Risk Warning
+
+The Middle East remains an external risk. The US rejected Iran's latest proposal to end the war, and Iran has maintained a tough tone; crude bounced on the news, with Brent around $104. It has not reclaimed $110 or broken below $90, so oil remains in a wait zone; if prices hold above $110 for an extended period, inflation and risk appetite will come under renewed pressure.
+
+Internal US equity risk lies in the divergence between concentration and breadth. Many leaders are at new highs, yet the number of S&P constituents trading below their 50-day moving average is increasing — the rally is not balanced. Health care sector weighting sits at historically low levels and has mean-reversion potential ahead, but XLV remains bearish below its 200-day MA; before the $121 area it may still endure a long test, so do not rush to bottom-fish.
+
+## 2 Names to Watch
+
+**BA:** The name with the largest potential order elasticity from this China visit, with possible upside from a large aircraft order. Technically, the 239–240 area is the breakout-confirmation point; holding above opens a look at the 248–260 resistance zone, and a further break could extend the swing to above $302. Valuation is not cheap — 2026 EPS is still negative — so the move is driven more by order expectations and technical structure.
+
+**TSLA:** Musk joining the trip brings expectations for FSD China rollout, but the timing is not perfect. China in late April paused new L4 autonomous-driving permits; even the optimistic case leans toward progress before Q3 2026. The stock put in a heavy-volume rally into the 420–465 short-density zone. A decisive open/close break above $465 could trigger short stops and push the next leg toward $500+; but daily RSI is near 90, so even after a break a high-level consolidation may be needed.
+
+**NVDA:** The slow-bull tape is unchanged, closing around $219 and printing a new all-time high. The biggest item to watch from Jensen Huang's trip is whether H200 sales to China can secure Chinese approval. Current earnings expectations essentially do not include China sales — approval would be upward revision; non-approval does not change the base-case assumption. On the 30–40x valuation band, the low end for January 2027 is around $234, so it is not expensive here; the main constraint is that market cap has reached roughly $5.33 trillion, so capital-driven moves will be slower.
+
+## 3 Trading Strategy
+
+Short-term, do not chase straight-up moves in semis and AI leaders. Focus on whether the China visit delivers deals and whether the market sees weight diffusion. For BA, watch $240 breakout confirmation; for TSLA, whether $465 resistance can be decisively broken on open/close; for NVDA, continue treating it as a slow-bull hold, waiting for speculative capital to rotate back from laggard names like MU and INTC.
+
+ISRG enters the add-zone watch. After breaking $430 the stock returned to a price region last seen two years ago; the two-year weekly top is obvious, and even an oversold bounce may be followed by continued downside and a long grind lower. The lower end of the technical range is roughly $258–295, the upper end roughly $470–500; on 2026 forward valuation the low end is around $429, 2027 around $485 — after applying a 30% PE haircut safety margin, strong support corresponds to roughly $300–340. Plan is to wait, within the wide $321–405 zone, for a strong bottoming pattern before adding about 7% to lift total positioning to roughly 8% — do not catch the first bounce.
+
+Press and hold the QR code to follow the public account for daily US market commentary and views.
+
+![QR code](./temp_79owkj9nn.jpg)
+
+Disclaimer: This article is personal market observation and trading review only, and does not constitute any investment advice. Markets carry risk; trade with caution.

@@ -1,0 +1,36 @@
+---
+title: "US Market Daily Analysis — 2026-04-28"
+date: 2026-04-29
+authors: [tonylaw]
+description: "The four major indices closed lower, with the Nasdaq and Russell underperforming, while semiconductors were the main source of pressure. A Wall Street Journal report that OpenAI's user and revenue targets were missing expectations triggered a market rethink of the sustainability of AI data-center spending, sending the Philadelphia Semiconductor Index down over 3% as profit-taking from the rapid rally began to release."
+---
+
+## 0 Market Assessment
+
+The four major indices closed lower, with the Nasdaq and Russell the relative laggards and semiconductors the primary source of pressure. A Wall Street Journal report that OpenAI's user and revenue targets were missing expectations triggered the market to re-examine the sustainability of AI data-center capex, and the Philadelphia Semiconductor Index dropped more than 3% as profit-taking accumulated after the sharp winning streak began to release. In the short term, this looks more like a technical pullback after a high-slope rally layered with a narrative shock, rather than a one-shot disproof of the entire AI demand logic.
+
+On the margin, the Middle East still shows signs of de-escalation — both Hormuz Strait passage and the direction of Iran's new proposal point toward negotiation — but oil prices remain elevated. The UAE announced its exit from OPEC+ and a plan to gradually raise output; the near-term impact on oil prices is limited because passage and capacity release take time, but the medium-to-longer-term supply increase should cap elevated oil prices to some degree. The market's true main thread remains AI capex and Big Tech earnings — specifically the commentary from AMZN, GOOG, MSFT, and META on data-center investment, AI ROI, and the cadence of future spend.
+
+## 1 Risk Warning
+
+OpenAI's risk is not only in operating targets — it also includes financing, IPO, and litigation uncertainty. If revenue growth cannot cover future compute contracts, the most directly exposed name is ORCL, given its highest contract linkage; Oracle has already levered up heavily to build data centers based on those commitments, so any counterparty financing or payment issue would amplify receivable and debt pressure. NVDA, AMD, TSMC, and the rest of the supply chain would also be dragged in, but their balance sheets, cash reserves, and customer diversification are clearly stronger than ORCL's — the nature of the risk is different.
+
+The biggest short-term risk in semis comes from "high-position profit-taking + gap-down opening + overhead trapped longs." SOXX, SMH, and AMD all gapped below the prior session's low, leaving yesterday's chasers trapped and adding to selling pressure on any bounce. If bounces cannot decisively clear overhead resistance, the pullback trend further confirms. Big Tech earnings are concentrated after tomorrow's close; the regular session may be relatively quiet, but post-close volatility could expand significantly — watch for cross-contagion between prints.
+
+## 2 Names to Watch
+
+NVDA pulled back about 1.59% today, closing near the middle of the prior session's green candle — the pattern is neutral-leaning and does not deliver a clear breakdown signal. Keep watching Big Tech earnings for the description of data-center capex, because the core driver for NVDA, AMD, and TSMC is not OpenAI alone but the broader cloud-vendor AI spend. If AMZN, GOOG, and MSFT maintain positive capex guidance, the panic in the semi supply chain will be partly repaired; if the spend cadence weakens, pressure re-diffuses.
+
+AMD was already de-risked near the 350 target zone as planned — the reason is not a long-term bearish view, but reducing position concentration across similar holdings and responding to the technical deterioration after excessive slope. AMD faces medium resistance at 335–348; a break above 348 still opens room for new highs. SOXX has minor support at 412–422 below, with 450–460 the key resistance above; SMH has medium resistance at 499–508 above. Options-implied moves center on $425 ± ~$30 for MSFT, $260 ± ~$19 for AMZN, $350 ± ~$20 for GOOG, and $670 ± ~$50 for META.
+
+## 3 Trading Strategy
+
+The short-term strategy is mainly about reducing risk, waiting for confirmation, and avoiding chasing. Semis are already showing pullback confirmation signals; the "fish tail" of the fast advance does not need to be eaten in full. For positions already in profit, prioritize taking gains or trimming concentration, avoiding excessive single-direction exposure heading into earnings. If subsequent bounces clear the AMD 348 / SOXX 460 / SMH 508 resistance band, it indicates bulls have regained the initiative; if bounces stall, respect the possibility that the pullback continues.
+
+Over the next one to two sessions, the core action is not to pre-position, but to wait for Big Tech earnings to deliver evidence on capex and AI ROI. The Fed rate decision is highly likely to hold unchanged, with limited marginal information; what truly affects the semi and AI chain is the earnings call commentary from AMZN, GOOG, MSFT, and META. For portfolios already holding core positions such as NVDA, exposure can be de-risked by trimming duplicated-logic names and keeping the stronger leaders; for cash or light-positioned capital, waiting until after earnings when direction is clearer to participate from the right side offers a better win rate.
+
+Press and hold the QR code to follow the public account for daily US market commentary and views.
+
+![QR code](./temp_eo6zweykh.jpg)
+
+Disclaimer: This article is personal market observation and trading review only, and does not constitute any investment advice. Markets carry risk; trade with caution.

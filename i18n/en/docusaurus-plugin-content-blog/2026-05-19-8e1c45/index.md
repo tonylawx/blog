@@ -1,0 +1,30 @@
+---
+title: "US Market Daily Analysis — 2026-05-18"
+date: 2026-05-19
+authors: [tonylaw]
+description: "Leadership is rotating from a pure semiconductor chase into a cooling-semis / catch-up-everywhere-else tape. The index isn't broken, but the high-beta memory and leveraged ETF crowd is getting a lesson in chasing risk."
+---
+
+## 0 Market Assessment
+
+The market's main thread is rotating from a pure semiconductor chase into a "semis cool, other sectors catch up" structure. The index was pressured intraday by Middle East risk, then rebounded as the expected strike was de-escalated, but the PHLX Semiconductor (SOX) still opened higher and closed lower. Memory names and the high-beta, extended leaders pulled back hardest — a sign that short-term chase appetite is already fading.
+
+The broad market itself is not broken. Inside the S&P 500, advancers still outnumbered decliners, and consumer and software began absorbing capital rotating out of the high-flying semis. The 10-year Treasury yield consolidated around 4.595%, no longer pressing higher for now, but not yet offering a clear dovish signal for risk assets either.
+
+## 1 Risk Watch
+
+The main risk to semis is short-term positioning and leverage structure, not a sudden fundamental reversal. Leveraged semiconductor ETFs mechanically buy into rallies and mechanically sell into declines; when volatility expands, both the upside and downside get amplified. Moves like Micron's — gapping up and then rolling over hard — are the direct manifestation of chase risk.
+
+Risk awareness is starting to return to the options market. Call inflows have turned neutral, and put protection has clearly increased. SOXX needs close monitoring around 489; SMH around 533. A break (on an opening or closing basis) would most likely push semis into a sideways consolidation. CTA positioning is elevated — a decisive loss of the 7095 line near the Nasdaq could also trigger systematic de-risking.
+
+## 2 Names in Focus
+
+NVDA remains the core asset most worth tracking. Market expectations for this print's profit and gross margin are very high; short-term reaction can't be judged on the beat/miss alone, but on a valuation-versus-growth basis NVDA still offers better risk-reward than AMD. If, post-earnings, price pulls back below 211 and completes a chip handoff, that is actually healthier for the slow-grind-higher structure to continue.
+
+AMD has higher elasticity, but the current price has already discounted far-forward growth. 400–420 is intermediate support; below that, support thins materially. IGV is seeing consecutive volume expansion — if software continues to absorb rotational flows out of semis, a short squeeze remains possible. TSLA is back near its 200-day moving average and is neutral. BRK's valuation is on the low side of median but growth is weak. UNH has already worked through its easiest repair zone; digesting the 440–496 heavy-overhead supply will take time.
+
+## 3 Trading Strategy
+
+Short-term, do not chase semis higher — especially memory names and 3x leveraged ETFs that have already ripped. If semis hold SOXX 489 and SMH 533, the door to renewed strength stays open; if those break, prioritize cutting speculative size and wait for a new base and volume repair. NVDA — no rush to trim; re-evaluating above 300 is more reasonable. A post-earnings pullback below 211 is a better long-term chip-handoff zone.
+
+AMD is best managed with support levels: as long as 400–420 holds, the trend has room to extend; once it fails, do not stubbornly hold for a valuation reversion. IGV can continue to be watched for volume expansion and short-squeeze potential toward the 200-day, but a squeeze is not the same as fundamental confirmation. TSLA is best treated as a range-bound name for now. BRK is more suitable for patiently waiting for a breakout signal near 510. UNH is only suitable for slow repair, and only if there is no new major negative catalyst on the health-policy front.
