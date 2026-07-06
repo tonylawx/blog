@@ -55,6 +55,7 @@ const config: Config = {
   // global data so the homepage (a standalone page outside the blog plugin's
   // route tree) can render a "Latest Posts" section via `usePluginData`.
   plugins: [
+    require('./plugins/raw-html'),
     './plugins/latest-posts',
     // Minimal docs-plugin instance. We disable docs in the `classic` preset
     // (above) so that docs/superpowers/* (spec & plan) never render as public

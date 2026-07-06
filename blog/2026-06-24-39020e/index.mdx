@@ -7,35 +7,6 @@ description: "Agent 自治 web UI 组件：react-ios-multiselect。"
 slug: 2026-06-24-39020e
 ---
 
-export const articleHtml = `<p style="text-align:center;color:#2763e9;font-size:11px;letter-spacing:0.16em;font-weight:700;margin:0 0 28px;">美股 · 期权 · 资讯 · 观点</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">这篇文章都是 Agent 写的</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">记得帮我 GitHub 🌟</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">2026 年，在全世界都还不知道「Agent 自治 UI 组件」为何物的时候，我使用国产第一 Agent —— zcode，以及国产第一大模型 GLM 5.2，推出了世界上第一款国产纯血 Agent 自治 web UI 组件：react-ios-multiselect。 它秉承 AI 时代「黑灯工厂」的编码理念：无人编码、无人 Review、无人测试，遥遥领先于同行。 欢迎大家用你的 Agent 来使用这个组件，也欢迎你用你的 Agent 来提 PR，挑战我的 Agent！</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">它叫 <strong>react-ios-multiselect</strong>，一个移动端 React 选择器组件。</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">📱 手机扫码直接预览文档站</p>
-<figure style="margin:0 0 20px;text-align:center;"><img src="/img/2026-06-24-39020e/temp_353hx7ync.jpg" style="max-width:100%;border-radius:8px;" /></figure>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">一个「黑灯工厂」是怎么运转的</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">「黑灯工厂」是制造业的概念：关着灯、没人盯，产线自己跑。</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">我把这个理念搬到了写代码上。这个组件从第一行代码到 npm v0.1.0 上线，全程跑在一个 AI Agent（GLM-5.2）上：</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;"><strong>无人编码</strong>：每一行 TypeScript、每一行 CSS、每一个测试，都是 Agent 写的。我没敲过一行代码。</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;"><strong>无人 review</strong>：每次 PR 合并前，CI 自动跑 36 个测试 + 类型检查 + 构建，还强制要求「提 PR 的 Agent」声明自己的身份——叫什么名字、用什么模型、自主程度多高。不声明，CI 直接拒绝。然后由 Agent review。</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;"><strong>无人测试</strong>：组件行为测试是 Agent 写的，CI 是 Agent 配的，发布流水线也是 Agent 搭的。打一个 git tag，npm 包自动发出去，零手动。然后由 Agent 根据改动点调用工具测试。</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">它是什么组件</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">它是我在造Theta 的时候 Agent 的副产物，找了很久类似的要么付费要么功能不如预期。干脆自己做一个顺路拿出来给大家做 Agent 实验田。</p>
-<figure style="margin:0 0 20px;text-align:center;"><img src="/img/2026-06-24-39020e/temp_ulrkqu4rf.jpg" style="max-width:100%;border-radius:8px;" /></figure>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">一个<strong>原生 iOS 手感</strong>的 React 选择器——单选和多选在同一个组件里。手机上会从底部滑出一个 sheet，搜索的时候<strong>键盘不会收起</strong>（这是 iOS 上出了名难搞的细节，本组件正确处理了）。2,000 个选项也能流畅滚动，因为做了虚拟化。</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">零运行时依赖，只有 react。样式用 CSS 变量，你想改颜色改一个变量就行。</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">组件已经上线：文档站、GitHub 仓库、npm 包全部跑通，可直接安装使用。</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">来玩</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">两件事，欢迎你来：</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;"><strong>1\\. 用你的 Agent 接入这个组件</strong></p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">文档站首页有一句话 prompt，复制给你的 Agent（Cursor、Claude Code、Codex……都行），它就能把这个组件接到你的项目里。不需要你懂任何细节。</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;"><strong>2\\. 用你的 Agent 来提 PR，挑战我的 Agent</strong></p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">如果组件有任何让你不爽的地方，让你的 Agent 提 pr。看看不同模型、不同 Agent 框架，写出来的代码谁更靠谱。我会把每次 PR 的「Agent 身份 + 模型」记录下来——时间久了，这就是一份「哪些 Agent 能给这个代码库产出可靠贡献」的真实数据</p>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">感谢字节大佬和他的男朋友提供免费 GLM key，不然我花钱都买不到。</p>
-<figure style="margin:0 0 20px;text-align:center;"><img src="/img/2026-06-24-39020e/temp_8hkasphwn.jpg" style="max-width:100%;border-radius:8px;" /></figure>
-<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">关注我的公众号一起来玩 AI</p>
-<figure style="margin:0 0 20px;text-align:center;"><img src="/img/2026-06-24-39020e/temp_itd45eaaa.jpg" style="max-width:100%;border-radius:8px;" /></figure>
-<p style="margin:36px 0 0;padding-top:20px;border-top:1px solid #f0f2f5;color:#9a9aa8;font-size:12px;line-height:1.8;text-align:center;">免责声明：本文仅为个人市场观察和交易复盘，不构成任何投资建议；市场有风险，交易需谨慎。</p>`;
+import articleHtml from './article.html?raw';
 
 <div className="stt-article" dangerouslySetInnerHTML={{__html: articleHtml}} />
