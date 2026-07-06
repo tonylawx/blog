@@ -131,7 +131,7 @@ const config: Config = {
           title: 'Social',
           items: [
             {label: 'GitHub', href: 'https://github.com/tonylawx'},
-            {label: 'Twitter', href: 'https://twitter.com/tonylawx'},
+            {label: 'X', href: 'https://x.com/tonylawdotcc'},
           ],
         },
       ],

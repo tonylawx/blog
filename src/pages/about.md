@@ -32,6 +32,7 @@ B.Sc. — Computer Science
 ## Contact
 
 - GitHub: [@tonylawx](https://github.com/tonylawx)
+- X: [@tonylawdotcc](https://x.com/tonylawdotcc)
 - Email: hello@tonylaw.cc
 
 Recruiters welcome — the best way to reach me is by email.

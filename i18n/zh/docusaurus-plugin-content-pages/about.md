@@ -32,6 +32,7 @@ slug: about
 ## 联系方式
 
 - GitHub：[@tonylawx](https://github.com/tonylawx)
+- X：[@tonylawdotcc](https://x.com/tonylawdotcc)
 - 邮箱：hello@tonylaw.cc
 
 欢迎招聘方联系 —— 最好的方式是发邮件。
