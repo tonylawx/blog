@@ -40,8 +40,9 @@ export default function BlogSidebarWrapper(props: {[key: string]: unknown}): JSX
       <div
         style={{
           display: 'flex',
-          flexDirection: 'column',
-          gap: '0.15rem',
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          gap: '0.3rem',
           marginBottom: '0.75rem',
           padding: '0 0.5rem',
         }}
@@ -50,17 +51,19 @@ export default function BlogSidebarWrapper(props: {[key: string]: unknown}): JSX
           <button
             key={c}
             onClick={() => setCat(c)}
-            className={`button button--sm ${cat === c ? 'button--primary' : 'button--clear'}`}
             style={{
-              justifyContent: 'space-between',
-              fontSize: '0.82rem',
-              padding: '0.3rem 0.7rem',
-              borderRadius: '6px',
-              fontWeight: cat === c ? 700 : 400,
+              fontSize: '0.78rem',
+              padding: '0.25rem 0.65rem',
+              borderRadius: '999px',
+              border: `1px solid ${cat === c ? 'var(--ifm-color-primary)' : 'var(--ifm-color-emphasis-300)'}`,
+              background: cat === c ? 'var(--ifm-color-primary)' : 'transparent',
+              color: cat === c ? '#fff' : 'var(--ifm-font-color-base)',
+              cursor: 'pointer',
+              fontWeight: cat === c ? 600 : 400,
+              whiteSpace: 'nowrap',
             }}
           >
-            <span>{c}</span>
-            <span style={{opacity: 0.5, fontSize: '0.75rem'}}>{counts[c]}</span>
+            {c} <span style={{opacity: 0.5}}>{counts[c]}</span>
           </button>
         ))}
         <hr style={{margin: '0.5rem 0', border: 'none', borderTop: '1px solid var(--ifm-color-emphasis-200)'}} />
