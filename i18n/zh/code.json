@@ -390,5 +390,11 @@
   },
   "Things I've built — open-source tools, side projects, and experiments.": {
     "message": "我做过的东西——开源工具、业余项目和实验。"
+  },
+  "Tags": {
+    "message": "标签"
+  },
+  "Archive": {
+    "message": "归档"
   }
 }

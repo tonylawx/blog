@@ -36,6 +36,8 @@ const config: Config = {
         docs: false,
         blog: {
           showReadingTime: true,
+          postsPerPage: 20,
+          blogSidebarCount: 'ALL',
           feedOptions: {
             type: ['rss', 'atom'],
             title: 'Tony Law',
@@ -110,6 +112,8 @@ const config: Config = {
       title: 'Tony Law',
       items: [
         {to: '/blog', label: 'Blog', position: 'left'},
+        {to: '/blog/tags', label: 'Tags', position: 'left'},
+        {to: '/blog/archive', label: 'Archive', position: 'left'},
         {to: '/projects', label: 'Projects', position: 'left'},
         {to: '/about', label: 'About', position: 'left'},
         // Search item is injected by docusaurus-search-local in Task 9.
