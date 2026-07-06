@@ -1,0 +1,46 @@
+name: publish-wechat
+on:
+  push:
+    branches: [main]
+    paths: ['wechat-runs/**']
+  workflow_dispatch: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.13'}
+      - name: configure ssh to droplet
+        env:
+          DROPLET_SSH_KEY: ${{ secrets.DROPLET_SSH_KEY }}
+          DROPLET_HOST: ${{ secrets.DROPLET_HOST }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$DROPLET_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H -t ed25519 "$DROPLET_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+      - name: find latest wechat run + title
+        id: art
+        run: |
+          slug=$(ls -1t wechat-runs/ 2>/dev/null | grep -vE '^\.' | head -1)
+          [ -z "$slug" ] && { echo "no wechat-runs/ found"; exit 1; }
+          html="wechat-runs/$slug/article.wechat.html"
+          echo "slug=$slug" >> $GITHUB_OUTPUT
+          echo "html=$html" >> $GITHUB_OUTPUT
+          title=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['title'])" "wechat-runs/$slug/meta.json" 2>/dev/null || echo "$slug")
+          echo "title=$title" >> $GITHUB_OUTPUT
+          [ -f "wechat-runs/$slug/abstract_cover.png" ] && echo "thumb=wechat-runs/$slug/abstract_cover.png" >> $GITHUB_OUTPUT
+          echo "publishing: $title"
+      - name: publish WeChat draft via droplet
+        working-directory: scripts
+        env:
+          WECHAT_APPID: ${{ secrets.WECHAT_APPID }}
+          WECHAT_APPSECRET: ${{ secrets.WECHAT_APPSECRET }}
+          WECHAT_DRAFT_PROXY_HOST: root@${{ secrets.DROPLET_HOST }}
+        run: |
+          args=(--html-file "../${{ steps.art.outputs.html }}" --title "${{ steps.art.outputs.title }}")
+          [ -n "${{ steps.art.outputs.thumb }}" ] && args+=(--thumb-image "../${{ steps.art.outputs.thumb }}")
+          python3 wechat_draft_via_droplet.py "${args[@]}"
