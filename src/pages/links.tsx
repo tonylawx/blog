@@ -12,9 +12,9 @@ type LinkItem = {
 
 const LINKS: LinkItem[] = [
   {label: 'THETA', desc: 'theta.tonylaw.cc · 美股期权工具', href: 'https://theta.tonylaw.cc', icon: '/img/theta-icon.png', color: '#2763e9'},
+  {label: 'X (Twitter)', desc: '@tonylawdotcc', href: 'https://x.com/tonylawdotcc', icon: '𝕏', color: '#000'},
   {label: 'Threads', desc: '@tonylaw.cc', href: 'https://www.threads.com/@tonylaw.cc', icon: '🧵', color: '#000'},
   {label: 'Telegram 群', desc: 'usstocknoptionchat · 美股期权交流', href: 'https://t.me/usstocknoptionchat', icon: '✈️', color: '#0088cc'},
-  {label: 'X (Twitter)', desc: '@tonylawdotcc', href: 'https://x.com/tonylawdotcc', icon: '𝕏', color: '#000'},
   {label: 'GitHub', desc: '@tonylawx', href: 'https://github.com/tonylawx', icon: '🐙', color: '#333'},
   {label: 'Blog', desc: 'www.tonylaw.cc · 博客首页', href: '/', icon: '📝', color: '#2763e9'},
 ];
