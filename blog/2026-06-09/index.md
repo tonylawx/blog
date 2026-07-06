@@ -1,5 +1,6 @@
 ---
 title: "反弹？ 20260608"
+slug: fan-tan-20260608
 date: 2026-06-09
 authors: [tonylaw]
 ---

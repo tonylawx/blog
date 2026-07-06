@@ -1,5 +1,6 @@
 ---
 title: "怎样创造每月 2000 元被动收入？"
+slug: zen-yang-chuang-zao-mei-yue-2000-yuan-bei-dong-shou-ru
 date: 2026-04-22
 authors: [tonylaw]
 ---

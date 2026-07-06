@@ -1,5 +1,6 @@
 ---
 title: "别把欠条当资产"
+slug: bie-ba-qian-tiao-dang-zi-chan
 date: 2026-05-13
 authors: [tonylaw]
 ---

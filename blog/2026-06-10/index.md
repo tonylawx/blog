@@ -1,5 +1,6 @@
 ---
 title: "科技股“假摔”还是真溃败？ 20260609"
+slug: ke-ji-gu-jia-shuai-hai-shi-zhen-kui-bai-20260609
 date: 2026-06-10
 authors: [tonylaw]
 ---

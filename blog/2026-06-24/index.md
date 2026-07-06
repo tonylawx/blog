@@ -1,5 +1,6 @@
 ---
 title: "纳指暴跌 3% 为何说杀伤不够？三股抛压洪流压境，美光期权押注史无前例"
+slug: na-zhi-bao-die-3-wei-he-shuo-sha-shang-bu-gou-san-gu-pao-ya-
 date: 2026-06-24
 authors: [tonylaw]
 ---

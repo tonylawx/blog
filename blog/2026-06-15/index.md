@@ -1,5 +1,6 @@
 ---
 title: "浅谈我理解的期权"
+slug: qian-tan-wo-li-jie-de-qi-quan
 date: 2026-06-15
 authors: [tonylaw]
 ---

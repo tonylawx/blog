@@ -1,5 +1,6 @@
 ---
 title: "大陆人现在怎么买标普和纳指？"
+slug: da-lu-ren-xian-zai-zen-me-mai-biao-pu-he-na-zhi
 date: 2026-05-31
 authors: [tonylaw]
 ---

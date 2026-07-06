@@ -1,5 +1,6 @@
 ---
 title: "奥德赛终伴随一生"
+slug: ao-de-sai-zhong-ban-sui-yi-sheng
 date: 2026-04-27
 authors: [tonylaw]
 ---

@@ -1,5 +1,6 @@
 ---
 title: "费城半导体释放矛盾信号，多看一天再定方向 20260610"
+slug: fei-cheng-ban-dao-ti-shi-fang-mao-dun-xin-hao-duo-kan-yi-tia
 date: 2026-06-11
 authors: [tonylaw]
 ---

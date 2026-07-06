@@ -1,5 +1,6 @@
 ---
 title: "我的投资回忆录"
+slug: wo-de-tou-zi-hui-yi-lu
 date: 2026-05-19
 authors: [tonylaw]
 ---

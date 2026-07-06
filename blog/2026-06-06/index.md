@@ -1,5 +1,6 @@
 ---
 title: "半导体一夜入冬"
+slug: ban-dao-ti-yi-ye-ru-dong
 date: 2026-06-06
 authors: [tonylaw]
 ---

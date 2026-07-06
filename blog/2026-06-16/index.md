@@ -1,5 +1,6 @@
 ---
 title: "地缘缓和下的撕裂行情，但空头挤压才是半导体的真燃料 20260615"
+slug: di-yuan-huan-he-xia-de-si-lie-hang-qing-dan-kong-tou-ji-ya-c
 date: 2026-06-16
 authors: [tonylaw]
 ---

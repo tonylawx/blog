@@ -1,5 +1,6 @@
 ---
 title: "联储“釜底抽薪”引发全线溃败：高息时代拉长，科技股与衍生品迎大考 20260617"
+slug: lian-chu-fu-di-chou-xin-yin-fa-quan-xian-kui-bai-gao-xi-shi-
 date: 2026-06-18
 authors: [tonylaw]
 ---

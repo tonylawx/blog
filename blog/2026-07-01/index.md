@@ -1,5 +1,6 @@
 ---
 title: "消费股不再避险：美股六月收官的假强势 20260630"
+slug: xiao-fei-gu-bu-zai-bi-xian-mei-gu-liu-yue-shou-guan-de-jia-q
 date: 2026-07-01
 authors: [tonylaw]
 ---

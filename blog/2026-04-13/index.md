@@ -1,5 +1,6 @@
 ---
 title: "经历几次尾部风险回撤之后的思考"
+slug: jing-li-ji-ci-wei-bu-feng-xian-hui-che-zhi-hou-de-si-kao
 date: 2026-04-13
 authors: [tonylaw]
 ---

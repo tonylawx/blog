@@ -1,5 +1,6 @@
 ---
 title: "婚姻毕业以后，谈谈当下男性视角的婚姻观."
+slug: hun-yin-bi-ye-yi-hou-tan-tan-dang-xia-nan-xing-shi-jiao-de-h
 date: 2026-03-30
 authors: [tonylaw]
 ---

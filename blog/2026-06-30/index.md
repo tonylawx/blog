@@ -1,5 +1,6 @@
 ---
 title: "反弹很热闹，方向还没出来 20260629"
+slug: fan-tan-hen-re-nao-fang-xiang-hai-mei-chu-lai-20260629
 date: 2026-06-30
 authors: [tonylaw]
 ---

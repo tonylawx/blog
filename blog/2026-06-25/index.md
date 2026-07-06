@@ -1,5 +1,6 @@
 ---
 title: "美光点火，但科技股还没脱险 20260624"
+slug: mei-guang-dian-huo-dan-ke-ji-gu-hai-mei-tuo-xian-20260624
 date: 2026-06-25
 authors: [tonylaw]
 ---

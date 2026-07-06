@@ -1,5 +1,6 @@
 ---
 title: "牛市开始验货 20260603"
+slug: niu-shi-kai-shi-yan-huo-20260603
 date: 2026-06-04
 authors: [tonylaw]
 ---
