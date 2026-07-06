@@ -11,16 +11,25 @@ import type {Props} from '@theme/BlogSidebar/Desktop';
 import styles from './styles.module.css';
 
 /* ---- Category filter ---- */
-const CATS = ['ALL', 'AI 美股分析师', '随笔', 'AI 实战经验'] as const;
+const CATS = ['ALL', 'AI 美股分析师', '投资经验', 'AI 实战经验', '随笔'] as const;
 type Cat = (typeof CATS)[number];
+
+const STORAGE_KEY = 'blog-sidebar-category';
 
 function catFor(title: string): Cat {
   const t = title;
   const tl = title.toLowerCase();
   if (tl.includes('agent') || ['黑灯工厂', 'OPC', 'skill'].some((k) => t.includes(k)))
     return 'AI 实战经验';
+  if (
+    [
+      '投资', '资产', '被动收入', '欠条', 'FIRE', '现金流', '租金', '房租',
+      '存钱', '回忆录', '标普', '纳指', '期权', '收租', '怎样创造', '被动',
+    ].some((k) => t.includes(k))
+  )
+    return '投资经验';
   const fin = [
-    '美股', '分析师', '标普', '纳指', 'SPY', 'QQQ', '半导体', '科技股', '财报', 'IPO',
+    '美股', '分析师', 'SPY', 'QQQ', '半导体', '科技股', '财报', 'IPO',
     'SpaceX', '罗素', '美光', 'NVDA', 'ORCL', '博通', '反弹', '牛市', '熊市', '行情',
     '逼空', '杠杆', '估值', 'CPI', '联储', '美联储', '利率', '通胀', '地缘', '油价',
     '验货', '尾部风险', '消费股', '抽干', '肉搏', 'AI', '踩刹车', '大空头', '调仓', '防线',
@@ -44,7 +53,15 @@ const ListComponent: BlogSidebarContentProps['ListComponent'] = ({items}) => {
 
 /* ---- Desktop sidebar with category pills above the title ---- */
 function BlogSidebarDesktop({sidebar}: Props): React.ReactNode {
-  const [cat, setCat] = useState<Cat>('ALL');
+  // Persist selected category across page navigations (component remounts on route change)
+  const [cat, setCatState] = useState<Cat>(() => {
+    if (typeof window === 'undefined') return 'ALL';
+    return (sessionStorage.getItem(STORAGE_KEY) as Cat | null) ?? 'ALL';
+  });
+  const setCat = (c: Cat) => {
+    setCatState(c);
+    try { sessionStorage.setItem(STORAGE_KEY, c); } catch { /* ignore */ }
+  };
 
   // Filter sidebar items by selected category BEFORE visibility filtering
   const allItems = sidebar.items;
