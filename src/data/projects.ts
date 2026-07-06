@@ -10,12 +10,12 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    name: 'Option Screener',
+    name: 'THETA',
     description:
       'Options research and screening tool with broker integration, real-time greeks, and a mobile-friendly UI.',
     tags: ['React', 'TypeScript', 'Node', 'Finance'],
-    repo: 'https://github.com/tonylawx/option',
-    url: 'https://tonylaw.cc',
+    repo: 'https://github.com/tonylawx/website',
+    url: 'https://theta.tonylaw.cc',
     featured: true,
   },
   {
