@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useMemo} from 'react';
 import BlogSidebar from '@theme-original/BlogSidebar';
 
 // Category tabs at the top of the blog sidebar — filters the sidebar item list
@@ -27,6 +27,11 @@ export default function BlogSidebarWrapper(props: {[key: string]: unknown}): JSX
   const [cat, setCat] = useState<Cat>('ALL');
   const sidebar = props.sidebar as {items: SidebarItem[]} | undefined;
   const allItems = sidebar?.items ?? [];
+  const counts = useMemo(() => {
+    const c: Record<Cat, number> = {ALL: allItems.length, 'AI 美股分析师': 0, '随笔': 0, 'AI 实战经验': 0};
+    for (const i of allItems) c[catFor(i.title)]++;
+    return c;
+  }, [allItems]);
   const filtered =
     cat === 'ALL' ? allItems : allItems.filter((i) => catFor(i.title) === cat);
 
@@ -47,14 +52,15 @@ export default function BlogSidebarWrapper(props: {[key: string]: unknown}): JSX
             onClick={() => setCat(c)}
             className={`button button--sm ${cat === c ? 'button--primary' : 'button--clear'}`}
             style={{
-              justifyContent: 'flex-start',
+              justifyContent: 'space-between',
               fontSize: '0.82rem',
               padding: '0.3rem 0.7rem',
               borderRadius: '6px',
               fontWeight: cat === c ? 700 : 400,
             }}
           >
-            {c}
+            <span>{c}</span>
+            <span style={{opacity: 0.5, fontSize: '0.75rem'}}>{counts[c]}</span>
           </button>
         ))}
         <hr style={{margin: '0.5rem 0', border: 'none', borderTop: '1px solid var(--ifm-color-emphasis-200)'}} />
