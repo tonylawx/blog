@@ -69,8 +69,9 @@ function BlogSidebarDesktop({sidebar}: Props): React.ReactNode {
     const c: Record<Cat, number> = {
       ALL: allItems.length,
       'AI 美股分析师': 0,
-      '随笔': 0,
+      '投资经验': 0,
       'AI 实战经验': 0,
+      '随笔': 0,
     };
     for (const i of allItems) c[catFor(i.title)]++;
     return c;
