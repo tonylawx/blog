@@ -11,7 +11,7 @@ type LinkItem = {
 };
 
 const LINKS: LinkItem[] = [
-  {label: 'THETA', desc: 'theta.tonylaw.cc · 美股期权工具', href: 'https://theta.tonylaw.cc', icon: 'θ', color: '#2763e9'},
+  {label: 'THETA', desc: 'theta.tonylaw.cc · 美股期权工具', href: 'https://theta.tonylaw.cc', icon: '/img/theta-icon.png', color: '#2763e9'},
   {label: 'Threads', desc: '@tonylaw.cc', href: 'https://www.threads.com/@tonylaw.cc', icon: '🧵', color: '#000'},
   {label: 'Telegram 群', desc: 'usstocknoptionchat · 美股期权交流', href: 'https://t.me/usstocknoptionchat', icon: '✈️', color: '#0088cc'},
   {label: 'X (Twitter)', desc: '@tonylawdotcc', href: 'https://x.com/tonylawdotcc', icon: '𝕏', color: '#000'},
@@ -63,7 +63,11 @@ export default function LinksPage(): JSX.Element {
                     flexShrink: 0,
                   }}
                 >
-                  {l.icon}
+                  {l.icon.startsWith('/') ? (
+                    <img src={l.icon} alt={l.label} style={{width: 28, height: 28, borderRadius: 6, objectFit: 'cover'}} />
+                  ) : (
+                    l.icon
+                  )}
                 </span>
                 <span style={{flexGrow: 1}}>
                   <span style={{display: 'block', fontWeight: 700, fontSize: '1.02rem'}}>{l.label}</span>

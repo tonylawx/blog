@@ -16,6 +16,7 @@ export const projects: Project[] = [
     tags: ['React', 'TypeScript', 'Node', 'Finance'],
     repo: 'https://github.com/tonylawx/website',
     url: 'https://theta.tonylaw.cc',
+    icon: '/img/theta-icon.png',
     featured: true,
   },
   {
