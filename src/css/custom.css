@@ -69,3 +69,7 @@ html {
   transform: translateY(-2px);
   border-color: var(--ifm-color-primary);
 }
+
+.stt-article [id^='article-section-'] {
+  scroll-margin-top: calc(var(--ifm-navbar-height, 60px) + 3rem);
+}

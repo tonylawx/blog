@@ -1,34 +1,34 @@
 <p style="text-align:center;color:#2763e9;font-size:11px;letter-spacing:0.16em;font-weight:700;margin:0 0 28px;">US Stocks · Options · News · Views</p>
 <section style="margin:0 0 32px;">
-<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">0 · Grab the repo</span><span style="flex:1;height:1px;background:#d7e2ff;"></span></div>
+<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">0 · Grab the repo</span><span style="flex:1;height:1px;background:#2763e9;"></span></div>
 <p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">This skill lives on GitHub: <strong>https://github.com/tonylawx/html-to-wechat-article</strong></p>
 <p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">It does not teach the agent to reinvent taste. It tells the agent what HTML WeChat&#x27;s official account platform tolerates, what breaks, and what absolutely must be swapped for a WeChat image-host URL before you push the draft.</p>
 </section>
 <section style="margin:0 0 32px;">
-<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">1 · Install</span><span style="flex:1;height:1px;background:#d7e2ff;"></span></div>
+<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">1 · Install</span><span style="flex:1;height:1px;background:#2763e9;"></span></div>
 <p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Drop it into your skills directory:</p>
 <p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">``<code> mkdir -p ~/.codex/skills git clone https://github.com/tonylawx/html-to-wechat-article ~/.codex/skills/html-to-wechat-article </code>``</p>
 <p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Once installed, the next time the agent sees WeChat official-account HTML, it knows to look for this skill first instead of improvising a styling layer from scratch.</p>
 </section>
 <section style="margin:0 0 32px;">
-<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">2 · The prompt</span><span style="flex:1;height:1px;background:#d7e2ff;"></span></div>
+<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">2 · The prompt</span><span style="flex:1;height:1px;background:#2763e9;"></span></div>
 <p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Invoke it like this:</p>
 <p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Use the <strong>html-to-wechat-article</strong> skill to refactor this HTML into a version that WeChat&#x27;s <strong>draft/add</strong> endpoint can publish. Preserve the current visual style, strip out the editor scaffolding that breaks on WeChat, prepare local images for upload-and-replace, and do not add source links or rewrite the article body.</p>
 <p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">The point of that prompt isn&#x27;t politeness, it&#x27;s boundaries. You spell out the template, the image workflow, the publish path, and the &quot;do not touch&quot; zones, so the agent doesn&#x27;t quietly restyle your layout while fixing the markup.</p>
 </section>
 <section style="margin:0 0 32px;">
-<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">3 · Pitfalls</span><span style="flex:1;height:1px;background:#d7e2ff;"></span></div>
+<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">3 · Pitfalls</span><span style="flex:1;height:1px;background:#2763e9;"></span></div>
 <p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">This skill manages the WeChat gotchas, not vibes.</p>
 <p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">• <strong>Images:</strong> Body-image uploads return a URL; cover images require a <code>thumb_media_id</code>. Two different paths, don&#x27;t mix them.</p>
 <p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">• <strong>Structure:</strong> Layout tables, leaf nodes, <code>data-*</code> attributes and hidden blocks are often invisible in the browser but blow up inside WeChat&#x27;s renderer.</p>
 <p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">• <strong>Typography:</strong> Don&#x27;t justify Chinese body copy. Once WeChat&#x27;s mobile renderer stretches the letter-spacing, a clean article turns into an accident scene instantly.</p>
 </section>
 <section style="margin:0 0 32px;">
-<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">4 · Before / after</span><span style="flex:1;height:1px;background:#d7e2ff;"></span></div>
+<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">4 · Before / after</span><span style="flex:1;height:1px;background:#2763e9;"></span></div>
 <p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">The screenshots tell the whole story. The left side is the kind of editor export that breaks easily; the right side is a structure that survives the draft queue. No fireworks, just fewer landmines.</p>
 </section>
 <section style="margin:0 0 32px;">
-<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">5 · The rule</span><span style="flex:1;height:1px;background:#d7e2ff;"></span></div>
+<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">5 · The rule</span><span style="flex:1;height:1px;background:#2763e9;"></span></div>
 <p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Clean output comes from clear boundaries.</p>
 <p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Don&#x27;t expect the agent to intuitively understand WeChat. Give it a template and it follows the template; give it an asset path and it knows which image to upload; tell it not to rewrite and it won&#x27;t mangle the copy. That is what this skill is for: turning &quot;roughly OK&quot; HTML into &quot;safe to push to the draft queue&quot; HTML.</p>
 <p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;"><em>Press and hold the QR code to follow the public account for daily U.S. equity insights and commentary.</em></p>

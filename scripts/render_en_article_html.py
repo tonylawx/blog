@@ -33,9 +33,13 @@ SEC_OPEN = '<section style="margin:0 0 32px;">'
 SEC_CLOSE = "</section>"
 HDR_OPEN = '<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;">'
 HDR_CLOSE = "</div>"
-DIVIDER = '<span style="flex:1;height:1px;background:#d7e2ff;"></span>'
+DIVIDER = '<span style="flex:1;height:1px;background:#2763e9;"></span>'
 P_STYLE = (
     "margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;"
+)
+TITLE_STYLE = (
+    "margin:0 0 16px 0;padding:0;color:#2a2a34;font-size:22px;"
+    "line-height:1.45;font-weight:850;text-align:left;letter-spacing:0;"
 )
 DISCLAIMER_STYLE = (
     "margin:36px 0 0;padding-top:20px;border-top:1px solid #f0f2f5;"
@@ -53,6 +57,37 @@ def hdr_span(label: str) -> str:
         '<span style="color:#2763e9;font-size:12px;font-weight:800;'
         f'letter-spacing:0.14em;white-space:nowrap;">{html.escape(label)}</span>'
     )
+
+
+LABEL_RULES = [
+    ("CAPEX", ("capex", "capital expenditure", "capital spending", "cash flow")),
+    ("COMPUTE", ("compute", "data center", "cloud", "h100")),
+    ("SEMIS", ("semi", "semiconductor", "chip", "gpu", "cpu", "memory", "hbm", "soxx", "smh", "nvda", "amd", "mu")),
+    ("SOFTWARE", ("software", "pltr", "app ", "now", "orcl", "crm")),
+    ("MACRO", ("macro", "jobs", "inflation", "fed", "rate", "cpi", "pce")),
+    ("EARNINGS", ("earnings", "revenue", "guidance")),
+    ("MOMENTUM", ("momentum", "breakout", "rebound", "squeeze")),
+    ("RISK", ("risk", "pullback", "breakdown", "pressure", "downside")),
+    ("SETUP", ("setup", "trade", "range", "support", "position", "strategy")),
+    ("CONSUMER", ("consumer", "retail", "cost", "wmt", "mcd", "nke")),
+    ("ENERGY", ("energy", "oil", "wti", "opec")),
+    ("LIQUIDITY", ("liquidity", "flow", "leverage", "volume")),
+    ("MARKET", ("market", "index", "breadth", "rotation")),
+]
+
+
+def section_label_for(num: str | None, title: str) -> str:
+    normalized = re.sub(r"\s+", " ", title).strip().lower()
+    label = "FOCUS"
+    for candidate, keywords in LABEL_RULES:
+        if any(keyword in normalized for keyword in keywords):
+            label = candidate
+            break
+    return f"{num or '0'} · {label}"
+
+
+def title_p(text: str) -> str:
+    return f'<p style="{TITLE_STYLE}">{inline(text)}</p>'
 
 
 def para(text: str) -> str:
@@ -124,10 +159,10 @@ def parse_blocks(body: str) -> list[tuple]:
         if not s:
             flush()
             continue
-        m = re.match(r"^#{1,6}\s+(?:(\d+)\.\s*)?(.+)$", s)
+        m = re.match(r"^(#{1,6})\s+(?:(\d+)(?:[.\s]+))?(.+)$", s)
         if m:
             flush()
-            blocks.append(("heading", m.group(1), m.group(2).strip()))
+            blocks.append(("heading", len(m.group(1)), m.group(2), m.group(3).strip()))
             continue
         if re.match(r"^(-{3,}|\*{3,}|_{3,})$", s):
             flush()
@@ -163,8 +198,9 @@ def render(blocks: list[tuple]) -> str:
         in_section = True
         out.append(SEC_OPEN)
         if title is not None:
-            label = f"{num} · {title}" if num else title
+            label = section_label_for(num, title)
             out.append(HDR_OPEN + hdr_span(label) + DIVIDER + HDR_CLOSE)
+            out.append(title_p(title))
 
     def close_section() -> None:
         nonlocal in_section
@@ -175,8 +211,10 @@ def render(blocks: list[tuple]) -> str:
     for b in blocks:
         kind = b[0]
         if kind == "heading":
+            if b[1] == 1:
+                continue
             close_section()
-            open_section(b[1], b[2])
+            open_section(b[2], b[3])
         elif kind == "para":
             if not in_section:
                 open_section(None, None)
