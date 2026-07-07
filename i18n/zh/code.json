@@ -45,6 +45,26 @@
   "Latest Posts": {
     "message": "最新文章"
   },
+  "theme.blog.sidebar.category.all": {
+    "message": "全部",
+    "description": "Blog sidebar category filter label"
+  },
+  "theme.blog.sidebar.category.markets": {
+    "message": "AI 美股分析师",
+    "description": "Blog sidebar category filter label"
+  },
+  "theme.blog.sidebar.category.investing": {
+    "message": "投资经验",
+    "description": "Blog sidebar category filter label"
+  },
+  "theme.blog.sidebar.category.aiPractice": {
+    "message": "AI 实战经验",
+    "description": "Blog sidebar category filter label"
+  },
+  "theme.blog.sidebar.category.essays": {
+    "message": "随笔",
+    "description": "Blog sidebar category filter label"
+  },
   "View all →": {
     "message": "查看全部 →"
   },
@@ -205,6 +225,10 @@
   "theme.blog.sidebar.navAriaLabel": {
     "message": "最近博文导航",
     "description": "The ARIA label for recent posts in the blog sidebar"
+  },
+  "theme.blog.sidebar.title": {
+    "message": "最新文章",
+    "description": "The title above the blog sidebar recent posts list"
   },
   "theme.DocSidebarItem.expandCategoryAriaLabel": {
     "message": "展开侧边栏分类 '{label}'",

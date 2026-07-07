@@ -16,6 +16,34 @@
 
 const RECENT_POST_COUNT = 5;
 
+function categoryKey(category) {
+  const value = String(category || '').toLowerCase();
+  if (
+    value.includes('market') ||
+    value.includes('美股') ||
+    value.includes('分析师')
+  ) {
+    return 'markets';
+  }
+  if (
+    value.includes('invest') ||
+    value.includes('投资')
+  ) {
+    return 'investing';
+  }
+  if (
+    value.includes('practice') ||
+    value.includes('实战') ||
+    value.includes('agent')
+  ) {
+    return 'aiPractice';
+  }
+  if (value.includes('essay') || value.includes('随笔')) {
+    return 'essays';
+  }
+  return undefined;
+}
+
 async function allContentLoaded({allContent, actions}) {
   const blogContent =
     (allContent['docusaurus-plugin-content-blog'] &&
@@ -33,8 +61,18 @@ async function allContentLoaded({allContent, actions}) {
     .map((p) => p.metadata)
     .filter(Boolean)
     .slice(0, RECENT_POST_COUNT);
+  const categoryByPermalink = Object.fromEntries(
+    source
+      .map((p) => p.metadata)
+      .filter(Boolean)
+      .map((metadata) => [
+        metadata.permalink,
+        categoryKey(metadata.frontMatter && metadata.frontMatter.category),
+      ])
+      .filter(([, category]) => Boolean(category)),
+  );
 
-  actions.setGlobalData({posts});
+  actions.setGlobalData({posts, categoryByPermalink});
 }
 
 module.exports = function latestPostsPlugin() {
