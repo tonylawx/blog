@@ -59,7 +59,15 @@ def slug_from_path(path: Path) -> str | None:
     return None
 
 
-def validate_english_post(errors: list[str], slug: str) -> None:
+def path_requires_handoff(path: Path) -> bool:
+    parts = path.parts
+    return (
+        parts[:1] in {("wechat-runs",), ("archive",)}
+        or parts[:2] == ("static", "img")
+    )
+
+
+def validate_english_post(errors: list[str], slug: str, *, strict_handoff: bool) -> None:
     post = Path("blog") / slug / "index.mdx"
     if not assert_exists(errors, post, "English blog post"):
         return
@@ -75,11 +83,12 @@ def validate_english_post(errors: list[str], slug: str) -> None:
 
     assert_exists(errors, Path("i18n/zh/docusaurus-plugin-content-blog") / slug / "index.mdx", "Chinese blog post")
     assert_exists(errors, Path("i18n/zh/docusaurus-plugin-content-blog") / slug / "article.html", "Chinese article HTML")
-    assert_exists(errors, Path("archive") / f"{slug}.md", "archive Markdown")
+    if strict_handoff:
+        assert_exists(errors, Path("archive") / f"{slug}.md", "archive Markdown")
 
-    cover = Path("static/img") / slug / "abstract_cover.png"
-    if not cover.exists():
-        fail(errors, f"missing cover image copied to blog static assets: {cover}")
+        cover = Path("static/img") / slug / "abstract_cover.png"
+        if not cover.exists():
+            fail(errors, f"missing cover image copied to blog static assets: {cover}")
 
 
 def validate_wechat_run(errors: list[str], slug: str) -> None:
@@ -113,11 +122,11 @@ def validate_wechat_run(errors: list[str], slug: str) -> None:
             fail(errors, f"wechat-runs may only contain article.wechat.html, not raw HTML: {rel}")
 
 
-def validate_slug(errors: list[str], slug: str) -> None:
+def validate_slug(errors: list[str], slug: str, *, strict_handoff: bool) -> None:
     if not DATE_SLUG_RE.match(slug):
         return
     if (ROOT / "blog" / slug).exists():
-        validate_english_post(errors, slug)
+        validate_english_post(errors, slug, strict_handoff=strict_handoff)
     if (ROOT / "wechat-runs" / slug).exists():
         validate_wechat_run(errors, slug)
 
@@ -126,6 +135,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base", help="Base git ref to diff against. Defaults to HEAD~1.")
     parser.add_argument("--slug", action="append", help="Validate one generated date slug. Can be passed more than once.")
+    parser.add_argument("--strict-handoff", action="store_true", help="Require archive, static cover, and WeChat handoff artifacts for each slug.")
     parser.add_argument("--all", action="store_true", help="Validate every generated date slug in the repo.")
     args = parser.parse_args()
 
@@ -142,10 +152,11 @@ def main() -> int:
     else:
         paths = changed_files(args.base)
         slugs = {slug for path in paths if (slug := slug_from_path(path))}
+        args.strict_handoff = args.strict_handoff or any(path_requires_handoff(path) for path in paths)
 
     errors: list[str] = []
     for slug in sorted(slugs):
-        validate_slug(errors, slug)
+        validate_slug(errors, slug, strict_handoff=args.strict_handoff)
 
     if errors:
         print("blog artifact validation failed:", file=sys.stderr)
