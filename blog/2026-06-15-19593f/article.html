@@ -1,0 +1,144 @@
+<p style="text-align:center;color:#2763e9;font-size:11px;letter-spacing:0.16em;font-weight:700;margin:0 0 28px;">US Stocks · Options · News · Views</p>
+<section style="margin:0 0 32px;">
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">After reading my posts and the tools I&#x27;ve built, a lot of friends don&#x27;t quite understand some of the jargon — things like &quot;the Long Gamma life,&quot; &quot;collecting rent,&quot; or &quot;options.&quot; Let me try to explain, the way I understand them.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Many people hear the word &quot;options&quot; and immediately think: gambling, blowing up an account, losing everything.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">I don&#x27;t think that&#x27;s entirely their fault.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Because when most people first touch options, it isn&#x27;t through &quot;risk management&quot; — it&#x27;s through a screenshot of someone else getting rich.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">That&#x27;s dangerous.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Options are not lottery tickets.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">They are contracts.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">If you place a bet without even reading what the contract says, that&#x27;s not investing — that&#x27;s handing your money to the market for redistribution.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">I&#x27;ve paid tuition too.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Back then I was selling naked calls on UVXY. I figured the structural decay plus Theta was collecting rent for me every day — making money was as easy as robbing a bank. In two or three months I was up 50%. Then I got too busy with work and forgot when Powell was speaking. The market started pricing in rate-cut expectations; VIX doubled in two days.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Two days. Three hundred thousand RMB. Blown up.</p>
+</section>
+<section style="margin:0 0 32px;">
+<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">0 — What Is an Option, Really</span><span style="flex:1;height:1px;background:#d7e2ff;"></span></div>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">An option, at its core, is a &quot;contract of choice.&quot;</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">It grants you a right: on or before some future date, to buy or sell a stock at a pre-agreed price.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Note: a right, not an obligation.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">You can exercise. You can also not exercise.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">One U.S. equity option contract usually represents 100 shares of stock.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">So when you see a premium of 1.5 on the option chain, the contract doesn&#x27;t cost $1.50 — that&#x27;s $1.50 per share.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">One contract actually costs:</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">1.5 × 100 = $150.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">This is where many newbies get it wrong on step one.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">They think they&#x27;re buying just a little, only to discover after the fill that they control 100 shares.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Options come in only two flavors:</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">| Type | Meaning | What the buyer gets | When it fits | |------|---------|--------------------|--------------| | Call | Bullish / Long | The right to buy shares at the strike price | You&#x27;re bullish, want upside exposure | | Put  | Bearish / Short | The right to sell shares at the strike price | You&#x27;re bearish, or want to insure a holding |</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">A Call can be understood as a real-estate deposit.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">You spot a house, you think it&#x27;ll go up, but you don&#x27;t want to buy the whole thing today. You put down a deposit, locking in the right to buy at today&#x27;s price later. If it rises, you have a chance to profit; if it falls, the most you lose is the deposit.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">A Put is more like insurance.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">You own a stock, you worry it might crash — you buy a Put. If it really does fall, the Put offsets part of the loss.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">So the original logic of options is simple:</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">It is not a casino chip.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">It is a deposit.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">It is insurance.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">It is a tool for redistributing risk.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">It&#x27;s just that, in the hands of most people, it turns into something used to prove how lucky they are.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">This is where the trouble starts.</p>
+</section>
+<section style="margin:0 0 32px;">
+<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">1 — Buyer and Seller Are Two Completely Different Businesses</span><span style="flex:1;height:1px;background:#d7e2ff;"></span></div>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">There are only two roles in the options market:</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Buyer. And seller.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">The buyer pays a premium and receives a right. The seller collects a premium and takes on an obligation.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">It&#x27;s a short sentence, but very important.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">| Role | What happens at the start | Max profit | Max loss | Essence | |------|---------------------------|-----------|---------|---------| | Buyer | Pays premium | Theoretically very large | Capped at the premium | Paying money for an opportunity | | Seller | Collects premium | Capped at the premium | Can be very large | Taking money to bear an obligation |</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">The buyer is like someone buying insurance.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">You spend money to buy a possibility; if you&#x27;re wrong, the most you lose is the premium.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">The seller is like the insurance company.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">You collect the premium up front — but once a claim hits, you pay.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">A lot of people love selling options because you collect money the moment you open the trade.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Cash hits the account immediately.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">It flatters human nature.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">People like certain pleasure and dislike future uncertainty.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">But here&#x27;s the thing: that premium you collected isn&#x27;t a gift from the market.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">It&#x27;s the price of the risk you took on.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">If you don&#x27;t know exactly which disaster you&#x27;re underwriting, you&#x27;ll be paying that money back sooner or later.</p>
+</section>
+<section style="margin:0 0 32px;">
+<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">2 — Reading the Option Chain: Start With Four Numbers</span><span style="flex:1;height:1px;background:#d7e2ff;"></span></div>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">When a beginner opens an option chain, the wall of numbers is intimidating.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">For the entry phase, four numbers are enough.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">| Metric | What it means | How to think about it | |--------|--------------|----------------------| | DTE | Days to expiry | How long until expiration — drives time-decay speed | | Strike | Strike price | The future price you&#x27;d buy or sell at | | Delta | Directional sensitivity / approximate exercise probability | Delta 0.2 ≈ roughly 20% chance of being exercised | | IV | Implied volatility | The market&#x27;s expectation of future movement — higher IV, pricier premium |</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">There&#x27;s another important Greek called Theta.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Theta represents how much time value decays per day.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">For the buyer, Theta is the enemy. You can be right on direction but run out of time — and still lose money.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">For the seller, Theta is a friend. As long as the market doesn&#x27;t move violently, time collects rent for you every day.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">But note: Theta is a friend, not a patron saint.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">It will not protect you when the black swan arrives.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Before I blew up, I also thought Theta was invincible.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Later I learned that the small change Theta pays you each day might just be the disaster premium the market paid you in advance.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">You collected the premium — you&#x27;d better be ready to underwrite the disaster.</p>
+</section>
+<section style="margin:0 0 32px;">
+<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">3 — Ordinary People Should Learn Seller Logic First</span><span style="flex:1;height:1px;background:#d7e2ff;"></span></div>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">I don&#x27;t recommend newbies start by buying short-term options.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Short-term options require you to nail both direction and time simultaneously.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Right direction, wrong time — you still lose.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">What&#x27;s far more suitable for regular people to learn slowly is two seller strategies:</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Covered Calls. And Cash-Secured Puts.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Covered Call first.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">You already own 100 shares, then you sell one Call.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">If the stock doesn&#x27;t exceed the strike by expiry, you keep the premium.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">If the stock does exceed the strike, you may end up selling your shares at the agreed price.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Its essence:</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Trade a piece of future upside for a deterministic cash flow today.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">I have many friends whose companies granted them lots of vested, freely tradable shares — very low cost basis, almost &quot;free.&quot;</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">But they just hold them.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Watching them drop every day.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">If they understood Covered Calls, those shares wouldn&#x27;t just be numbers lying in the account — they could spin off a little cash flow every month.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Now Cash-Secured Puts.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">You were going to buy a good stock anyway, you just think the price is expensive right now.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">So you sell a Put at the level where you&#x27;d actually want to buy.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">If the stock doesn&#x27;t fall to your strike, you keep the premium.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">If it does, you buy the stock at the price you were already willing to pay.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Its essence:</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Get paid to wait to buy.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Neither of these strategies is a sure win.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">But they share one thing in common:</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">You know what you&#x27;d do in the worst case.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">The worst case for a Covered Call is the stock gets called away.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">The worst case for a Cash-Secured Put is you take delivery with the cash you&#x27;d set aside.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">This is completely different from a naked call.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">A naked call has no protection, and the risk can be enormous.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">My three hundred thousand RMB is the tuition fee carved under this line.</p>
+</section>
+<section style="margin:0 0 32px;">
+<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">4 — My Discipline: Not Maximum Return — Survival First</span><span style="flex:1;height:1px;background:#d7e2ff;"></span></div>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">If I had to give one simple parameter, I&#x27;d say:</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Sellers — don&#x27;t be greedy.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">I prefer opportunities with Delta between 0.15 and 0.25.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">That roughly corresponds to a 75%–85% probability of expiring worthless.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Too far — say Delta 0.05 — is very safe, but the premium is too thin to justify tying up capital.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Too close — Delta 0.3+ — looks juicy, but one leg down can wipe out several prior wins.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">I also prefer expiry between one week and one month.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Too far out ties up capital long and Theta pays slowly.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Too close — especially 0DTE — Theta decays fast, but Gamma risk is brutal. A small move in the stock and your P&amp;L can flip.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">So I look for balance in the middle.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">| Strategy | What you&#x27;re earning | What I watch | Pre-condition | |---------|---------------------|--------------|---------------| | Covered Call | Time value / premium | Already own shares; pick a strike you&#x27;d be OK selling at | Accept that the stock may be called away | | Cash-Secured Put | Time value / premium | Delta 0.15–0.25, 21 days to one month | Have cash; willing to take delivery at the strike | | LEAPS Call | Direction + leverage | Six months+, higher Delta | Strong conviction on long-term direction | | Short-term options | Quick directional bet | Extremely timing-dependent | Newbies — best not to |</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">One-line summary: sellers eat on time, buyers eat on direction. But on either side, position sizing is always more important than strategy.</p>
+</section>
+<section style="margin:0 0 32px;">
+<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">5 — Why I Built Theta</span><span style="flex:1;height:1px;background:#d7e2ff;"></span></div>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">My original intent was simple: when I run strategies myself, I want to quickly find the options I want — and see the risk and return clearly.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">When you&#x27;re making money, you get cocky.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">When you&#x27;re losing money, you want to double down — to prove you were right.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Willpower alone can&#x27;t solve this over the long run.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">So I don&#x27;t want Theta to tell you &quot;what to buy next.&quot;</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">I want it to help you see, before you place the order, a few things:</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">| Question | Why it matters | |---------|---------------| | What&#x27;s the Delta on this option? | Know roughly the probability of exercise you&#x27;re taking on | | How many days to expiry? | Know whether you&#x27;re earning Theta or gambling on Gamma | | Any earnings or macro events? | Avoid naked risk into events | | Annualized return | Does the premium justify the risk I&#x27;m taking? | | Underlying overview | A multi-factor first-pass score on the underlying |</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">The system can&#x27;t take risk for you.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">But it can remind you where the risk is.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">It lets you see, before you place the order, what you&#x27;re actually selling, what you&#x27;re taking on, what you&#x27;re betting on.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">That&#x27;s why I built Theta.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Not to turn regular people into gamblers.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">But to give regular people a chance to manage their assets and cash flow with thinking closer to professional investors and institutions.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">So — concepts first.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Then discipline.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Only then, trading.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Making money always ranks after staying alive.</p>
+<p style="margin:0 0 16px;color:#454550;font-size:16px;line-height:1.9;">Hands-on practice can start with a paper-trading account.</p>
+</section>
+<p style="margin:36px 0 0;padding-top:20px;border-top:1px solid #f0f2f5;color:#9a9aa8;font-size:12px;line-height:1.8;text-align:center;">Disclaimer: This article is a personal study note and experience review. The stories, strategies, and tools mentioned do not constitute investment advice. Markets carry risk; trade with caution. Options involve leverage and can result in total loss of principal.</p>
