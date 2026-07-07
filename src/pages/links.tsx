@@ -16,13 +16,14 @@ const LINKS: LinkItem[] = [
   {label: 'Threads', desc: '@tonylaw.cc', href: 'https://www.threads.com/@tonylaw.cc', icon: '🧵', color: '#000'},
   {label: 'Telegram 群', desc: 'usstocknoptionchat · 美股期权交流', href: 'https://t.me/usstocknoptionchat', icon: '✈️', color: '#0088cc'},
   {label: 'GitHub', desc: '@tonylawx', href: 'https://github.com/tonylawx', icon: '🐙', color: '#333'},
+  {label: 'Email', desc: 'hello@tonylaw.cc', href: 'mailto:hello@tonylaw.cc', icon: '@', color: '#6E7681'},
   {label: 'Blog', desc: 'www.tonylaw.cc · 博客首页', href: '/', icon: '📝', color: '#2763e9'},
 ];
 
 export default function LinksPage(): JSX.Element {
   const {siteConfig} = useDocusaurusContext();
   return (
-    <Layout title="Links" description="All my links in one place — Threads, Telegram, X, GitHub, blog.">
+    <Layout title="Links" description="All my links in one place — Threads, Telegram, X, GitHub, email, blog.">
       <main
         style={{
           minHeight: '72vh',

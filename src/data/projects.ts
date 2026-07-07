@@ -28,6 +28,14 @@ export const projects: Project[] = [
     featured: true,
   },
   {
+    name: 'react-ios-multiselect',
+    description:
+      'An open-source React component for iOS-style multi-select interactions.',
+    tags: ['React', 'TypeScript', 'Open Source'],
+    repo: 'https://github.com/tonylawx/react-ios-multiselect',
+    featured: true,
+  },
+  {
     name: 'html-to-wechat-article',
     description: 'Convert HTML into WeChat-public-account-friendly markup.',
     tags: ['Tooling', 'HTML'],
