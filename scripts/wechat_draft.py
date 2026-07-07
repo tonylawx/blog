@@ -21,6 +21,34 @@ TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/stable_token"
 DRAFT_ADD_URL = "https://api.weixin.qq.com/cgi-bin/draft/add"
 MEDIA_UPLOAD_URL = "https://api.weixin.qq.com/cgi-bin/material/add_material"
 CONTENT_IMAGE_UPLOAD_URL = "https://api.weixin.qq.com/cgi-bin/media/uploadimg"
+ARTICLE_BLUE = "#2763e9"
+ARTICLE_EN_TO_ZH_LABELS = {
+    "SUMMARY": "摘要",
+    "FOCUS": "焦点",
+    "SEMIS": "半导体",
+    "RISK": "风险",
+    "SETUP": "策略",
+    "MOMENTUM": "动量",
+    "SOFTWARE": "软件",
+    "MARKET": "市场",
+    "STRUCTURE": "结构",
+    "CAPEX": "资本开支",
+    "COMPUTE": "算力",
+    "HARDWARE": "硬件",
+    "LIQUIDITY": "流动性",
+    "INDEX": "指数",
+    "STOCKS": "个股",
+    "TECH": "科技",
+    "MACRO": "宏观",
+    "FED": "美联储",
+    "EARNINGS": "财报",
+    "OPTIONS": "期权",
+    "TRADE": "交易",
+    "WATCH": "观察",
+    "MARKET READ": "市场判断",
+    "RISK WATCH": "风险提示",
+}
+ARTICLE_ZH_TO_EN_LABELS = {value: key for key, value in ARTICLE_EN_TO_ZH_LABELS.items()}
 
 
 def parse_args() -> argparse.Namespace:
@@ -327,11 +355,65 @@ def flatten_editor_markup(html: str) -> str:
     return html
 
 
+def infer_article_locale(html: str) -> str:
+    head = re.sub(r"<[^>]+>", " ", html[:2000]).upper()
+    if "US EQUITIES" in head or "US STOCKS" in head:
+        return "en"
+    if "美股" in head or "期权" in head:
+        return "zh"
+    cjk_count = len(re.findall(r"[\u3400-\u9fff]", head))
+    latin_count = len(re.findall(r"[A-Z]", head))
+    return "zh" if cjk_count > latin_count * 0.2 else "en"
+
+
+def normalize_article_label_text(text: str, locale: str) -> str:
+    match = re.match(r"^(\s*\d+)(\s*(?:[·.]\s*|\s+))(.+?)(\s*)$", text)
+    if not match:
+        return text
+    number, delimiter, label, trailing = match.groups()
+    if locale == "zh":
+        mapped = ARTICLE_ZH_TO_EN_LABELS.get(label.strip())
+    else:
+        mapped = ARTICLE_EN_TO_ZH_LABELS.get(re.sub(r"\s+", " ", label.strip()).upper())
+    if not mapped:
+        return text
+    return f"{number}{delimiter}{mapped}{trailing}"
+
+
+def normalize_article_presentation(html: str) -> str:
+    locale = infer_article_locale(html)
+
+    def replace_label(match: re.Match[str]) -> str:
+        open_tag, text, close_tag = match.groups()
+        return f"{open_tag}{normalize_article_label_text(text, locale)}{close_tag}"
+
+    html = re.sub(
+        r"(<span\b[^>]*>)(\s*\d+\s*(?:[·.]|\s)\s*[^<]{1,80}?)(</span>)",
+        replace_label,
+        html,
+        flags=re.IGNORECASE,
+    )
+    html = re.sub(
+        r"(background(?:-color)?\s*:\s*)#d7e2ff",
+        rf"\g<1>{ARTICLE_BLUE}",
+        html,
+        flags=re.IGNORECASE,
+    )
+    html = re.sub(
+        r"(border-bottom\s*:\s*1px\s+solid\s*)#d7e2ff",
+        rf"\g<1>{ARTICLE_BLUE}",
+        html,
+        flags=re.IGNORECASE,
+    )
+    return html
+
+
 def clean_html_for_draft_add(html: str) -> str:
     html = html.replace("\r\n", "\n").replace("\r", "\n").strip()
     html = strip_attrs(html)
     html = flatten_editor_markup(html)
     html = normalize_style_attributes(html)
+    html = normalize_article_presentation(html)
     html = re.sub(r">\s+<", "><", html)
     html = re.sub(r"\n{3,}", "\n\n", html)
     return html + "\n"

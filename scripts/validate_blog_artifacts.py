@@ -105,6 +105,8 @@ def validate_wechat_run(errors: list[str], slug: str) -> None:
             fail(errors, f"WeChat draft HTML should be draft/add body HTML, not a full document: {article}")
         if not re.search(r"<(section|p|div|img|span)\b", html, flags=re.I):
             fail(errors, f"WeChat draft HTML does not look like rendered HTML: {article}")
+        if "#d7e2ff" in html.lower():
+            fail(errors, f"WeChat draft HTML section label rules must use #2763e9, not #d7e2ff: {article}")
     assert_exists(errors, cover, "WeChat abstract cover")
     if assert_exists(errors, meta, "WeChat metadata"):
         try:
