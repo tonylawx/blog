@@ -137,6 +137,9 @@ const config: Config = {
           items: [
             {label: 'GitHub', href: 'https://github.com/tonylawx'},
             {label: 'X', href: 'https://x.com/tonylawdotcc'},
+            {label: 'Threads', href: 'https://www.threads.com/@tonylaw.cc'},
+            {label: 'Telegram', href: 'https://t.me/usstocknoptionchat'},
+            {label: 'Email', href: 'mailto:hello@tonylaw.cc'},
           ],
         },
       ],
