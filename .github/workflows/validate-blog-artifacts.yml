@@ -1,0 +1,29 @@
+name: validate-blog-artifacts
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    name: validate-blog-artifacts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Validate generated blog artifacts
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            python3 scripts/validate_blog_artifacts.py --base "origin/${{ github.base_ref }}"
+          elif [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            python3 scripts/validate_blog_artifacts.py --base "${{ github.event.before }}"
+          else
+            python3 scripts/validate_blog_artifacts.py --all
+          fi
