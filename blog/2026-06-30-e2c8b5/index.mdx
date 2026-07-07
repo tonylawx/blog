@@ -6,49 +6,6 @@ description: "A reusable skill that tells your agent exactly what to keep, what 
 slug: 2026-06-30-e2c8b5
 ---
 
-## 0. Grab the repo
+import articleHtml from './article.html?raw';
 
-This skill lives on GitHub: **https://github.com/tonylawx/html-to-wechat-article**
-
-It does not teach the agent to reinvent taste. It tells the agent what HTML WeChat's official account platform tolerates, what breaks, and what absolutely must be swapped for a WeChat image-host URL before you push the draft.
-
-## 1. Install
-
-Drop it into your skills directory:
-
-```
-mkdir -p ~/.codex/skills
-git clone https://github.com/tonylawx/html-to-wechat-article ~/.codex/skills/html-to-wechat-article
-```
-
-Once installed, the next time the agent sees WeChat official-account HTML, it knows to look for this skill first instead of improvising a styling layer from scratch.
-
-## 2. The prompt
-
-Invoke it like this:
-
-> Use the **html-to-wechat-article** skill to refactor this HTML into a version that WeChat's **draft/add** endpoint can publish. Preserve the current visual style, strip out the editor scaffolding that breaks on WeChat, prepare local images for upload-and-replace, and do not add source links or rewrite the article body.
-
-The point of that prompt isn't politeness, it's boundaries. You spell out the template, the image workflow, the publish path, and the "do not touch" zones, so the agent doesn't quietly restyle your layout while fixing the markup.
-
-## 3. Pitfalls
-
-This skill manages the WeChat gotchas, not vibes.
-
-- **Images:** Body-image uploads return a URL; cover images require a `thumb_media_id`. Two different paths, don't mix them.
-- **Structure:** Layout tables, leaf nodes, `data-*` attributes and hidden blocks are often invisible in the browser but blow up inside WeChat's renderer.
-- **Typography:** Don't justify Chinese body copy. Once WeChat's mobile renderer stretches the letter-spacing, a clean article turns into an accident scene instantly.
-
-## 4. Before / after
-
-The screenshots tell the whole story. The left side is the kind of editor export that breaks easily; the right side is a structure that survives the draft queue. No fireworks, just fewer landmines.
-
-## 5. The rule
-
-Clean output comes from clear boundaries.
-
-Don't expect the agent to intuitively understand WeChat. Give it a template and it follows the template; give it an asset path and it knows which image to upload; tell it not to rewrite and it won't mangle the copy. That is what this skill is for: turning "roughly OK" HTML into "safe to push to the draft queue" HTML.
-
-*Press and hold the QR code to follow the public account for daily U.S. equity insights and commentary.*
-
-*Keywords: Agent Skill · WeChat article formatting · WeChat HTML · GitHub · draft/add*
+<div className="stt-article" dangerouslySetInnerHTML={{__html: articleHtml}} />
