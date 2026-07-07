@@ -1,7 +1,7 @@
 ---
 title: "Tech Stocks: A Head-Fake or a Real Rout?"
 date: 2026-06-10
-authors: [tonylaw]
+authors: [tonylawx]
 description: "The Nasdaq 100 dropped 4% intraday before recovering most of it. A Cruso data-center pause and Friday's SpaceX listing put semiconductors on the edge — Wednesday and Thursday must reclaim today's high."
 slug: 2026-06-10-f664ec
 ---

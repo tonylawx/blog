@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-04-20"
 date: 2026-04-21
-authors: [tonylaw]
+authors: [tonylawx]
 description: "A market in wait-and-see mode. Weekend headlines flip again as Iran re-blocks Hormuz and the US seizes Iranian cargo. Volume dries up. Breadth is weak. Software ETF IGV at a potential inflection, semis overbought."
 slug: 2026-04-21-46a4d3
 ---

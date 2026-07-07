@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-04-22"
 date: 2026-04-23
-authors: [tonylaw]
+authors: [tonylawx]
 description: "Short-term chase is hot — S&P and Nasdaq both up over 1% — but oil above 100, equities ripping, and bonds each doing their own thing is not a unified macro tape. MSFT clears 430, IGV one step from breakout, NOW and TSLA on watch."
 slug: 2026-04-23-2fc5a7
 ---

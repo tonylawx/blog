@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-05-15"
 date: 2026-05-17
-authors: [tonylaw]
+authors: [tonylawx]
 description: "All four majors dropped more than 1% as a late-session flush looked more like options settlement and long unwinding than a confirmed new downtrend. The core tension now is between rising Treasury yields and AI earnings expectations."
 ---
 

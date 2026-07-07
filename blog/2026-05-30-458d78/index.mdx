@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — May 29, 2026"
 date: 2026-05-30
-authors: [tonylaw]
+authors: [tonylawx]
 description: "Software stocks led a sharp rotation as IGV surged over 6% and reclaimed the 200-day moving average, but overbought readings warn the easy money is already behind us."
 slug: 2026-05-30-458d78
 ---

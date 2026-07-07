@@ -384,12 +384,12 @@ git commit -m "feat(theme): brand colors, Inter font, dark palette, card utility
 - Create: `i18n/zh/code.json`
 
 **Interfaces:**
-- Produces: an `authors.yml` defining the `tonylaw` author (used in frontmatter), a sample English post under `blog/`, its Chinese translation under `i18n/zh/docusaurus-plugin-content-blog/`, and the Chinese UI strings in `i18n/zh/code.json`. The homepage (Task 7) reads blog metadata via `useGlobalData`.
+- Produces: an `authors.yml` defining the `tonylawx` author (used in frontmatter), a sample English post under `blog/`, its Chinese translation under `i18n/zh/docusaurus-plugin-content-blog/`, and the Chinese UI strings in `i18n/zh/code.json`. The homepage (Task 7) reads blog metadata via `useGlobalData`.
 
 - [ ] **Step 1: Write `blog/authors.yml`**
 
 ```yaml
-tonylaw:
+tonylawx:
   name: Tony Law
   title: Software engineer & options trader
   url: https://tonylaw.cc
@@ -418,7 +418,7 @@ Write `blog/2026-07-05-welcome/index.md`:
 slug: welcome
 title: Welcome to my blog
 description: Why I started writing, and what to expect.
-authors: [tonylaw]
+authors: [tonylawx]
 tags: [meta]
 date: 2026-07-05
 ---
@@ -446,7 +446,7 @@ Create `i18n/zh/docusaurus-plugin-content-blog/2026-07-05-welcome/index.md`:
 slug: welcome
 title: 欢迎来到我的博客
 description: 我为什么开始写博客，以及你会看到什么内容。
-authors: [tonylaw]
+authors: [tonylawx]
 tags: [meta]
 date: 2026-07-05
 ---

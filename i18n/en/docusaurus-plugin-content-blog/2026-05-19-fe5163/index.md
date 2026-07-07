@@ -1,7 +1,7 @@
 ---
 title: "My Investment Memoir"
 date: 2026-05-19
-authors: [tonylaw]
+authors: [tonylawx]
 description: "From the first all-in bet to linking personal wealth to the world's most advanced productive capacity — an honest account of the mistakes, blow-ups, and lessons that slowly grew into an investment system."
 ---
 

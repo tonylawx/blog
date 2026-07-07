@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-04-28"
 date: 2026-04-29
-authors: [tonylaw]
+authors: [tonylawx]
 description: "The four major indices closed lower, with the Nasdaq and Russell underperforming, while semiconductors were the main source of pressure. A Wall Street Journal report that OpenAI's user and revenue targets were missing expectations triggered a market rethink of the sustainability of AI data-center spending, sending the Philadelphia Semiconductor Index down over 3% as profit-taking from the rapid rally began to release."
 ---
 

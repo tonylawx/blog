@@ -1,7 +1,7 @@
 ---
 title: "Mega-Caps Take the Hit as the AI Bill Comes Due"
 date: 2026-06-26
-authors: [tonylaw]
+authors: [tonylawx]
 description: "Nasdaq gave back a 2% intraday gain as the four mega-caps got punished. Micron confirmed AI demand, but the market is now asking when capex turns into real free cash flow."
 slug: 2026-06-26-3e17d9
 ---

@@ -1,7 +1,7 @@
 ---
 title: "The AI Bull Market Starts Marking to Market"
 date: 2026-06-04
-authors: [tonylaw]
+authors: [tonylawx]
 description: "AVGO's in-line guide and a hot ISM services print shift the AI trade from storytelling to earnings verification — the easy phase of paying for imagination is over."
 slug: 2026-06-04-c1d2e0
 ---

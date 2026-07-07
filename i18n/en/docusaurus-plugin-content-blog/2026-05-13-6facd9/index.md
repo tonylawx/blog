@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-05-12"
 date: 2026-05-13
-authors: [tonylaw]
+authors: [tonylawx]
 description: "Today's tape showed a clear style rotation: semiconductors and high-momentum AI-related names pulled back hard. The Philadelphia Semiconductor Index was down more than 6% intraday and closed down about 3%, with 29 of 30 constituents lower and only NVDA up. Health care and consumer staples outperformed, indicating flows are starting to rotate from crowded tech-growth trades toward defensives."
 ---
 

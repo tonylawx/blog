@@ -1,7 +1,7 @@
 ---
 title: "Philadelphia Semiconductor Index Sends Contradictory Signals — Watch One More Day Before Choosing Direction"
 date: 2026-06-11
-authors: [tonylaw]
+authors: [tonylawx]
 description: "SOXX broke the 553 trendline but on declining volume, an unusual divergence that argues for patience. CPI was mixed and Oracle's free-cash-flow collapse frames a binary bet on OpenAI."
 slug: 2026-06-11-298dbf
 ---

@@ -1,7 +1,7 @@
 ---
 title: "A Bounce?"
 date: 2026-06-09
-authors: [tonylaw]
+authors: [tonylawx]
 description: "A partial rebound recovers two-thirds of Friday's damage but the closing hour leaked pressure — treat this as a bounce test, not the all-clear, with CPI and SpaceX still ahead."
 slug: 2026-06-09-449c70
 ---

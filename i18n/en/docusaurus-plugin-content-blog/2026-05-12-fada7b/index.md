@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-05-11"
 date: 2026-05-12
-authors: [tonylaw]
+authors: [tonylawx]
 description: "The four major indices posted modest gains, with the Philadelphia Semiconductor Index continuing to strengthen. The market's main thread remains concentrated in AI and large-cap tech. Short-term sentiment is biased strong, but concentration is clearly elevated: the tech sector's market cap exceeds $23 trillion, roughly 37% of the S&P; adding broad tech leaders like AMZN, GOOG, and META makes the weight pressure even more pronounced."
 ---
 

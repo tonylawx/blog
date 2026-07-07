@@ -1,7 +1,7 @@
 ---
 title: "The Odyssey That Accompanies a Lifetime"
 date: 2026-04-27
-authors: [tonylaw]
+authors: [tonylawx]
 description: "An essay on leaving the old self behind, weathering fate, and setting sail again. Why every arrival is only the next departure from shore."
 ---
 

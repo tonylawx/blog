@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-05-19"
 date: 2026-05-20
-authors: [tonylaw]
+authors: [tonylawx]
 description: "Indices remain soft and intraday bounces faded into the close. The real risk isn't any single down day — it's oil, inflation expectations, and the long end of the Treasury curve all turning hostile at once."
 ---
 

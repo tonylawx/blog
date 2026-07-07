@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-04-17"
 date: 2026-04-18
-authors: [tonylaw]
+authors: [tonylawx]
 description: "Iran reopens the Strait of Hormuz and the four major indices all jump more than 1%, with the Russell up about 2%. But the market is buying de-escalation expectations, not a final deal. TSMC, Tesla, Microsoft, Meta, and a 'buy the rumor, sell the news' tape."
 slug: 2026-04-18-bd11e1
 ---

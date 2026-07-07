@@ -1,7 +1,7 @@
 ---
 title: "I Participated in the Largest IPO in Human History"
 date: 2026-06-13
-authors: [tonylaw]
+authors: [tonylawx]
 description: "Geopolitical thaw and a confidence jump clear the inflation overhang; Nasdaq-100 reshuffle favors AI and space; SpaceX's first day; smart money trims risk as CTA triggers cluster."
 slug: 2026-06-13-ec4fd5
 ---

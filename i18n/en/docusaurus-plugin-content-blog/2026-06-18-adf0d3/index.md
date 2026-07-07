@@ -1,7 +1,7 @@
 ---
 title: "The Fed Pulls the Rug: Hawkish Reset Triggers a Broad Rout — Tech and Derivatives Face the Real Test"
 date: 2026-06-18
-authors: [tonylaw]
+authors: [tonylawx]
 description: "The Fed scraps forward guidance, dots turn hawkish, and an extended high-rate regime raises stagflation risk; broad-based selloff into triple-witching; megacap divergence; ISRG/NFLX discipline; SpaceX's first down day and the collar trade."
 slug: 2026-06-18-adf0d3
 ---

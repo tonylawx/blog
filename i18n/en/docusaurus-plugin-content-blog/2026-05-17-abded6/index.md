@@ -1,7 +1,7 @@
 ---
 title: "Jobless, Playing with AI and US Stocks All Day — What Good Could Come of It?"
 date: 2026-05-17
-authors: [tonylaw]
+authors: [tonylawx]
 description: "A short, candid reflection on letting go of what drains you, and on no longer needing to prove your worth to anyone."
 ---
 

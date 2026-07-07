@@ -1,7 +1,7 @@
 ---
 title: "An Introduction to How I Think About Options"
 date: 2026-06-15
-authors: [tonylaw]
+authors: [tonylawx]
 description: "A practical, from-the-trenches explainer on options — Calls, Puts, the buyer-vs-seller business, the four numbers to read first, and why discipline beats strategy."
 slug: 2026-06-15-19593f
 ---

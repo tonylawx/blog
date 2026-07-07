@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-04-16"
 date: 2026-04-17
-authors: [tonylaw]
+authors: [tonylawx]
 description: "US equities kept rising but upside momentum faded. The core question is no longer whether the market can go higher, but who keeps pushing it. ASML, Netflix, mega-cap tech, and the case for a high-level consolidation."
 slug: 2026-04-17-5f184e
 ---

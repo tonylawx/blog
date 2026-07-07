@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-04-23"
 date: 2026-04-24
-authors: [tonylaw]
+authors: [tonylawx]
 description: "A pop-then-fork tape. Geopolitical headlines whipsaw the index intraday, then get denied. Software gets hit, semis stay crowded. Jobless claims nudge up, PMIs rip. IGV back to 83.5, SOXX/SMH at risk. MSFT adds completed."
 slug: 2026-04-24-ba278d
 ---

@@ -1,7 +1,7 @@
 ---
 title: "SpaceX Drains Retail, Tech Capital Bleeds Into Cyclicals"
 date: 2026-06-17
-authors: [tonylaw]
+authors: [tonylawx]
 description: "Tech gives way to financials and industrials; Microsoft cancels a $3B Oracle deal; SpaceX options arrive and turn the tape into a two-way meat grinder; nobody is buying — yet the index holds."
 slug: 2026-06-17-5731d7
 ---

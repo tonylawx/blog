@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-05-27"
 date: 2026-05-28
-authors: [tonylaw]
+authors: [tonylawx]
 description: "A sideways day with breadth close to 50/50 and rotation clearer than direction. Goldman raised its S&P 500 year-end target to 8,000, but most of the EPS revision is concentrated in AI beneficiaries and a handful of semi/memory names."
 ---
 

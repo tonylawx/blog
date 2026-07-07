@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-04-29"
 date: 2026-04-30
-authors: [tonylaw]
+authors: [tonylawx]
 description: "The core narrative around US equities continues to revolve around AI capital expenditures. Earnings and guidance from GOOG, AMZN, META, and MSFT show that megacap tech still maintains an elevated pace of AI infrastructure investment in 2026. Short-term volatility does not change the medium-term main thesis, but divergence will become more pronounced."
 ---
 

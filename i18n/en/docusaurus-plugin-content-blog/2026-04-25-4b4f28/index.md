@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-04-24"
 date: 2026-04-25
-authors: [tonylaw]
+authors: [tonylawx]
 description: "Surface strength hiding narrow leadership. Nasdaq up nearly 2%, S&P up ~0.8%, but equal-weight S&P down ~0.2%. SOX daily RSI near 97 with an 18-day streak — extreme overbought. NVDA all-time high, AMD in target zone."
 slug: 2026-04-25-4b4f28
 ---

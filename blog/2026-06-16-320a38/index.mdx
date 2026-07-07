@@ -1,7 +1,7 @@
 ---
 title: "A Torn Market Under Geopolitical Thaw — But Short Squeeze Is the Real Fuel Behind Semis"
 date: 2026-06-16
-authors: [tonylaw]
+authors: [tonylawx]
 description: "Geopolitical thaw lifts the indices, but internals are torn; short squeeze, not fundamentals, drives semis; SpaceX's low-float frenzy; NVDA's bond; AXP quietly breaks out."
 slug: 2026-06-16-320a38
 ---

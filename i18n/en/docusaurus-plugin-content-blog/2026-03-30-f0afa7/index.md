@@ -1,7 +1,7 @@
 ---
 title: "After Graduating from Marriage: A Modern Male Perspective on Matrimony"
 date: 2026-03-30
-authors: [tonylaw]
+authors: [tonylawx]
 description: "An honest look at the risks, emotional desert, and hidden pressures men face in modern marriage — and why emotional capital matters more than bridal prices."
 slug: 2026-03-30-f0afa7
 ---

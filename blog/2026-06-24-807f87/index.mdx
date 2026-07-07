@@ -1,7 +1,7 @@
 ---
 title: "Nasdaq Crashes 3% — Why the Damage Isn't Enough: Three Selling Torrents Converge, and Micron's Options Bet Is Unprecedented"
 date: 2026-06-24
-authors: [tonylaw]
+authors: [tonylawx]
 description: "SPX and Nasdaq hold key levels; SOXX still has distance to a breakdown. Three selling torrents — the QQQ gap signal, pension rebalancing, and CTA triggers — converge; Micron's options positioning is historically skewed."
 slug: 2026-06-24-807f87
 ---

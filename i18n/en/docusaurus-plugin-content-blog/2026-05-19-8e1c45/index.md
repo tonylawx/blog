@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-05-18"
 date: 2026-05-19
-authors: [tonylaw]
+authors: [tonylawx]
 description: "Leadership is rotating from a pure semiconductor chase into a cooling-semis / catch-up-everywhere-else tape. The index isn't broken, but the high-beta memory and leveraged ETF crowd is getting a lesson in chasing risk."
 ---
 

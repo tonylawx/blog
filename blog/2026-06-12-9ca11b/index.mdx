@@ -1,7 +1,7 @@
 ---
 title: "Tonight We Brawl: SpaceX Opens for Trading, a Liquidity Stress Test for U.S. Equities"
 date: 2026-06-12
-authors: [tonylaw]
+authors: [tonylawx]
 description: "Geopolitical de-escalation sparks a sharp risk-on rally, SOX stages a bear-trap reversal, and SpaceX's IPO becomes the real liquidity stress test tonight."
 slug: 2026-06-12-9ca11b
 ---

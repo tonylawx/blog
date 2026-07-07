@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-05-26"
 date: 2026-05-27
-authors: [tonylaw]
+authors: [tonylawx]
 description: "First session after the long weekend stayed bid, with the Nasdaq and Russell closing at fresh highs. Memory is the lead theme — Micron ripped ~19%, crossed a $1 trillion market cap, and drove a third of the S&P's gain."
 ---
 

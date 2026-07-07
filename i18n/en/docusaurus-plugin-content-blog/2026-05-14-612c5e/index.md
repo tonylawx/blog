@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-05-13"
 date: 2026-05-14
-authors: [tonylaw]
+authors: [tonylawx]
 description: "The S&P and Nasdaq recouped the prior session's losses and printed fresh all-time highs, but beneath the index strength the tape is not balanced. Big Tech weight and semis continue to lead, with capital still concentrated in a narrow set of themes; at the same time, more S&P constituents are hitting 52-week lows, with market breadth repeatedly turning negative over recent sessions."
 ---
 

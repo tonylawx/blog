@@ -1,7 +1,7 @@
 ---
 title: "A Lively Bounce, but the Direction Hasn't Been Set"
 date: 2026-06-30
-authors: [tonylaw]
+authors: [tonylawx]
 description: "June's final sessions delivered a V-shaped month-end tape, but with the S&P equal-weight correlation collapsing to 79%, direction stays unclear until the new quarter's capital commits."
 slug: 2026-06-30-773470
 ---

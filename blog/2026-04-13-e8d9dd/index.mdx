@@ -1,7 +1,7 @@
 ---
 title: "Reflections After Several Tail-Risk Drawdowns"
 date: 2026-04-13
-authors: [tonylaw]
+authors: [tonylawx]
 description: "When Nash equilibrium meets options selling, we finally understand: the market never trades price — it trades human nature. A philosophical postmortem on selling fear and harvesting time."
 slug: 2026-04-13-e8d9dd
 ---

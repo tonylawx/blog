@@ -1,7 +1,7 @@
 ---
 title: "The AI Industry Is Quietly Turning: Token Usage Falls, Server Rents Crash — the Semiconductor Cycle Is About to Change Face"
 date: 2026-06-19
-authors: [tonylaw]
+authors: [tonylawx]
 description: "High-performance Token demand peaks and rolls; server rental prices crash — the first hard evidence that AI monetization has topped; triple-witching noise, pension rebalancing vs. July inflows, and what comes next for SpaceX."
 slug: 2026-06-19-f286cd
 ---

@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-05-20"
 date: 2026-05-21
-authors: [tonylaw]
+authors: [tonylawx]
 description: "A broad-based rally with semis, software, rate-sensitives, and high-momentum growth all higher alongside a small-cap lead. Quality of the bounce is better, but the Fed minutes were hawkish and the crowded-semi trade is the tape's biggest risk."
 ---
 

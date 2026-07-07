@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-04-21"
 date: 2026-04-22
-authors: [tonylaw]
+authors: [tonylawx]
 description: "Short-term bias is bullish, but only on the premise that the Middle East doesn't escalate further. JPM raises its 2026 S&P target to 7600. IGV's breakout level nudges up to 88.9. Conditional, trigger-based trading over emotional chasing."
 slug: 2026-04-22-0ef6e6
 ---

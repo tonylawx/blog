@@ -1,7 +1,7 @@
 ---
 title: "How Mainland Chinese Investors Can Buy the S&P 500 and Nasdaq Right Now"
 date: 2026-05-31
-authors: [tonylaw]
+authors: [tonylawx]
 description: "A practical, plain-English guide for mainland China-based investors on using QDII funds, onshore ETFs, and Hong Kong bank accounts to access US index exposure — compliantly and for the long run."
 slug: 2026-05-31-a21f7e
 ---

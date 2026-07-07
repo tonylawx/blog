@@ -1,7 +1,7 @@
 ---
 title: "Semiconductors Catch a Chill Overnight"
 date: 2026-06-06
-authors: [tonylaw]
+authors: [tonylawx]
 description: "A hotter-than-expected payrolls print, mega-cap equity raises to fund AI capex, and the SpaceX IPO together triggered a 10% one-day crash in the Philadelphia Semiconductor Index."
 slug: 2026-06-06-fcd96c
 ---

@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-05-28"
 date: 2026-05-29
-authors: [tonylaw]
+authors: [tonylawx]
 description: "A rare 'everyone's happy' session across majors, semis, megacaps, healthcare, and software. Don't confuse a comfortable up-day with a safe signal — LLY's real risk is growth repricing, and ISRG's bottom is not yet in."
 ---
 

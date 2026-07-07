@@ -1,7 +1,7 @@
 ---
 title: "The Whole AI Chain Just Wiped Out the Tape"
 date: 2026-06-03
-authors: [tonylaw]
+authors: [tonylawx]
 description: "US equities are no longer an index bull market — they are an AI stock-picking market. Capital rotates fast between AI branches, and concentration risk is building by the day."
 slug: 2026-06-03-b5b709
 ---

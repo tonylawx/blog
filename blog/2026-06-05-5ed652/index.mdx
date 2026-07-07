@@ -1,7 +1,7 @@
 ---
 title: "In May, AI Cut 40,000 Jobs"
 date: 2026-06-05
-authors: [tonylaw]
+authors: [tonylawx]
 description: "May layoffs hit 97,000 — the highest since May 2020 — with AI cited as the number-one cause for the third straight month. The labor market is being restructured in real time."
 slug: 2026-06-05-5ed652
 ---

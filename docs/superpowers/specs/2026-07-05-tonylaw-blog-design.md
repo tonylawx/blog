@@ -66,7 +66,7 @@ blog/
 ├── blog/                              # 博客正文（默认 locale = 英文）
 │   └── 2026-07-05-welcome/
 │       └── index.md
-├── blog/authors.yml                   # 作者元数据（tonylaw）
+├── blog/authors.yml                   # 作者元数据（tonylawx）
 ├── i18n/zh/                           # 中文翻译树
 │   ├── code.json                      # UI 文案中文
 │   ├── docusaurus-plugin-content-blog/
@@ -113,7 +113,7 @@ description: Why I started writing        # 用于 SEO / og:description / 列表
 slug: welcome
 date: 2026-07-05
 tags: [meta, announcement]
-authors: tonylaw
+authors: tonylawx
 ---
 正文（Markdown / MDX）……
 ```
@@ -137,7 +137,7 @@ export type Project = {
 ### 作者 `blog/authors.yml`
 
 ```yaml
-tonylaw:
+tonylawx:
   name: Tony Law
   title: Software engineer & options trader
   url: https://tonylaw.cc

@@ -1,7 +1,7 @@
 ---
 title: "How to Get Your Agent to Output Clean, Ship-Ready Work"
 date: 2026-06-30
-authors: [tonylaw]
+authors: [tonylawx]
 description: "A reusable skill that tells your agent exactly what to keep, what breaks, and what to swap before publishing — so its output is draft-ready instead of a tangled mess."
 slug: 2026-06-30-e2c8b5
 ---

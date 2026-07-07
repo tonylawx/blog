@@ -1,7 +1,7 @@
 ---
 title: "US Market Daily Analysis — 2026-05-14"
 date: 2026-05-15
-authors: [tonylaw]
+authors: [tonylawx]
 description: "The market continues higher, but breadth remains uneven. NVDA drove roughly half of the S&P 500's gain, MSFT is basing on light volume, IGV holds its breakout structure, and BA rolled over after a disappointing China order print."
 ---
 

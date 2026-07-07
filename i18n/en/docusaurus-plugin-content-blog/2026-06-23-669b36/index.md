@@ -1,7 +1,7 @@
 ---
 title: "Are the Big Four Tech Names Dead, or Just Resting? The Lifeline of the AI Chain Gets Settled Early Next Year"
 date: 2026-06-23
-authors: [tonylaw]
+authors: [tonylawx]
 description: "GOOG/AMZN/MSFT/META are the buyers of the AI supply chain; their capex decides how far the whole chain runs. Positioning and valuation, Jefferies flow data, Citadel Securities' pension-rebalance math, breadth divergence and the 10-year yield — and IBM and SpaceX."
 slug: 2026-06-23-669b36
 ---
