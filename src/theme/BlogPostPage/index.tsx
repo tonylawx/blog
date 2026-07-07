@@ -11,6 +11,7 @@ import BlogPostPaginator from '@theme/BlogPostPaginator';
 import BlogPostPageMetadata from '@theme/BlogPostPage/Metadata';
 import BlogPostPageStructuredData from '@theme/BlogPostPage/StructuredData';
 import TOC from '@theme/TOC';
+import ArticleToc from './ArticleToc';
 import ContentVisibility from '@theme/ContentVisibility';
 import Comments from '@site/src/components/Comments';
 import type {Props} from '@theme/BlogPostPage';
@@ -34,13 +35,21 @@ function BlogPostPageContent({
     <BlogLayout
       sidebar={sidebar}
       toc={
-        !hideTableOfContents && toc.length > 0 ? (
-          <TOC
-            toc={toc}
-            minHeadingLevel={tocMinHeadingLevel}
-            maxHeadingLevel={tocMaxHeadingLevel}
-          />
-        ) : undefined
+        hideTableOfContents
+          ? undefined
+          : toc.length > 0
+            ? (
+              <TOC
+                toc={toc}
+                minHeadingLevel={tocMinHeadingLevel}
+                maxHeadingLevel={tocMaxHeadingLevel}
+              />
+            )
+            : (
+              // article.html posts have no markdown headings → build the TOC
+              // at runtime from the rendered `.stt-article` sections.
+              <ArticleToc />
+            )
       }>
       <ContentVisibility metadata={metadata} />
 
