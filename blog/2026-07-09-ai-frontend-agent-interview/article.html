@@ -85,25 +85,29 @@
 <li>Use <code>Promise.allSettled</code> when partial success is useful, such as querying multiple models or multiple retrieval sources.</li>
 <li>Use <code>AbortController</code> for cancellation. Promise itself is not cancellable.</li>
 </ul>
-<pre class="language-javascript" data-language="js"><code class="language-javascript">async function withTimeout(task, ms) {
+<pre class="language-typescript" data-language="ts"><code class="language-typescript">type ModelName = 'fast-model' | 'reasoning-model';
+type ModelAnswer = { text: string; model: ModelName };
+type AbortableTask&lt;T&gt; = (signal: AbortSignal) =&gt; Promise&lt;T&gt;;
+
+async function withTimeout&lt;T&gt;(task: AbortableTask&lt;T&gt;, ms: number): Promise&lt;T&gt; {
   const controller = new AbortController();
-  const timer = setTimeout(() =&gt; controller.abort(), ms);
+  const timerId = window.setTimeout(() =&gt; controller.abort(), ms);
 
   try {
     return await task(controller.signal);
   } finally {
-    clearTimeout(timer);
+    window.clearTimeout(timerId);
   }
 }
 
-const results = await Promise.allSettled([
-  withTimeout(signal =&gt; callModel('fast-model', prompt, { signal }), 8000),
-  withTimeout(signal =&gt; callModel('reasoning-model', prompt, { signal }), 15000),
+const results = await Promise.allSettled&lt;ModelAnswer&gt;([
+  withTimeout(signal =&gt; callModel('fast-model', prompt, { signal }), 8_000),
+  withTimeout(signal =&gt; callModel('reasoning-model', prompt, { signal }), 15_000),
 ]);
 
-const usable = results
-  .filter(r =&gt; r.status === 'fulfilled')
-  .map(r =&gt; r.value);</code></pre>
+const usableAnswers: ModelAnswer[] = results.flatMap(result =&gt;
+  result.status === 'fulfilled' ? [result.value] : [],
+);</code></pre>
 <blockquote><p><strong>Sample answer:</strong> In an AI product I do not treat all async calls the same. If the next step needs the previous result, I keep the flow sequential. If I am calling independent providers or retrieval sources, I run them concurrently. For user-facing AI features, I usually prefer <code>allSettled</code> because partial results are better than a blank screen. I also attach timeout and cancellation so stale requests do not keep updating the UI after the user has moved on.</p></blockquote>
 <h2 id="article-section-1-question-2">2. Event loop <code>#JavaScript</code> <code>48%</code></h2>
 <p><strong>One-line answer:</strong> The event loop runs one macrotask, drains all microtasks, gives the browser a chance to render, and then moves to the next macrotask.</p>
@@ -121,16 +125,23 @@ const usable = results
 <li>AI apps add new leak risks: long conversations, streaming buffers, large Markdown ASTs, cached embeddings, and WebSocket listeners.</li>
 <li>Use Chrome heap snapshots, allocation timeline, and route-by-route reproduction to find objects that only grow.</li>
 </ul>
-<pre class="language-javascript" data-language="js"><code class="language-javascript">useEffect(() =&gt; {
-  const controller = new AbortController();
-  const onResize = () =&gt; measureLayout();
+<pre class="language-tsx" data-language="tsx"><code class="language-tsx">type ConversationId = string;
 
-  window.addEventListener('resize', onResize);
-  streamAnswer({ signal: controller.signal });
+type StreamAnswerOptions = {
+  conversationId: ConversationId;
+  signal: AbortSignal;
+};
+
+useEffect(() =&gt; {
+  const controller = new AbortController();
+  const handleResize = (): void =&gt; measureLayout();
+
+  window.addEventListener('resize', handleResize);
+  void streamAnswer({ conversationId, signal: controller.signal } satisfies StreamAnswerOptions);
 
   return () =&gt; {
     controller.abort();
-    window.removeEventListener('resize', onResize);
+    window.removeEventListener('resize', handleResize);
   };
 }, [conversationId]);</code></pre>
 </div>
@@ -194,13 +205,27 @@ const usable = results
 <li>Use <code>useCallback</code> when function identity affects memoized children or effect dependencies.</li>
 <li>For long lists, use virtualization before micro-optimizing child components.</li>
 </ul>
-<pre class="language-tsx" data-language="tsx"><code class="language-tsx">const MessageList = memo(function MessageList({ messages }) {
-  return messages.map(message =&gt; (
-    &lt;MessageItem key={message.id} message={message} /&gt;
-  ));
+<pre class="language-tsx" data-language="tsx"><code class="language-tsx">type Message = {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+};
+
+type MessageListProps = {
+  messages: Message[];
+};
+
+const MessageList = memo(function MessageList({ messages }: MessageListProps): JSX.Element {
+  return (
+    &lt;&gt;
+      {messages.map(message =&gt; (
+        &lt;MessageItem key={message.id} message={message} /&gt;
+      ))}
+    &lt;/&gt;
+  );
 });
 
-const visibleMessages = useMemo(
+const visibleMessages = useMemo&lt;Message[]&gt;(
   () =&gt; filterMessages(messages, keyword),
   [messages, keyword],
 );</code></pre>
@@ -254,10 +279,33 @@ const visibleMessages = useMemo(
 <li>Keep keyboard navigation, screen readers, and scroll restoration in mind.</li>
 <li>For chat messages, appending, prepending history, and preserving scroll position are the hard parts.</li>
 </ul>
-<pre class="language-javascript" data-language="js"><code class="language-javascript">function getVisibleRange({ scrollTop, rowHeight, viewportHeight, total, overscan = 5 }) {
-  const start = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan);
-  const end = Math.min(total, Math.ceil((scrollTop + viewportHeight) / rowHeight) + overscan);
-  return { start, end };
+<pre class="language-typescript" data-language="ts"><code class="language-typescript">type VisibleRangeInput = {
+  scrollTop: number;
+  rowHeight: number;
+  viewportHeight: number;
+  total: number;
+  overscan?: number;
+};
+
+type VisibleRange = {
+  start: number;
+  end: number;
+};
+
+function getVisibleRange({
+  scrollTop,
+  rowHeight,
+  viewportHeight,
+  total,
+  overscan = 5,
+}: VisibleRangeInput): VisibleRange {
+  const firstVisible = Math.floor(scrollTop / rowHeight);
+  const lastVisible = Math.ceil((scrollTop + viewportHeight) / rowHeight);
+
+  return {
+    start: Math.max(0, firstVisible - overscan),
+    end: Math.min(total, lastVisible + overscan),
+  };
 }</code></pre>
 <h2 id="article-section-5-question-3">3. Web Worker <code>#Performance</code> <code>62%</code></h2>
 <p><strong>Sample answer:</strong> I use a worker when the work is CPU-heavy and does not need direct DOM access: token counting, parsing a huge Markdown document, syntax highlighting, compression, or local embedding calculations. The tradeoff is serialization cost, so I would not move tiny tasks into a worker just for the sake of it.</p>
@@ -291,42 +339,50 @@ const visibleMessages = useMemo(
 <div class="interview-bank-section">
 <h2 id="article-section-7-question-1">1. Promise concurrency limit <code>#Coding</code> <code>70%</code></h2>
 <p><strong>One-line answer:</strong> A concurrency pool keeps at most N tasks running. When one finishes, the next task starts.</p>
-<pre class="language-javascript" data-language="js"><code class="language-javascript">async function limitConcurrency(tasks, limit) {
-  const results = new Array(tasks.length);
+<pre class="language-typescript" data-language="ts"><code class="language-typescript">type AsyncTask&lt;T&gt; = () =&gt; Promise&lt;T&gt;;
+
+async function limitConcurrency&lt;T&gt;(
+  tasks: Array&lt;AsyncTask&lt;T&gt;&gt;,
+  limit: number,
+): Promise&lt;T[]&gt; {
+  const results: T[] = new Array(tasks.length);
   let nextIndex = 0;
 
-  async function worker() {
+  async function worker(): Promise&lt;void&gt; {
     while (nextIndex &lt; tasks.length) {
-      const current = nextIndex++;
-      results[current] = await tasks[current]();
+      const currentIndex = nextIndex++;
+      results[currentIndex] = await tasks[currentIndex]();
     }
   }
 
-  await Promise.all(
-    Array.from({ length: Math.min(limit, tasks.length) }, () =&gt; worker()),
-  );
+  const workerCount = Math.min(limit, tasks.length);
+  await Promise.all(Array.from({ length: workerCount }, () =&gt; worker()));
 
   return results;
 }</code></pre>
 <blockquote><p><strong>Sample answer:</strong> I use this pattern when calling many APIs, uploading files, generating thumbnails, or running model requests with rate limits. The key is to preserve result order while controlling the number of active tasks.</p></blockquote>
 <h2 id="article-section-7-question-2">2. Debounce and throttle <code>#Coding</code> <code>67%</code></h2>
 <p><strong>One-line answer:</strong> Debounce waits until calls stop. Throttle guarantees execution at most once in a time window.</p>
-<pre class="language-javascript" data-language="js"><code class="language-javascript">function debounce(fn, delay) {
-  let timer;
-  return function (...args) {
-    clearTimeout(timer);
-    timer = setTimeout(() =&gt; fn.apply(this, args), delay);
+<pre class="language-typescript" data-language="ts"><code class="language-typescript">type AnyFunction = (...args: never[]) =&gt; void;
+
+function debounce&lt;T extends AnyFunction&gt;(fn: T, delay: number): (...args: Parameters&lt;T&gt;) =&gt; void {
+  let timerId: ReturnType&lt;typeof setTimeout&gt; | undefined;
+
+  return (...args: Parameters&lt;T&gt;): void =&gt; {
+    if (timerId !== undefined) clearTimeout(timerId);
+    timerId = setTimeout(() =&gt; fn(...args), delay);
   };
 }
 
-function throttle(fn, interval) {
-  let last = 0;
-  return function (...args) {
+function throttle&lt;T extends AnyFunction&gt;(fn: T, interval: number): (...args: Parameters&lt;T&gt;) =&gt; void {
+  let lastRunAt = 0;
+
+  return (...args: Parameters&lt;T&gt;): void =&gt; {
     const now = Date.now();
-    if (now - last &gt;= interval) {
-      last = now;
-      fn.apply(this, args);
-    }
+    if (now - lastRunAt &lt; interval) return;
+
+    lastRunAt = now;
+    fn(...args);
   };
 }</code></pre>
 </div>
@@ -345,16 +401,25 @@ function throttle(fn, interval) {
 <li>Parse: support incomplete Markdown without breaking code blocks and tables.</li>
 <li>Render: batch updates, sanitize HTML, and keep scroll behavior predictable.</li>
 </ul>
-<pre class="language-javascript" data-language="js"><code class="language-javascript">const decoder = new TextDecoder();
-let buffer = '';
+<pre class="language-typescript" data-language="ts"><code class="language-typescript">type RenderScheduler = (markdown: string) =&gt; void;
 
-for await (const chunk of response.body) {
-  buffer += decoder.decode(chunk, { stream: true });
+async function readStreamingResponse(
+  response: Response,
+  scheduleRender: RenderScheduler,
+): Promise&lt;void&gt; {
+  if (!response.body) throw new Error('Response body is not readable.');
+
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  for await (const chunk of response.body as ReadableStream&lt;Uint8Array&gt;) {
+    buffer += decoder.decode(chunk, { stream: true });
+    scheduleRender(buffer);
+  }
+
+  buffer += decoder.decode();
   scheduleRender(buffer);
-}
-
-buffer += decoder.decode();
-scheduleRender(buffer);</code></pre>
+}</code></pre>
 <blockquote><p><strong>Sample answer:</strong> The main mistake is thinking streaming is only a network problem. In practice it is also a rendering problem. I would buffer chunks, render at frame-friendly intervals, handle incomplete Markdown, and make cancellation first-class. Otherwise the UI gets janky or stale responses keep writing into the page.</p></blockquote>
 <h2 id="article-section-8-question-2">2. SSE versus WebSocket <code>#AI</code> <code>71%</code></h2>
 <p><strong>One-line answer:</strong> SSE is a good default for one-way model output. WebSocket is better for bidirectional, low-latency, long-lived interaction.</p>
@@ -407,13 +472,20 @@ scheduleRender(buffer);</code></pre>
 <p><strong>Sample answer:</strong> A BFF is useful when the frontend needs a product-shaped API rather than raw backend service shapes. For AI products, it is especially useful because each model provider streams, errors, bills, and formats tool calls differently. The BFF can normalize those differences into one frontend contract.</p>
 <h2 id="article-section-9-question-3">3. State machine <code>#Architecture</code> <code>55%</code></h2>
 <p><strong>One-line answer:</strong> A state machine makes async UI predictable by defining valid states and transitions explicitly.</p>
-<pre class="language-javascript" data-language="js"><code class="language-javascript">const states = {
+<pre class="language-typescript" data-language="ts"><code class="language-typescript">type ChatState = 'idle' | 'streaming' | 'cancelled' | 'failed' | 'done';
+type ChatEvent = 'submit' | 'chunk' | 'cancel' | 'error' | 'done' | 'retry' | 'reset' | 'regenerate';
+
+const transitions: Record&lt;ChatState, ChatEvent[]&gt; = {
   idle: ['submit'],
   streaming: ['chunk', 'cancel', 'error', 'done'],
   cancelled: ['retry', 'reset'],
   failed: ['retry', 'reset'],
   done: ['regenerate', 'reset'],
-};</code></pre>
+};
+
+function canTransition(state: ChatState, event: ChatEvent): boolean {
+  return transitions[state].includes(event);
+}</code></pre>
 </div>
 </section>
 
