@@ -30,6 +30,7 @@ type LinkItem = {
 
 const LINKS: LinkItem[] = [
   {label: 'THETA', desc: 'theta.tonylaw.cc · 美股期权工具', href: 'https://theta.tonylaw.cc', color: '#2763e9', img: '/img/theta-icon.png'},
+  {label: '币安邀请福利', desc: 'Refer2Earn · USDC 奖励活动', href: 'https://www.bsmkweb.cc/referral/earn-together/refer2earn-usdc/claim?hl=zh-CN&ref=GRO_28502_8G320&utm_source=referral_entrance', color: '#f0b90b', icon: giftIcon, glyphColor: '#f0b90b'},
   {label: 'uSMART 开户福利', desc: '美股券商开户奖励活动', href: 'https://m.usmartsg66.com/promo/overseas/bonus-dec.html?ICode=sere&langType=3&Id=', color: '#f59e0b', icon: giftIcon, glyphColor: '#f59e0b'},
   {label: 'X (Twitter)', desc: '@tonylawdotcc', href: 'https://x.com/tonylawdotcc', color: '#0f0f0f', icon: xIcon},
   {label: 'Threads', desc: '@tonylaw.cc', href: 'https://www.threads.com/@tonylaw.cc', color: '#0f0f0f', icon: threadsIcon},

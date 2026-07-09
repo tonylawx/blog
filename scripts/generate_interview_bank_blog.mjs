@@ -126,6 +126,11 @@ function normalizePublicStats(markdown) {
   return markdown
     .replace(/(\d+)\/73\s*\((\d+%)\)/g, '$2')
     .replace(/73\s*篇/g, '近百篇')
+    .replace(/，?全部为图片贴图经 OCR 提取的文字。?/g, '')
+    .replace(/（图片贴图 OCR）/g, '')
+    .replace(/（OCR）/g, '')
+    .replace(/\s*OCR\s*整理/g, '整理')
+    .replace(/\s*OCR\s*/g, ' ')
     .replace(/频次\s*\/\s*占比/g, '提及占比')
     .replace(/freq\s*=\s*提到该主题的篇数，pct\s*=\s*占比/g, 'pct = 近百篇样本中的提及占比')
     .replace(/频次\s*=\s*近百篇中有多少篇提到该主题/g, '提及占比 = 近百篇样本中提到该主题的比例')
@@ -263,16 +268,8 @@ function articleStyles() {
 </style>`;
 }
 
-function buildArticle(topLine, localeNote, {sourceDir, sanitizeRules}) {
+function buildArticle(topLine, {sourceDir, sanitizeRules}) {
   const parts = [articleStyles(), topLine];
-  parts.push(
-    sectionHtml(
-      0,
-      localeNote.label,
-      localeNote.title,
-      `<p style="${P_STYLE}">${localeNote.body}</p>`,
-    ),
-  );
   FILES.forEach((file, idx) => {
     const raw = fs.readFileSync(path.join(sourceDir, file), 'utf8');
     const publicMarkdown = normalizePublicStats(sanitizePersonalInfo(raw, sanitizeRules));
@@ -288,27 +285,26 @@ function writeArticle(relativeDir, html) {
   fs.writeFileSync(path.join(dir, 'article.html'), html, 'utf8');
 }
 
-const noteZh = {
-  label: '说明',
-  title: '完整题库结构版',
-  body:
-    '这版保留源题库的原始结构和细节：分类、题号、提及占比、典型问法、一句话、原理/要点、代码、追问、踩坑和参考话术都会按原顺序展开。仅对姓名、具体雇主、私人项目名和私密背景做了脱敏替换。',
-};
-
-const noteEn = {
-  label: 'NOTE',
-  title: 'Full Structured Question-Bank Edition',
-  body:
-    'This version keeps the original question-bank structure instead of compressing it into a summary. The detailed Chinese source structure is preserved in full, with personal identity, employer names, private project names, and private background sanitized.',
-};
-
 const sourceDir = envPath('INTERVIEW_BANK_SOURCE_DIR');
 const sanitizeRules = loadSanitizeRules();
 
 writeArticle(
   'i18n/zh/docusaurus-plugin-content-blog',
-  buildArticle(TOP_ZH, noteZh, {sourceDir, sanitizeRules}),
+  buildArticle(TOP_ZH, {sourceDir, sanitizeRules}),
 );
-writeArticle('blog', buildArticle(TOP_EN, noteEn, {sourceDir, sanitizeRules}));
+
+if (process.env.INTERVIEW_BANK_EN_SOURCE_DIR) {
+  writeArticle(
+    'blog',
+    buildArticle(TOP_EN, {
+      sourceDir: path.resolve(process.env.INTERVIEW_BANK_EN_SOURCE_DIR),
+      sanitizeRules,
+    }),
+  );
+} else {
+  console.warn(
+    'Skipped English article generation: set INTERVIEW_BANK_EN_SOURCE_DIR to avoid overwriting the curated English version with Chinese source text.',
+  );
+}
 
 console.log(`Generated full structured interview-bank article for ${SLUG}`);
