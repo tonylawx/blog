@@ -28,7 +28,7 @@ export default function Home(): JSX.Element {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
               gap: '1.25rem',
             }}
           >
