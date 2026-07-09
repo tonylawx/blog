@@ -77,11 +77,13 @@ Software Developer for R&D management systems.
 
 - **THETA** — options research and risk tooling with broker integration,
   real-time greeks, event-risk views, and AI-assisted report summaries.
-- **AI US Stock Analyst** — a market-calendar-aware workflow that generates U.S.
-  equity briefs, renders publishable HTML, and supports WeChat draft publishing.
 - **react-ios-multiselect** — an open-source React component for iOS-style
   multi-select interactions:
   [tonylawx/react-ios-multiselect](https://github.com/tonylawx/react-ios-multiselect).
+- **AI US Stock Analyst** — a market-calendar-aware workflow that generates U.S.
+  equity briefs, renders publishable HTML, and supports WeChat draft publishing.
+  Open-sourced as an AI-agent (Codex) skill:
+  [tonylawx/us-stock-analyst-skill](https://github.com/tonylawx/us-stock-analyst-skill).
 - **Blog** — this bilingual Docusaurus site for software, markets, and notes from
   building in public.
 

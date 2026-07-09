@@ -6,7 +6,14 @@ const config: Config = {
   tagline: 'Software engineer & options trader',
   url: 'https://www.tonylaw.cc',
   baseUrl: '/',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon-32.png',
+
+  // Extra favicon flavors derived from the profile avatar. Docusaurus emits
+  // the default <link rel="icon"> from `favicon` above (32px PNG); these cover
+  // iOS home-screen bookmarks and a crisper hi-dpi tab icon.
+  headTags: [
+    {tagName: 'link', attributes: {rel: 'apple-touch-icon', sizes: '180x180', href: '/img/apple-touch-icon.png'}},
+  ],
 
   // Strict broken-link checking — re-enabled for launch now that all
   // navbar/footer/hero-linked pages (/blog, /projects, /about + locale
