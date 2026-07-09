@@ -22,3 +22,7 @@ yarn-error.log*
 # Local Claude Code tooling
 .claude/
 .vercel
+
+# Local-only source material and private rewrite rules
+private/
+.interview-bank-sanitize-rules.json

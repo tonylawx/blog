@@ -74,6 +74,95 @@ html {
   scroll-margin-top: calc(var(--ifm-navbar-height, 60px) + 3rem);
 }
 
+.article-toc-accordion {
+  padding-top: 0.15rem;
+}
+
+.article-toc-accordion,
+.article-toc-accordion__children {
+  list-style: none;
+}
+
+.article-toc-accordion__item {
+  margin: 0 0 0.2rem;
+}
+
+.article-toc-accordion__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+
+.article-toc-accordion__toggle,
+.article-toc-accordion__toggle-spacer {
+  flex: 0 0 1rem;
+  width: 1rem;
+  height: 1.6rem;
+}
+
+.article-toc-accordion__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 4px;
+  padding: 0;
+  background: transparent;
+  color: var(--ifm-toc-link-color);
+  cursor: pointer;
+}
+
+.article-toc-accordion__toggle:hover,
+.article-toc-accordion__toggle:focus-visible {
+  background: rgba(39, 99, 233, 0.08);
+  color: #2763e9;
+  outline: none;
+}
+
+.article-toc-accordion__chevron {
+  display: inline-block;
+  line-height: 1;
+  transition: transform 0.16s ease;
+}
+
+.article-toc-accordion__toggle[aria-expanded='true'] .article-toc-accordion__chevron {
+  transform: rotate(90deg);
+}
+
+.article-toc-accordion__parent-link {
+  flex: 1;
+  min-width: 0;
+  font-weight: 650;
+}
+
+.article-toc-accordion__children {
+  margin: 0.12rem 0 0.38rem 1rem;
+  padding: 0 0 0 0.65rem;
+  border-left: 1px solid rgba(39, 99, 233, 0.18);
+}
+
+.article-toc-accordion__child {
+  margin: 0;
+}
+
+.article-toc-accordion__child-link {
+  display: block;
+  padding-top: 0.16rem;
+  padding-bottom: 0.16rem;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.article-toc-accordion__child-link:hover,
+.article-toc-accordion__child-link:focus {
+  color: #2763e9;
+}
+
+.article-toc-accordion__link--active {
+  color: #2763e9;
+}
+
 /* ===== Links page (/links) =====
  * Each card carries its own --brand color (set inline), which drives the
  * resting chip tint and blooms into a solid fill on hover/focus. Glyphs use
