@@ -58,10 +58,11 @@ slug: about
 ## 精选项目
 
 - **THETA** —— 期权研究与风险工具，支持券商集成、实时 Greeks、事件风险视图和 AI 辅助报告。
-- **AI US Stock Analyst** —— 按美股交易日运行的自动化工作流，生成美股简报、渲染可发布 HTML，
-  并支持发布到微信公众号草稿箱。
 - **react-ios-multiselect** —— 一个开源 React 组件，用于实现 iOS 风格的多选交互：
   [tonylawx/react-ios-multiselect](https://github.com/tonylawx/react-ios-multiselect)。
+- **AI US Stock Analyst** —— 按美股交易日运行的自动化工作流，生成美股简报、渲染可发布 HTML，
+  并支持发布到微信公众号草稿箱。已开源为 AI Agent（Codex）技能：
+  [tonylawx/us-stock-analyst-skill](https://github.com/tonylawx/us-stock-analyst-skill)。
 - **Blog** —— 这个双语 Docusaurus 站点，用来写软件、市场和公开构建过程中的笔记。
 
 完整列表见 [项目](/zh/projects)。
