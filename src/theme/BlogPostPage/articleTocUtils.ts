@@ -1,6 +1,7 @@
 export type ArticleLocale = 'en' | 'zh';
 
 export interface ArticleElementLike {
+  id?: string;
   tagName?: string;
   textContent?: string | null;
   children?: Iterable<ArticleElementLike> | ArrayLike<ArticleElementLike>;
@@ -10,6 +11,21 @@ export interface ArticleElementLike {
     background?: string;
     backgroundColor?: string;
   };
+}
+
+export interface ArticleTocItem {
+  value: string;
+  id: string;
+  level: number;
+}
+
+export interface ArticleAccordionTocItem extends ArticleTocItem {
+  children: ArticleTocItem[];
+}
+
+export interface ArticleAnchorPosition {
+  id: string;
+  top: number;
 }
 
 const SECTION_LABEL_RE = /^\s*\d+\s*(?:[·.]|\s)\s*\S+/;
@@ -226,4 +242,91 @@ export function titleOf(section: ArticleElementLike, index: number): string | nu
 
 export function titleAnchorOf(section: ArticleElementLike): ArticleElementLike | null {
   return firstLargeTitleElement(section) ?? findSectionLabel(section);
+}
+
+function childHeadingElementsOf(section: ArticleElementLike): ArticleElementLike[] {
+  const titleAnchor = titleAnchorOf(section);
+  const headings: ArticleElementLike[] = [];
+
+  const visit = (element: ArticleElementLike) => {
+    if (element === titleAnchor) return;
+    if (tagNameOf(element) === 'h2') {
+      headings.push(element);
+      return;
+    }
+    for (const child of childrenOf(element)) {
+      visit(child);
+    }
+  };
+
+  for (const child of childrenOf(section)) {
+    visit(child);
+  }
+  return headings;
+}
+
+export function childHeadingTocItemsOf(section: ArticleElementLike, sectionIndex: number): ArticleTocItem[] {
+  return childHeadingElementsOf(section).flatMap((heading, headingIndex) => {
+    const value = cleanText(heading.textContent);
+    if (!value) return [];
+    if (!heading.id) {
+      heading.id = `article-section-${sectionIndex}-question-${headingIndex + 1}`;
+    }
+    return [{value, id: heading.id, level: 3}];
+  });
+}
+
+export function articleAccordionItemsOf(items: ArticleTocItem[]): ArticleAccordionTocItem[] {
+  const grouped: ArticleAccordionTocItem[] = [];
+  let current: ArticleAccordionTocItem | null = null;
+
+  for (const item of items) {
+    if (item.level <= 2 || current === null) {
+      current = {
+        ...item,
+        level: 2,
+        children: [],
+      };
+      grouped.push(current);
+      continue;
+    }
+    current.children.push(item);
+  }
+
+  return grouped;
+}
+
+export function firstArticleAccordionId(items: ArticleAccordionTocItem[]): string | null {
+  return items.find((item) => item.children.length > 0)?.id ?? items[0]?.id ?? null;
+}
+
+export function articleAccordionIdForHash(
+  items: ArticleAccordionTocItem[],
+  hash: string,
+): string | null {
+  const id = hash.replace(/^#/, '');
+  if (!id) return null;
+
+  for (const item of items) {
+    if (item.id === id || item.children.some((child) => child.id === id)) {
+      return item.id;
+    }
+  }
+
+  return null;
+}
+
+export function activeArticleAnchorIdFromPositions(
+  anchors: ArticleAnchorPosition[],
+  topOffset: number,
+): string | null {
+  if (anchors.length === 0) return null;
+
+  let activeId = anchors[0].id;
+  for (const anchor of anchors) {
+    if (anchor.top > topOffset) break;
+    activeId = anchor.id;
+  }
+
+  return activeId;
 }

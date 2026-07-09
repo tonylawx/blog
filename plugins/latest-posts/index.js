@@ -33,6 +33,7 @@ function categoryKey(category) {
   }
   if (
     value.includes('practice') ||
+    value.includes('实践') ||
     value.includes('实战') ||
     value.includes('agent')
   ) {
