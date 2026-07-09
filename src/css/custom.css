@@ -206,7 +206,6 @@ html {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  margin-left: auto;
   padding: 0.15rem 0.55rem;
   border-radius: 999px;
   font-size: 0.7rem;
