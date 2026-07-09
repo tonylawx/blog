@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {
   activeArticleAnchorIdFromPositions,
   articleAccordionIdForHash,
@@ -88,6 +88,20 @@ export default function ArticleToc(): JSX.Element | null {
   const [toc, setToc] = useState<ArticleAccordionTocItem[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const activeIdRef = useRef<string | null>(null);
+  const openIdRef = useRef<string | null>(null);
+
+  const updateActiveId = (nextActiveId: string | null) => {
+    if (activeIdRef.current === nextActiveId) return;
+    activeIdRef.current = nextActiveId;
+    setActiveId(nextActiveId);
+  };
+
+  const updateOpenId = (nextOpenId: string | null) => {
+    if (openIdRef.current === nextOpenId) return;
+    openIdRef.current = nextOpenId;
+    setOpenId(nextOpenId);
+  };
   useEffect(() => {
     const article = document.querySelector('.stt-article');
     if (!article) {
@@ -115,9 +129,11 @@ export default function ArticleToc(): JSX.Element | null {
       setToc(grouped);
       setOpenId((current) => {
         const hashOpenId = articleAccordionIdForHash(grouped, window.location.hash);
-        if (hashOpenId) return hashOpenId;
-        if (current && grouped.some((item) => item.id === current)) return current;
-        return firstArticleAccordionId(grouped);
+        const nextOpenId = hashOpenId
+          ?? (current && grouped.some((item) => item.id === current) ? current : null)
+          ?? firstArticleAccordionId(grouped);
+        openIdRef.current = nextOpenId;
+        return nextOpenId;
       });
     };
 
@@ -136,8 +152,8 @@ export default function ArticleToc(): JSX.Element | null {
     const syncOpenIdFromHash = () => {
       const hashOpenId = articleAccordionIdForHash(toc, window.location.hash);
       if (hashOpenId) {
-        setOpenId(hashOpenId);
-        setActiveId(window.location.hash.replace(/^#/, ''));
+        updateOpenId(hashOpenId);
+        updateActiveId(window.location.hash.replace(/^#/, ''));
       }
     };
     window.addEventListener('hashchange', syncOpenIdFromHash);
@@ -163,9 +179,9 @@ export default function ArticleToc(): JSX.Element | null {
       );
       if (!nextActiveId) return;
 
-      setActiveId(nextActiveId);
+      updateActiveId(nextActiveId);
       const nextOpenId = articleAccordionIdForHash(toc, `#${nextActiveId}`);
-      if (nextOpenId) setOpenId(nextOpenId);
+      if (nextOpenId) updateOpenId(nextOpenId);
     };
 
     const scheduleSync = () => {
@@ -201,7 +217,7 @@ export default function ArticleToc(): JSX.Element | null {
                   aria-expanded={expanded}
                   aria-label={expanded ? '收起模块' : '展开模块'}
                   className="article-toc-accordion__toggle"
-                  onClick={() => setOpenId(expanded ? null : item.id)}
+                  onClick={() => updateOpenId(expanded ? null : item.id)}
                   title={expanded ? '收起模块' : '展开模块'}
                   type="button">
                   <span aria-hidden="true" className="article-toc-accordion__chevron">
@@ -220,8 +236,8 @@ export default function ArticleToc(): JSX.Element | null {
                   .join(' ')}
                 href={`#${item.id}`}
                 onClick={() => {
-                  setOpenId(item.id);
-                  setActiveId(item.id);
+                  updateOpenId(item.id);
+                  updateActiveId(item.id);
                 }}>
                 {item.value}
               </a>
@@ -241,8 +257,8 @@ export default function ArticleToc(): JSX.Element | null {
                         .join(' ')}
                       href={`#${child.id}`}
                       onClick={() => {
-                        setOpenId(item.id);
-                        setActiveId(child.id);
+                        updateOpenId(item.id);
+                        updateActiveId(child.id);
                       }}>
                       {child.value}
                     </a>

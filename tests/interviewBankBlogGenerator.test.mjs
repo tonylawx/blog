@@ -13,7 +13,9 @@ test('interview-bank article publishes percentage-only public stats', () => {
     const html = fs.readFileSync(articlePath, 'utf8');
     assert.equal(/\b\d+\/73\b/.test(html), false, `${articlePath.pathname} still exposes N/73 counts`);
     assert.equal(/73\s*篇/.test(html), false, `${articlePath.pathname} still says 73 articles`);
-    assert.match(html, /近百篇/, `${articlePath.pathname} should describe the source as near one hundred samples`);
+    assert.doesNotMatch(html, /图片贴图|OCR|image screenshots/i, `${articlePath.pathname} should not expose OCR/source-capture wording`);
+    assert.doesNotMatch(html, /完整题库结构版|Full Structured Question-Bank Edition/, `${articlePath.pathname} should not keep the old opening note`);
+    assert.match(html, /近百篇|near one hundred/, `${articlePath.pathname} should describe the source as near one hundred samples`);
     assert.match(html, /<code>82%<\/code>/, `${articlePath.pathname} should keep heading stats as percentages`);
     assert.match(html, /<td>95%<\/td>/, `${articlePath.pathname} should keep table stats as percentages`);
   }
