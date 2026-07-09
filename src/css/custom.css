@@ -86,8 +86,12 @@ html.blog-post-page .container.margin-vert--lg > .row > .col.col--2 {
 /* Browser-level virtual scrolling for long injected article.html posts.
  * Docusaurus still owns the route, while the browser skips painting offscreen
  * article sections. This is safer than swapping the article renderer for a
- * React windowing library because these posts arrive as raw HTML. */
-.stt-article > section {
+ * React windowing library because these posts arrive as raw HTML.
+ *
+ * Very long table-of-contents pages can opt out with
+ * `.stt-article--stable-anchors`: content-visibility estimates offscreen
+ * section heights, and hash navigation may land above the real heading. */
+.stt-article:not(.stt-article--stable-anchors) > section {
   content-visibility: auto;
   contain-intrinsic-size: auto 760px;
 }
