@@ -7,10 +7,10 @@
   "scripts": {
     "start": "node index.js"
   },
-  "dependencies": {
-    "ioredis": "^5.4.6"
-  },
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "pg": "^8.22.0"
   }
 }
