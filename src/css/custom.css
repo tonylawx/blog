@@ -94,7 +94,9 @@
   color: #94a3b8;
 }
 
-/* --- Body text & lists --- */
+/* --- Body text & lists ---
+ * article.html paragraphs carry inline style="color:#454550" which beats
+ * any selector specificity. !important is the only way to override them. */
 [data-theme='dark'] .stt-article p,
 [data-theme='dark'] .stt-article li,
 [data-theme='dark'] .stt-article .interview-bank-section p,
@@ -102,47 +104,47 @@
 [data-theme='dark'] .stt-article .interview-bank-section ol,
 [data-theme='dark'] .stt-article [class*="-section"] p,
 [data-theme='dark'] .stt-article [class*="-section"] li {
-  color: #cbd5e1;
+  color: #d1d5db !important;
 }
 
 /* --- Tables --- */
 [data-theme='dark'] .stt-article table,
 [data-theme='dark'] .stt-article .interview-bank-section table {
-  color: #cbd5e1;
+  color: #d1d5db !important;
 }
 [data-theme='dark'] .stt-article th,
 [data-theme='dark'] .stt-article .interview-bank-section th {
-  background: #1e293b;
-  color: #e2e8f0;
-  border-color: #334155;
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
 }
 [data-theme='dark'] .stt-article td,
 [data-theme='dark'] .stt-article .interview-bank-section td {
-  border-color: #334155;
+  border-color: #334155 !important;
 }
 
 /* --- Inline code (outside pre) --- */
 [data-theme='dark'] .stt-article :not(pre) > code,
 [data-theme='dark'] .stt-article .interview-bank-section :not(pre) > code {
-  background: rgba(96, 165, 250, 0.12);
-  color: #93c5fd;
+  background: rgba(96, 165, 250, 0.15) !important;
+  color: #93c5fd !important;
 }
 
 /* --- Blockquotes --- */
 [data-theme='dark'] .stt-article blockquote,
 [data-theme='dark'] .stt-article .interview-bank-section blockquote {
-  border-left-color: #60a5fa;
-  background: rgba(96, 165, 250, 0.06);
-  color: #cbd5e1;
+  border-left-color: #60a5fa !important;
+  background: rgba(96, 165, 250, 0.08) !important;
+  color: #d1d5db !important;
 }
 [data-theme='dark'] .stt-article blockquote p {
-  color: #cbd5e1;
+  color: #d1d5db !important;
 }
 
 /* --- Horizontal rules --- */
 [data-theme='dark'] .stt-article hr,
 [data-theme='dark'] .stt-article .interview-bank-section hr {
-  border-top-color: #1e293b;
+  border-top-color: #1e293b !important;
 }
 
 /* --- Section label (e.g. "0 · OVERVIEW") --- */
@@ -160,6 +162,11 @@
 [data-theme='dark'] .stt-article p[style*="color: #2a2a34"] {
   color: #f1f5f9 !important;
 }
+/* Body text paragraphs (inline-styled with color:#454550) */
+[data-theme='dark'] .stt-article p[style*="color:#454550"],
+[data-theme='dark'] .stt-article p[style*="color: #454550"] {
+  color: #d1d5db !important;
+}
 /* Sub-label p with smaller text used as badges/tags */
 [data-theme='dark'] .stt-article p[style*="color:#2763e9"] {
   color: #60a5fa !important;
@@ -167,21 +174,21 @@
 
 /* --- Code blocks (pre) stay dark in both modes, just refine --- */
 [data-theme='dark'] .stt-article pre {
-  background: #0d1117;
+  background: #0d1117 !important;
   border: 1px solid #1e293b;
 }
 
 /* --- Strong/bold text that uses dark colors inline --- */
 [data-theme='dark'] .stt-article strong {
-  color: #e2e8f0;
+  color: #f1f5f9 !important;
 }
 
 /* --- Links inside articles --- */
 [data-theme='dark'] .stt-article a {
-  color: #60a5fa;
+  color: #60a5fa !important;
 }
 [data-theme='dark'] .stt-article a:hover {
-  color: #93c5fd;
+  color: #93c5fd !important;
 }
 
 /* Use Inter from Google Fonts (loaded via @import at the top of this file) */
