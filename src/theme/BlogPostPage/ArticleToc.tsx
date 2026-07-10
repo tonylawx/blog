@@ -37,7 +37,7 @@ function topLevelArticleSections(article: Element): HTMLElement[] {
 
 const SECTION_LABEL_RE = /^\s*(\d+)\s*(?:[·.]|\s)\s*\S+/;
 const TITLE_STYLE =
-  'margin:0 0 16px 0;padding:0;color:#2a2a34;font-size:22px;line-height:1.45;font-weight:850;text-align:left;letter-spacing:0;';
+  'margin:0 0 16px 0;padding:0;color:inherit;font-size:22px;line-height:1.45;font-weight:850;text-align:left;letter-spacing:0;';
 const MIN_SCROLL_SPY_TOP_OFFSET = 220;
 const MAX_SCROLL_SPY_TOP_OFFSET = 520;
 
