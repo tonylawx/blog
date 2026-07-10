@@ -1,17 +1,20 @@
-// Per-article view counter backed by Upstash Redis via its REST API (no SDK).
+// Per-article view counter. The browser calls this same-origin Vercel function;
+// this function forwards to a self-hosted counter-service (HTTP front for Redis
+// on a VPS). The shared secret lives server-side only — it is never shipped to
+// the browser.
 //   GET  /api/views?slug=...  -> read-only {views}
 //   POST /api/views?slug=...  -> INCR + {views}
 //
 // Returns {views: <number>} when a real count exists, and {views: null}
-// otherwise (Upstash env vars unset, invalid slug, cross-origin POST, lookup
-// failure, or a key never incremented). The UI hides the counter on null, so
-// it stays quiet until UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are
-// configured in Vercel — no misleading "0 views".
+// otherwise (counter service not configured, invalid slug, cross-origin POST,
+// lookup failure, or a key never incremented). The UI hides the counter on
+// null — no misleading "0 views", and it stays quiet until COUNTER_API_URL /
+// COUNTER_API_TOKEN are set in Vercel.
 //
 // ESM (.mjs) so import/export work regardless of package.json "type".
 
-const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
-const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+const COUNTER_API_URL = process.env.COUNTER_API_URL; // e.g. https://counter.example.com
+const COUNTER_API_TOKEN = process.env.COUNTER_API_TOKEN; // shared secret
 
 const SLUG_RE = /^[A-Za-z0-9/_.-]+$/;
 
@@ -43,21 +46,22 @@ function sameOrigin(req) {
   }
 }
 
-async function upstash(command, key) {
-  const res = await fetch(`${UPSTASH_URL}/${command}/${encodeURIComponent(key)}`, {
-    headers: {Authorization: `Bearer ${UPSTASH_TOKEN}`},
-  });
+async function counterApi(op, key) {
+  // op is 'incr' (POST) or 'get' (GET). The counter-service returns {result}.
+  const res = await fetch(
+    `${COUNTER_API_URL}/${op}?key=${encodeURIComponent(key)}`,
+    {
+      method: op === 'incr' ? 'POST' : 'GET',
+      headers: {'X-Counter-Token': COUNTER_API_TOKEN},
+    },
+  );
   if (!res.ok) {
-    throw new Error(`Upstash responded ${res.status}`);
+    throw new Error(`counter API responded ${res.status}`);
   }
   const data = await res.json();
-  return data.result; // INCR -> number, GET -> string|null
+  return data.result; // incr -> number, get -> string|null
 }
 
-// Returns {views: <number>} only when a real count exists. Returns {views: null}
-// when Upstash is not configured, the slug is invalid, the request is
-// cross-origin, the lookup fails, or a key has never been incremented — so the
-// UI hides the counter instead of showing a misleading "0".
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
 
@@ -68,7 +72,7 @@ export default async function handler(req, res) {
   }
 
   // Not configured yet — keep the UI quiet instead of erroring.
-  if (!UPSTASH_URL || !UPSTASH_TOKEN) {
+  if (!COUNTER_API_URL || !COUNTER_API_TOKEN) {
     res.status(200).json({views: null});
     return;
   }
@@ -80,7 +84,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    const result = await upstash(increment ? 'incr' : 'get', `views:${slug}`);
+    const result = await counterApi(
+      increment ? 'incr' : 'get',
+      `views:${slug}`,
+    );
     if (result === null) {
       // GET on a key that was never incremented — nothing to show yet.
       res.status(200).json({views: null});
