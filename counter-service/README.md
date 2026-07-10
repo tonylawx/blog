@@ -1,84 +1,69 @@
 # counter-service
 
-Tiny HTTP front for a local Redis, backing the blog's per-article view counter.
-The blog's Vercel function (`api/views.mjs`) calls this; this service talks to
-Redis on localhost. The raw Redis port never has to face the public internet —
-only this token-gated, key-whitelisted HTTP API does.
+Tiny HTTP front for a PostgreSQL table, backing the blog's per-article view
+counter. The blog's Vercel function (`api/views.mjs`) calls this; this service
+reads/writes a local Postgres table. The database is only touched through this
+token-gated, slug-whitelisted HTTP API.
 
 **Endpoints** (all require `X-Counter-Token` header except `/health`):
 
-| Method | Path                | Returns                          |
-|--------|---------------------|----------------------------------|
-| GET    | `/health`           | `{ok: true}`                     |
-| GET    | `/get?key=views:…`  | `{result: "<string>" \| null}`   |
-| POST   | `/incr?key=views:…` | `{result: <number>}`             |
+| Method | Path             | Returns                          |
+|--------|------------------|----------------------------------|
+| GET    | `/health`        | `{ok: true}`                     |
+| GET    | `/get?slug=…`    | `{result: <number> \| null}`     |
+| POST   | `/incr?slug=…`   | `{result: <number>}`             |
 
-Only keys matching `^views:[A-Za-z0-9/_.-]+$` are accepted.
+Only slugs matching `^[A-Za-z0-9/_.-]+$` are accepted. The `view_counts` table
+is created automatically on first use (no manual SQL needed).
 
 ## Env vars
 
-| Var             | Required | Example                          |
-|-----------------|----------|----------------------------------|
-| `COUNTER_TOKEN` | yes      | a long random string (shared with Vercel) |
-| `REDIS_URL`     | no       | `redis://127.0.0.1:6379` (default)|
-| `PORT`          | no       | `8787` (default)                 |
+| Var             | Required | Example                                        |
+|-----------------|----------|------------------------------------------------|
+| `COUNTER_TOKEN` | yes      | a long random string (shared with Vercel)      |
+| `DATABASE_URL`  | yes      | `postgres://counter:pass@127.0.0.1:5432/counter`|
+| `PORT`          | no       | `8787` (default)                               |
 
-## Run locally / on the VPS
+## 1. Database (one time)
+
+Your VPS already has a Postgres instance. Make a dedicated DB + role for the
+counter so it doesn't share a table with other data:
+
+```bash
+sudo -u postgres psql <<'SQL'
+CREATE ROLE counter LOGIN PASSWORD 'CHANGE_ME_strong_password';
+CREATE DATABASE counter OWNER counter;
+SQL
+```
+
+(Use a strong password; put it in the `DATABASE_URL` below.)
+
+## 2. Run the service
 
 ```bash
 cd counter-service
 npm install
-COUNTER_TOKEN="$(openssl rand -hex 32)" npm start
-# -> counter service listening on :8787
+cat > .env <<EOF
+COUNTER_TOKEN=$(openssl rand -hex 32)
+DATABASE_URL=postgres://counter:CHANGE_ME_strong_password@127.0.0.1:5432/counter
+PORT=8787
+EOF
+npm start
+# -> counter service listening on :8787  (table auto-created on first request)
 ```
 
-Quick check:
+Quick local check (service up, no auth needed for health):
 
 ```bash
-curl -H "X-Counter-Token: $COUNTER_TOKEN" "http://127.0.0.1:8787/incr?key=views:blog/test" -X POST
-# {"result":1}
-curl -H "X-Counter-Token: $COUNTER_TOKEN" "http://127.0.0.1:8787/get?key=views:blog/test"
-# {"result":"1"}
+curl http://127.0.0.1:8787/health          # {"ok":true}
+TOK=$(grep COUNTER_TOKEN .env | cut -d= -f2)
+curl -H "X-Counter-Token: $TOK" "http://127.0.0.1:8788/incr?slug=blog/test" -X POST  # {"result":1}
+curl -H "X-Counter-Token: $TOK" "http://127.0.0.1:8787/get?slug=blog/test"           # {"result":"1"}
 ```
 
-## Keep it running
+Keep it running with **systemd** (`/etc/systemd/system/counter.service`, `EnvironmentFile=/opt/counter-service/.env`, `Restart=always`, `After=network.target postgresql.service`), **PM2** (`pm2 start index.js --name counter --env-file .env`), or Docker. The service must stay up for counts to show — if it is down, the blog silently hides the counter.
 
-Pick **one**. The service must stay up for the counter to show numbers — if it
-is down, the blog silently hides the counter (no error).
-
-**systemd** (`/etc/systemd/system/counter.service`):
-
-```ini
-[Unit]
-Description=Blog view-counter service
-After=network.target redis.service
-
-[Service]
-WorkingDirectory=/opt/counter-service
-ExecStart=/usr/bin/node index.js
-EnvironmentFile=/opt/counter-service/.env
-Restart=always
-User=counter
-
-[Install]
-WantedBy=multi-user.target
-```
-
-with `/opt/counter-service/.env`:
-
-```
-COUNTER_TOKEN=__the_long_random_shared_secret__
-REDIS_URL=redis://127.0.0.1:6379
-PORT=8787
-```
-
-then `systemctl enable --now counter`.
-
-**PM2**: `pm2 start index.js --name counter --env-file .env && pm2 save && pm2 startup`.
-
-**Docker**: `docker run -d --name counter --env-file .env --network host -v $PWD:/app -w /app node:20 node index.js` (or compose).
-
-## HTTPS in front (required — the token must not travel in cleartext)
+## 3. HTTPS in front (required — the token must not travel in cleartext)
 
 Put Caddy (or nginx) in front for auto-HTTPS with a domain pointing at the VPS.
 The Vercel function calls this over HTTPS.
@@ -91,15 +76,18 @@ counter.example.com {
 }
 ```
 
-Point a DNS A/AAAA record at the VPS, run Caddy, done.
+## 4. DNS — ← do this step yourself
 
-## Wire it to the blog (Vercel)
+Point a DNS A/AAAA record for your chosen hostname (e.g. `counter.example.com`)
+at the VPS. Caddy will issue the TLS cert automatically once DNS resolves.
+
+## 5. Wire it to the blog (Vercel)
 
 On the blog Vercel project → Settings → Environment Variables, add:
 
 - `COUNTER_API_URL` = `https://counter.example.com`  (no trailing slash)
-- `COUNTER_API_TOKEN` = the same `COUNTER_TOKEN` you set here
+- `COUNTER_API_TOKEN` = the same `COUNTER_TOKEN` from `.env`
 
-Redeploy (or push any change) and the counter activates. The token stays
-server-side — it is only ever read by `api/views.mjs`, never shipped to the
-browser.
+Trigger a redeploy (push any change, or hit redeploy) and the counter activates.
+The token stays server-side — it is only ever read by `api/views.mjs`, never
+shipped to the browser.

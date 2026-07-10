@@ -1,7 +1,7 @@
 // Per-article view counter. The browser calls this same-origin Vercel function;
-// this function forwards to a self-hosted counter-service (HTTP front for Redis
-// on a VPS). The shared secret lives server-side only — it is never shipped to
-// the browser.
+// this function forwards to a self-hosted counter-service (HTTP front for a
+// PostgreSQL table on a VPS). The shared secret lives server-side only — it is
+// never shipped to the browser.
 //   GET  /api/views?slug=...  -> read-only {views}
 //   POST /api/views?slug=...  -> INCR + {views}
 //
@@ -46,10 +46,10 @@ function sameOrigin(req) {
   }
 }
 
-async function counterApi(op, key) {
+async function counterApi(op, slug) {
   // op is 'incr' (POST) or 'get' (GET). The counter-service returns {result}.
   const res = await fetch(
-    `${COUNTER_API_URL}/${op}?key=${encodeURIComponent(key)}`,
+    `${COUNTER_API_URL}/${op}?slug=${encodeURIComponent(slug)}`,
     {
       method: op === 'incr' ? 'POST' : 'GET',
       headers: {'X-Counter-Token': COUNTER_API_TOKEN},
@@ -86,7 +86,7 @@ export default async function handler(req, res) {
   try {
     const result = await counterApi(
       increment ? 'incr' : 'get',
-      `views:${slug}`,
+      slug,
     );
     if (result === null) {
       // GET on a key that was never incremented — nothing to show yet.
