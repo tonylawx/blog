@@ -46,8 +46,142 @@
   --ifm-color-primary-lightest: #dbeafe;
 
   --home-hero-bg: linear-gradient(135deg, #0f172a 0%, #111827 60%);
-  --home-card-border: #1f2937;
-  --home-card-bg: #111827;
+  --home-card-border: #1e293b;
+  --home-card-bg: rgba(17, 24, 39, 0.7);
+
+  /* Improved background layering for depth */
+  --ifm-background-color: #0f1117;
+  --ifm-background-surface-color: #161b26;
+
+  /* Softer text hierarchy — avoids harsh pure white on dark bg */
+  --ifm-font-color-base: #e2e8f0;
+  --ifm-font-color-secondary: #94a3b8;
+
+  /* Accent tint used by TOC, sidebar active links, etc. */
+  --blog-accent: #60a5fa;
+  --blog-accent-muted: rgba(96, 165, 250, 0.12);
+  --blog-accent-border: rgba(96, 165, 250, 0.22);
+}
+
+/* ===================================================================
+ * Dark-mode overrides for article.html content
+ * -------------------------------------------------------------------
+ * article.html posts embed their own <style> blocks with hardcoded
+ * light-mode colors (e.g. color:#2a2a34, background:#f7f9fc).
+ * We override them here via higher specificity selectors so dark mode
+ * renders properly without touching the upstream HTML generator.
+ * =================================================================== */
+
+/* --- Headings --- */
+[data-theme='dark'] .stt-article h2,
+[data-theme='dark'] .stt-article h3,
+[data-theme='dark'] .stt-article h4 {
+  color: #e2e8f0;
+}
+/* Section title headers with the blue left-border accent */
+[data-theme='dark'] .stt-article .interview-bank-section h2,
+[data-theme='dark'] .stt-article [class*="-section"] h2 {
+  color: #e2e8f0;
+  background: linear-gradient(90deg, rgba(96, 165, 250, 0.14), rgba(96, 165, 250, 0.03));
+  border-left-color: #60a5fa;
+}
+[data-theme='dark'] .stt-article .interview-bank-section h3,
+[data-theme='dark'] .stt-article [class*="-section"] h3 {
+  color: #cbd5e1;
+}
+[data-theme='dark'] .stt-article .interview-bank-section h4,
+[data-theme='dark'] .stt-article [class*="-section"] h4 {
+  color: #94a3b8;
+}
+
+/* --- Body text & lists --- */
+[data-theme='dark'] .stt-article p,
+[data-theme='dark'] .stt-article li,
+[data-theme='dark'] .stt-article .interview-bank-section p,
+[data-theme='dark'] .stt-article .interview-bank-section ul,
+[data-theme='dark'] .stt-article .interview-bank-section ol,
+[data-theme='dark'] .stt-article [class*="-section"] p,
+[data-theme='dark'] .stt-article [class*="-section"] li {
+  color: #cbd5e1;
+}
+
+/* --- Tables --- */
+[data-theme='dark'] .stt-article table,
+[data-theme='dark'] .stt-article .interview-bank-section table {
+  color: #cbd5e1;
+}
+[data-theme='dark'] .stt-article th,
+[data-theme='dark'] .stt-article .interview-bank-section th {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-color: #334155;
+}
+[data-theme='dark'] .stt-article td,
+[data-theme='dark'] .stt-article .interview-bank-section td {
+  border-color: #334155;
+}
+
+/* --- Inline code (outside pre) --- */
+[data-theme='dark'] .stt-article :not(pre) > code,
+[data-theme='dark'] .stt-article .interview-bank-section :not(pre) > code {
+  background: rgba(96, 165, 250, 0.12);
+  color: #93c5fd;
+}
+
+/* --- Blockquotes --- */
+[data-theme='dark'] .stt-article blockquote,
+[data-theme='dark'] .stt-article .interview-bank-section blockquote {
+  border-left-color: #60a5fa;
+  background: rgba(96, 165, 250, 0.06);
+  color: #cbd5e1;
+}
+[data-theme='dark'] .stt-article blockquote p {
+  color: #cbd5e1;
+}
+
+/* --- Horizontal rules --- */
+[data-theme='dark'] .stt-article hr,
+[data-theme='dark'] .stt-article .interview-bank-section hr {
+  border-top-color: #1e293b;
+}
+
+/* --- Section label (e.g. "0 · OVERVIEW") --- */
+[data-theme='dark'] .stt-article section > div > span[style*="color:#2763e9"],
+[data-theme='dark'] .stt-article section > div > span[style*="color: #2763e9"] {
+  color: #60a5fa !important;
+}
+[data-theme='dark'] .stt-article section > div > span[style*="background:#2763e9"],
+[data-theme='dark'] .stt-article section > div > span[style*="background: #2763e9"] {
+  background: #60a5fa !important;
+}
+
+/* --- Section title text (inline-styled p with color:#2a2a34) --- */
+[data-theme='dark'] .stt-article p[style*="color:#2a2a34"],
+[data-theme='dark'] .stt-article p[style*="color: #2a2a34"] {
+  color: #f1f5f9 !important;
+}
+/* Sub-label p with smaller text used as badges/tags */
+[data-theme='dark'] .stt-article p[style*="color:#2763e9"] {
+  color: #60a5fa !important;
+}
+
+/* --- Code blocks (pre) stay dark in both modes, just refine --- */
+[data-theme='dark'] .stt-article pre {
+  background: #0d1117;
+  border: 1px solid #1e293b;
+}
+
+/* --- Strong/bold text that uses dark colors inline --- */
+[data-theme='dark'] .stt-article strong {
+  color: #e2e8f0;
+}
+
+/* --- Links inside articles --- */
+[data-theme='dark'] .stt-article a {
+  color: #60a5fa;
+}
+[data-theme='dark'] .stt-article a:hover {
+  color: #93c5fd;
 }
 
 /* Use Inter from Google Fonts (loaded via @import at the top of this file) */
@@ -140,6 +274,11 @@ html.blog-post-page .container.margin-vert--lg > .row > .col.col--2 {
   color: #2763e9;
   outline: none;
 }
+[data-theme='dark'] .article-toc-accordion__toggle:hover,
+[data-theme='dark'] .article-toc-accordion__toggle:focus-visible {
+  background: var(--blog-accent-muted, rgba(96, 165, 250, 0.12));
+  color: var(--blog-accent, #60a5fa);
+}
 
 .article-toc-accordion__chevron {
   display: inline-block;
@@ -162,6 +301,9 @@ html.blog-post-page .container.margin-vert--lg > .row > .col.col--2 {
   padding: 0 0 0 0.65rem;
   border-left: 1px solid rgba(39, 99, 233, 0.18);
 }
+[data-theme='dark'] .article-toc-accordion__children {
+  border-left-color: var(--blog-accent-border, rgba(96, 165, 250, 0.22));
+}
 
 .article-toc-accordion__child {
   margin: 0;
@@ -183,6 +325,14 @@ html.blog-post-page .container.margin-vert--lg > .row > .col.col--2 {
 
 .article-toc-accordion__link--active {
   color: #2763e9;
+}
+
+[data-theme='dark'] .article-toc-accordion__child-link:hover,
+[data-theme='dark'] .article-toc-accordion__child-link:focus {
+  color: var(--blog-accent, #60a5fa);
+}
+[data-theme='dark'] .article-toc-accordion__link--active {
+  color: var(--blog-accent, #60a5fa);
 }
 
 /* ===== Links page (/links) =====
@@ -213,6 +363,9 @@ html.blog-post-page .container.margin-vert--lg > .row > .col.col--2 {
     border-color 0.18s ease,
     box-shadow 0.18s ease;
 }
+[data-theme='dark'] .links-card {
+  backdrop-filter: blur(12px);
+}
 .links-card:hover,
 .links-card:focus-visible {
   transform: translateY(-3px);
@@ -235,9 +388,28 @@ html.blog-post-page .container.margin-vert--lg > .row > .col.col--2 {
     background 0.18s ease,
     color 0.18s ease;
 }
+/* Near-black brand colors (X, Threads, GitHub) are invisible in dark mode;
+ * lighten the chip tint and glyph so they're visible. */
+[data-theme='dark'] .links-chip {
+  background: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+[data-theme='dark'] .links-card[style*="--brand: #0f0f0f"] .links-chip,
+[data-theme='dark'] .links-card[style*="--brand:#0f0f0f"] .links-chip,
+[data-theme='dark'] .links-card[style*="--brand: #181717"] .links-chip,
+[data-theme='dark'] .links-card[style*="--brand:#181717"] .links-chip {
+  background: rgba(148, 163, 184, 0.12);
+  color: #e2e8f0;
+}
 .links-card:hover .links-chip,
 .links-card:focus-visible .links-chip {
   background: var(--brand);
+  color: #fff;
+}
+[data-theme='dark'] .links-card[style*="--brand: #0f0f0f"]:hover .links-chip,
+[data-theme='dark'] .links-card[style*="--brand:#0f0f0f"]:hover .links-chip,
+[data-theme='dark'] .links-card[style*="--brand: #181717"]:hover .links-chip,
+[data-theme='dark'] .links-card[style*="--brand:#181717"]:hover .links-chip {
+  background: #475569;
   color: #fff;
 }
 .links-chip svg {
@@ -333,4 +505,35 @@ html.blog-post-page .container.margin-vert--lg > .row > .col.col--2 {
 }
 [data-theme='dark'] .project-ai-badge {
   color: #c4b5fd;
+  background: color-mix(in srgb, #7c3aed 18%, transparent);
+  border-color: color-mix(in srgb, #7c3aed 38%, transparent);
+}
+
+/* ===== Dark-mode glassmorphism for interactive cards ===== */
+[data-theme='dark'] .card-interactive {
+  background: var(--home-card-bg);
+  border-color: var(--home-card-border);
+  backdrop-filter: blur(12px);
+}
+[data-theme='dark'] .card-interactive:hover {
+  border-color: var(--ifm-color-primary);
+  box-shadow: 0 4px 20px -8px rgba(96, 165, 250, 0.18);
+}
+
+/* ===== Dark-mode navbar & footer refinements ===== */
+[data-theme='dark'] .navbar {
+  background: rgba(15, 17, 23, 0.85);
+  backdrop-filter: saturate(180%) blur(14px);
+  border-bottom: 1px solid #1e293b;
+}
+
+/* ===== Scrollbar styling for dark mode ===== */
+[data-theme='dark'] .thin-scrollbar {
+  scrollbar-color: #334155 transparent;
+}
+[data-theme='dark'] .thin-scrollbar::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+[data-theme='dark'] .thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
