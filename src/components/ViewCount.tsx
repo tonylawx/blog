@@ -38,8 +38,13 @@ export default function ViewCount(): JSX.Element | null {
         if (cancelled || !data) {
           return;
         }
-        setViews(typeof data.views === 'number' ? data.views : 0);
-        if (!counted) {
+        // null (unconfigured / no count yet) keeps the counter hidden.
+        const n = typeof data.views === 'number' ? data.views : null;
+        setViews(n);
+        // Only record the dedup flag when the POST actually reached Upstash
+        // (returned a number). If it came back null (unconfigured), leave it
+        // unset so we retry the increment once Upstash is configured.
+        if (!counted && n !== null) {
           sessionStorage.setItem(sessionKey, '1');
         }
       })

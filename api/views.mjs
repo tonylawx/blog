@@ -2,9 +2,11 @@
 //   GET  /api/views?slug=...  -> read-only {views}
 //   POST /api/views?slug=...  -> INCR + {views}
 //
-// Returns {views:0} gracefully when Upstash env vars are unset or the slug is
-// invalid, so the site never errors — the counter simply stays hidden until
-// UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are configured in Vercel.
+// Returns {views: <number>} when a real count exists, and {views: null}
+// otherwise (Upstash env vars unset, invalid slug, cross-origin POST, lookup
+// failure, or a key never incremented). The UI hides the counter on null, so
+// it stays quiet until UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are
+// configured in Vercel — no misleading "0 views".
 //
 // ESM (.mjs) so import/export work regardless of package.json "type".
 
@@ -52,32 +54,41 @@ async function upstash(command, key) {
   return data.result; // INCR -> number, GET -> string|null
 }
 
+// Returns {views: <number>} only when a real count exists. Returns {views: null}
+// when Upstash is not configured, the slug is invalid, the request is
+// cross-origin, the lookup fails, or a key has never been incremented — so the
+// UI hides the counter instead of showing a misleading "0".
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
 
   const slug = normalizeSlug(req.query?.slug || '');
   if (!slug) {
-    res.status(200).json({views: 0});
+    res.status(200).json({views: null});
     return;
   }
 
   // Not configured yet — keep the UI quiet instead of erroring.
   if (!UPSTASH_URL || !UPSTASH_TOKEN) {
-    res.status(200).json({views: 0});
+    res.status(200).json({views: null});
     return;
   }
 
   const increment = req.method === 'POST';
   if (increment && !sameOrigin(req)) {
-    res.status(403).json({views: 0});
+    res.status(403).json({views: null});
     return;
   }
 
   try {
     const result = await upstash(increment ? 'incr' : 'get', `views:${slug}`);
-    const views = result === null ? 0 : Number(result);
-    res.status(200).json({views: Number.isFinite(views) ? views : 0});
+    if (result === null) {
+      // GET on a key that was never incremented — nothing to show yet.
+      res.status(200).json({views: null});
+      return;
+    }
+    const views = Number(result);
+    res.status(200).json({views: Number.isFinite(views) ? views : null});
   } catch {
-    res.status(200).json({views: 0});
+    res.status(200).json({views: null});
   }
 }
