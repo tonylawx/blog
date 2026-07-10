@@ -1,0 +1,16 @@
+{
+  "name": "counter-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Tiny HTTP front for Redis, backing the blog's per-article view counter.",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "ioredis": "^5.4.6"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
