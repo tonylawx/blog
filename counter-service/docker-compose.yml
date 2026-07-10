@@ -1,0 +1,17 @@
+# Deploys the counter-service as a container on the VPS's existing `api_default`
+# network, so the shared Caddy can reverse-proxy to it (as service `counter`)
+# and it can reach the shared Postgres by service name (`postgres`). Run from
+# this directory after creating `.env`:
+#   docker compose up -d --build
+services:
+  counter:
+    build: .
+    container_name: counter
+    restart: unless-stopped
+    env_file: .env
+    networks:
+      - api_default
+
+networks:
+  api_default:
+    external: true
