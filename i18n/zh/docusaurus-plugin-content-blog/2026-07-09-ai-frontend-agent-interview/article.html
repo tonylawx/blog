@@ -17,6 +17,14 @@
 .interview-bank-section code{font-family:var(--ifm-font-family-monospace);font-size:0.92em}
 .interview-bank-section :not(pre)>code{padding:2px 5px;border-radius:5px;background:#eef2ff;color:#1d4ed8}
 .interview-bank-section hr{border:0;border-top:1px solid #edf0f5;margin:28px 0}
+.interview-bank-section .ib-followup{margin:18px 0 4px;padding:13px 16px 6px;border-left:3px solid #d97706;background:rgba(217,119,6,0.06);border-radius:0 8px 8px 0}
+.interview-bank-section .ib-followup .ib-label{margin:0 0 10px;color:#b45309;font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase}
+.interview-bank-section .ib-followup ul{margin:0 0 6px 1.1rem}
+.interview-bank-section .ib-followup li{margin:0 0 10px;color:#5a4a35;line-height:1.85}
+.interview-bank-section .ib-followup li:last-child{margin-bottom:4px}
+.interview-bank-section .ib-reflection{margin:14px 0 22px;padding:13px 16px;border-left:3px solid #0f766e;background:rgba(15,118,110,0.06);border-radius:0 8px 8px 0}
+.interview-bank-section .ib-reflection .ib-label{margin:0 0 8px;color:#0f766e;font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase}
+.interview-bank-section .ib-reflection p{margin:0;color:#33484a;line-height:1.9}
 </style>
 
 <p style="text-align:center;color:#2763e9;font-size:11px;letter-spacing:0.16em;font-weight:700;margin:0 0 28px;">AI 实践 · 面试题库 · Agent 工程</p>
@@ -54,6 +62,7 @@
 <tr><td>15</td><td>70%</td><td>算法手写</td><td>Promise 并发控制</td></tr>
 </tbody>
 </table>
+<p>每道高频题后面都配了三块内容：<strong>面试官可能追问</strong>列出真实面试里最常被深挖的点，<strong>我的思考</strong>是我自己准备时会多说一层的判断和踩坑。占比高的题，这两块要重点背。</p>
 </div>
 </section>
 
@@ -94,6 +103,18 @@ const usableAnswers: ModelAnswer[] = results.flatMap(result =&gt;
   result.status === 'fulfilled' ? [result.value] : [],
 );</code></pre>
 <blockquote><p><strong>参考回答：</strong>AI 产品里我不会把所有异步请求都当成一类。如果下一步依赖上一步，就串行。如果是独立模型、独立检索源，就并发。面向用户的场景我更常用 <code>allSettled</code>，因为部分结果比空白页面更好。同时我会加超时和取消，避免用户切换会话后旧请求继续写 UI。</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>Promise.all 里有一个 reject 了，已经完成的那些结果还能拿到吗？</strong>拿不到。<code>all</code> 是 fail-fast，整体一旦 reject 就 reject，已经 fulfilled 的值不会暴露。要保住结果就用 <code>allSettled</code>，或者把每个任务 <code>.catch</code> 成一个 resolved 的值再 <code>all</code>。</li>
+<li><strong>AbortController abort 之后，正在 await 的请求会怎样？</strong>fetch 会抛 <code>AbortError</code>。但要清楚：abort 只是通知底层中断，如果你的业务代码没监听 signal，<code>await</code> 不会自己停。自定义任务必须把 signal 一路传下去，并在里面主动检查。</li>
+<li><strong>多个模型并发，怎么决定用谁的答案？</strong>不能只看谁先返回就 race。要做质量与延迟的权衡：快模型先出占位、慢推理模型到了再替换；或者并行跑完，用校验规则或置信度选优。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>面试官问 Promise，真正想考的不是 API 名字，而是你能不能把并发策略和产品场景对上。我见过不少人背 all / allSettled 区别很熟，一问到"用户切走后旧请求怎么办"就卡住。取消和超时才是生产里天天踩的坑。还有一点容易被忽略：并发数不是越大越好，模型 provider 有 rate limit，盲目 <code>Promise.all</code> 一打过去直接 429。真正稳的做法是并发池 + 限速，而不是裸 all。</p>
+</div>
 <h2 id="article-section-1-question-2">2. 事件循环 <code>#TS基础</code> <code>48%</code></h2>
 <p><strong>一句话回答：</strong>事件循环每次执行一个宏任务，然后清空微任务队列，再给浏览器渲染机会。</p>
 <ul>
@@ -103,6 +124,18 @@ const usableAnswers: ModelAnswer[] = results.flatMap(result =&gt;
 <li>长 AI 文本渲染要批处理，并主动把主线程还给浏览器。</li>
 </ul>
 <blockquote><p><strong>参考回答：</strong>做流式 UI 时，我不会每个 token 都 setState。每次更新看起来很小，但微任务和渲染压力会迅速积累。我一般会 buffer chunk，然后用 <code>requestAnimationFrame</code> 或固定节奏 flush，保证用户看到稳定输出。</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>for 循环里塞 await 为什么慢，能用 Promise.all 改写吗？</strong>串行 await 让每个任务等上一个，总耗时是累加。如果任务之间没有依赖，就先收集成数组再 <code>all</code> / <code>allSettled</code>，时间从求和变成取最大值。前提是确认它们真的独立。</li>
+<li><strong>queueMicrotask 和 setTimeout(0) 谁先执行？</strong>微任务永远在当前宏任务结束后、下一个宏任务之前清空，所以 <code>queueMicrotask</code> 先。<code>setTimeout(0)</code> 实际还有 4ms 左右的最小延迟 clamp。</li>
+<li><strong>requestAnimationFrame 在事件循环里算什么？</strong>它不在宏/微任务的标准队列里，而是由渲染节奏驱动，在浏览器每一帧绘制前回调。所以流式 flush 用 rAF 能天然对齐帧，比 setTimeout 顺。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>事件循环背八股很多人都会，真正区分 senior 的是"微任务饿死渲染"这个点。我自己做过一个流式 Markdown，第一版每个 token 触发一次状态更新，长答案直接卡死，改成 chunk + rAF flush 才顺。这道题只要能说出"我踩过这个坑、怎么修的"，就比干背定义强一截。</p>
+</div>
 <h2 id="article-section-1-question-3">3. GC 与内存泄漏 <code>#TS基础</code> <code>53%</code></h2>
 <p><strong>一句话回答：</strong>JavaScript GC 基于可达性。能从根对象访问到的对象会保留；不可达对象才可能被回收。</p>
 <ul>
@@ -128,6 +161,18 @@ useEffect(() =&gt; {
     window.removeEventListener('resize', handleResize);
   };
 }, [conversationId]);</code></pre>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>怎么定位一个内存泄漏，具体步骤？</strong>Chrome DevTools Memory：先拍一次 heap snapshot，操作一轮（比如发十条消息），再拍一次，对比这两次的 delta；或开 allocation timeline 看哪类对象一直涨。关键是找"只增不减"的对象。</li>
+<li><strong>长会话聊天越聊越卡，可能哪里在泄漏？</strong>历史消息全量留在内存、stream buffer 没清、Markdown AST 缓存、闭包引用、AbortController 和 listener 没释放、全局 store 从不裁剪。</li>
+<li><strong>WeakMap / WeakSet 能解决泄漏吗？</strong>它只是不阻止 key 被回收，适合做关联缓存。但它不是自动清理的银弹，如果你还在别处强引用着那些数据，照样泄漏。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>内存泄漏在 AI 应用里比传统前端更隐蔽，因为长会话是常态。我的习惯是把每个 stream、listener、timer、controller 都和它所属的会话或组件生命周期绑死，会话切换或组件卸载时统一 abort + remove。还有一个容易漏的点：把整个 conversation 塞进全局 store 还从不裁剪，聊久了 store 自己就变重，重渲染也跟着变慢。</p>
+</div>
 </div>
 </section>
 
@@ -144,6 +189,18 @@ useEffect(() =&gt; {
 <li><code>sticky</code> 在阈值前像 relative，达到阈值后在滚动容器内像 fixed。</li>
 </ul>
 <blockquote><p><strong>参考回答：</strong>下拉框被遮住时，我不会只加大 <code>z-index</code>。我会先看祖先有没有创建新的 stacking context。复杂应用里通常用 portal 管理浮层，定义统一的 z-index scale，避免局部战争。</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>z-index 给到 9999 为什么还是被遮住？</strong>因为某个祖先创建了新的 stacking context，而 z-index 只在同一个 context 内比较。解法是顺着祖先链往上找，而不是死命加 z-index。</li>
+<li><strong>哪些属性会创建新的层叠上下文？</strong><code>position</code> 非 static 且带 z-index、<code>transform</code>、<code>opacity</code> 小于 1、<code>filter</code>、<code>will-change</code>、<code>isolation: isolate</code>、<code>mix-blend-mode</code> 都会。这是排查遮盖问题的清单。</li>
+<li><strong>sticky 失效的常见原因？</strong>多半是父容器有 <code>overflow: hidden/auto</code>，限制了 sticky 的滚动上下文；或者祖先高度不够，没有空间让它"粘"住。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>这题我几乎每次都会被追问到 stacking context。背 z-index 数值没用，得理解它是"有作用域"的。工程上的解法是 portal + 一套固定的 z-index 层级（toast &gt; modal &gt; popover &gt; content），别让每个组件自己拍 z-index，否则迟早打起来。</p>
+</div>
 <h2 id="article-section-2-question-2">2. Reflow、Repaint、Composite <code>#CSS</code> <code>48%</code></h2>
 <p><strong>一句话回答：</strong>布局变化触发 reflow，视觉变化触发 repaint，transform/opacity 通常能走合成层。</p>
 <pre class="language-css" data-language="css"><code class="language-css">.message-enter {
@@ -156,6 +213,18 @@ useEffect(() =&gt; {
   transform: translateY(0);
   transition: opacity 160ms ease, transform 160ms ease;
 }</code></pre>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>交替读写 offsetWidth 会怎样？</strong>触发强制同步布局（layout thrashing）。浏览器被迫反复重排，因为你读了布局又要改布局。办法是先批量读、再批量写，别读写交错。</li>
+<li><strong>will-change 该怎么用？</strong>只用在确实会高频变化的属性上，而且用完要移除。常驻 will-change 会让浏览器一直给它开合成层，吃内存。</li>
+<li><strong>动画用 left/top 和 transform 差在哪？</strong>left/top 触发 layout，transform / opacity 通常只触发 composite，能直接走 GPU，不掉帧。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>这题我会直接结合流式 UI 讲。消息列表持续 append，如果进出场的动画用 height、width，就等于一直在触发 reflow。换成 transform / opacity 加 FLIP 思路，再配合 <code>content-visibility: auto</code> 跳过屏幕外渲染，长会话才稳。</p>
+</div>
 </div>
 </section>
 
@@ -172,6 +241,18 @@ useEffect(() =&gt; {
 <li>服务端缓存、失效、重试、后台刷新，用 React Query / SWR 类工具。</li>
 </ul>
 <blockquote><p><strong>参考回答：</strong>AI chat 产品里，我不会把每个 token 都放 Redux。当前输入和 streaming draft 可以是局部状态或 feature store。会话元数据可以全局，历史消息要分页和缓存。重点是区分 UI state、server state 和长期产品状态。</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>streaming 的 token 你放哪，为什么不放 Redux？</strong>每个 token dispatch 一个 action，store 高频写入加上订阅组件重渲染，是灾难。放局部 state 或 feature store，按帧批量 flush 才合理。</li>
+<li><strong>React Query 能取代全局状态库吗？</strong>服务端状态它能管，但 UI 状态（弹窗、筛选、draft）还是要有地方放。很多人误以为 RQ 能包办一切，结果 UI 状态到处乱塞。</li>
+<li><strong>Zustand 怎么避免不必要的重渲染？</strong>用 selector 精确订阅某个切片，而不是订阅整个 store。否则 store 一变，所有用到的组件都重渲染。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>我对状态管理的看法是，"用什么库"是次要问题，"什么状态放哪"才是主要问题。分三类：UI 临时态、服务端缓存态、长期产品态。面试官最想听的是这个分类意识，而不是 Redux 和 Zustand 的 API 对比。我现在默认 Zustand 加 React Query，Redux 只在团队大、需要强约束和中间件时才上。</p>
+</div>
 <h2 id="article-section-3-question-2">2. React 性能优化 <code>#React</code> <code>52%</code></h2>
 <p><strong>一句话回答：</strong>React 性能优化主要是减少不必要 render、减少 render 阶段重计算，以及减少需要更新的 DOM 数量。</p>
 <pre class="language-tsx" data-language="tsx"><code class="language-tsx">type Message = {
@@ -198,8 +279,32 @@ const visibleMessages = useMemo&lt;Message[]&gt;(
   () =&gt; filterMessages(messages, keyword),
   [messages, keyword],
 );</code></pre>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>memo 加了为什么没变快？</strong>三种可能：props 引用每次都变（函数或对象没 useCallback / useMemo）、组件本身不够"贵"导致 memo 的成本大于收益、瓶颈根本不在 render 而在网络或重计算。</li>
+<li><strong>useMemo 用多了会怎样？</strong>每次 render 都要算依赖、存缓存，吃内存。给廉价值套 useMemo 反而更慢。</li>
+<li><strong>React 18 的并发渲染对性能优化有什么影响？</strong><code>useTransition</code> / <code>useDeferredValue</code> 能把低优先级更新延后，长列表、大表单输入不再卡。但并发模式下要小心副作用的执行时序。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>性能优化最大的误区是"无脑 memo"。真正的瓶颈要先 profile，用 React DevTools Profiler 找到重渲染的组件和原因，再针对性处理。我更喜欢从架构层减负：虚拟列表、拆分重计算组件、把派生计算挪进 useMemo 或 worker，而不是在每个组件上撒 memo。</p>
+</div>
 <h2 id="article-section-3-question-3">3. Fiber 与调度 <code>#React</code> <code>55%</code></h2>
 <p><strong>参考回答：</strong>Fiber 把 React render work 拆成可暂停、可恢复、可分优先级的工作单元。这让 concurrent rendering 成为可能。面试里可以把它解释成：React 从一次性递归 render，演进成合作式调度的 work tree。</p>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>为什么需要 Fiber，以前递归 render 有什么问题？</strong>递归 render 不可中断，组件树一大就长时间占用主线程、阻塞交互。Fiber 把工作拆成单元，能在帧的空隙里暂停让出。</li>
+<li><strong>时间切片是怎么触发的？</strong>调度器在每个工作单元执行后检查是否到点（大约 5ms），到了就让出主线程，等下一帧再继续。</li>
+<li><strong>useEffect 和 useLayoutEffect 在调度里有什么区别？</strong>layout effect 在 DOM 变更后同步执行、阻塞 paint；普通 effect 异步在 paint 之后。需要测量布局再同步改样式时才用 layout effect。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>这题答出"可中断、可恢复、可分优先级"三个词基本就够。加分项是讲清楚为什么要可中断——大列表 diff 不能把主线程锁死。再往深一层可以说 React 18 的 concurrent 模式正是建立在这个调度能力之上的，所以 useTransition 才成立。</p>
+</div>
 </div>
 </section>
 
@@ -235,6 +340,18 @@ async function requestJson&lt;T&gt;(url: string, options: ApiOptions): Promise&l
 
   return response.json() as Promise&lt;T&gt;;
 }</code></pre>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>JWT 放 localStorage 还是 Cookie？</strong>localStorage 方便但有 XSS 风险（JS 能读到）；HttpOnly Cookie 防 XSS 偷取，但有 CSRF 风险，要配 SameSite。没有银弹，看你的威胁模型偏哪边。</li>
+<li><strong>JWT 怎么强制下线？</strong>无状态 JWT 本身没法吊销。要么维护黑名单（又变有状态了）、要么用短 access token 加 refresh token 轮换、要么直接换签名密钥让所有 token 失效。</li>
+<li><strong>refresh token 轮换是什么意思？</strong>每次刷新都发新的 access 加新的 refresh，旧的 refresh 立即失效。这样即便 refresh token 被盗，有效期也被压得很短。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>这题我会强调一点：无状态不是免费的。JWT 的卖点是省服务端状态、好扩展，代价是吊销难。我见过不少团队无脑上 JWT，等遇到"强制登出""改密码后让旧 token 失效"才发现做不到。我的倾向是 access token 短期加 refresh token 放 HttpOnly Cookie，再配一个服务端可吊销的 session，比纯 JWT 稳。</p>
+</div>
 <h2 id="article-section-4-question-2">2. XSS、CSRF、AI 内容注入 <code>#Security</code> <code>59%</code></h2>
 <p><strong>一句话回答：</strong>XSS 是让攻击者代码在用户浏览器里执行；CSRF 是诱导浏览器带着登录态发请求；Prompt Injection 是诱导模型或 Agent 越过指令边界。</p>
 <ul>
@@ -258,6 +375,18 @@ function SafeMarkdown({ markdown }: SafeMarkdownProps): JSX.Element {
 
   return &lt;div dangerouslySetInnerHTML={{ __html: html }} /&gt;;
 }</code></pre>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>模型输出一段带 script 的 Markdown，渲染链路怎么挡？</strong>解析成 AST → DOMPurify 白名单 sanitize → 才 render。绝不全信任模型输出直接 innerHTML，哪怕它看起来是正常内容。</li>
+<li><strong>Prompt Injection 和 XSS 的本质区别是什么？</strong>XSS 是在浏览器里执行恶意代码，Prompt Injection 是让模型"听错指令"。一个是代码注入，一个是语义注入，防御层完全不同：XSS 靠净化，注入靠把数据和指令隔离。</li>
+<li><strong>Agent 调用工具时怎么防注入？</strong>模型输出是 input 不是 authority。工具执行要走服务端校验参数、检查权限、限制作用域，破坏性操作必须人工确认。模型只能"建议"，不能"执行"。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>安全这块在 AI 应用里被严重低估。传统 XSS 我们至少知道怎么防，AI 又多了一层：模型输出看起来是"正常生成的内容"，攻击者可以借检索内容或用户输入悄悄注入指令。我的原则就一条——模型永远只能建议，不能执行。执行权握在服务端策略层手里，前端不直接信任任何模型产物。</p>
+</div>
 </div>
 </section>
 
@@ -274,6 +403,18 @@ function SafeMarkdown({ markdown }: SafeMarkdownProps): JSX.Element {
 <li><strong>CLS</strong>：页面加载时是否跳动。</li>
 <li><strong>TTFB</strong>：服务端是否快速开始响应。</li>
 </ul>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>INP 替代了什么，为什么？</strong>2024 年 INP 取代 FID 成为 Core Web Vital。FID 只测首次交互，INP 测整个页面生命周期里所有交互的最慢响应，更贴近真实体验。</li>
+<li><strong>CLS 高怎么查？</strong>找无尺寸的图片、广告位、字体加载导致的跳动。给媒体设宽高、预留占位、避免在已有内容上方动态插入。</li>
+<li><strong>LCP 由什么决定？</strong>通常是最大那张图片或文本块的加载时间。优化方向是 preload、CDN、图片格式、SSR 加首屏关键 CSS。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>性能指标最大的坑是"看平均不看尾部"。平均 LCP 2 秒但 P75 是 5 秒，体验一样差。Google 的标准全都看 P75。我在监控里会同时看中位数和 P75 / P95，只看平均值会把尾部问题藏得死死的。</p>
+</div>
 <h2 id="article-section-5-question-2">2. 虚拟滚动 <code>#Performance</code> <code>78%</code></h2>
 <p><strong>一句话回答：</strong>虚拟滚动保留完整数据，只渲染可视区域和少量 overscan。</p>
 <pre class="language-typescript" data-language="ts"><code class="language-typescript">type VisibleRangeInput = {
@@ -304,8 +445,32 @@ function getVisibleRange({
     end: Math.min(total, lastVisible + overscan),
   };
 }</code></pre>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>行高不固定怎么办？</strong>要测量并缓存每行高度，渲染后用 ResizeObserver 纠正。比固定行高复杂得多，滚动时总高度会跳一下需要补偿。</li>
+<li><strong>聊天场景的虚拟滚动有什么特别的？</strong>聊天是反向的——历史在上方 prepend，要保住用户当前的滚动位置不被打飞；流式 append 时要判断用户在不在底部，在底部才自动跟随滚动，否则别打断他读历史。</li>
+<li><strong>虚拟滚动怎么保住键盘导航和无障碍？</strong>用 <code>aria-rowcount</code> / <code>aria-rowindex</code>，焦点要能移到屏幕外被虚拟化掉的行。这块很多库做得并不好，得自己补。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>虚拟滚动我踩过最深的坑就是聊天场景的反向滚动。历史往上 prepend 的瞬间，如果总高度变了不补偿，用户正在看的那条消息就被推走了。另一个高频坑是"流式输出时抢滚动条"——用户往上翻历史，模型还在 append，这时候自动滚到底部会非常烦人。判断"用户是否在底部附近"再决定要不要跟随，是体验的关键。</p>
+</div>
 <h2 id="article-section-5-question-3">3. Web Worker <code>#Performance</code> <code>62%</code></h2>
 <p><strong>参考回答：</strong>CPU 重、又不需要直接访问 DOM 的任务适合 worker：Token 计算、大 Markdown 解析、语法高亮、压缩、本地 embedding。代价是序列化成本，所以小任务没必要为了 worker 而 worker。</p>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>worker 和主线程通信成本高在哪？</strong>数据要结构化克隆（或 transfer），大对象序列化很贵。所以小任务开 worker 反而更慢。</li>
+<li><strong>Token 计算为什么适合放 worker？</strong>tiktoken 这类库要遍历字符串、跑 BPE，纯 CPU 计算，几十到几百毫秒。放主线程会卡住输入。</li>
+<li><strong>SharedArrayBuffer 能解决什么？</strong>共享内存免拷贝，但要 COOP / COEP 跨域隔离头，部署有门槛，不是随便就能用。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>worker 不是越多越好。我的判断标准是：单次执行超过一帧（约 16ms）、且不需要频繁访问 DOM 的重 CPU 任务才值得。Token 计算、大 Markdown 解析、本地 embedding 是典型场景。通信成本一定要算进去，否则把数据搬来搬去比在主线程算还慢。</p>
+</div>
 </div>
 </section>
 
@@ -343,10 +508,45 @@ class MonitorClient {
     await navigator.sendBeacon?.('/monitor', JSON.stringify(events));
   }
 }</code></pre>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>页面要关闭了，最后几条日志怎么保证不丢？</strong>用 <code>navigator.sendBeacon</code>（不阻塞卸载）或 <code>fetch</code> 加 <code>keepalive</code>。普通 fetch / XHR 在页面卸载时会被浏览器取消，丢数据。</li>
+<li><strong>监控 SDK 自己怎么保证不拖慢业务？</strong>批量上报、采样、空闲时发（<code>requestIdleCallback</code>）、错误降级。SDK 内部全包 try / catch，监控挂了不能把业务页面带崩。</li>
+<li><strong>怎么串联一个请求的前后端链路？</strong>前端生成或透传 traceId，BFF 接着往下传到所有下游服务，日志和指标都用这个 id 关联，形成分布式 trace。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>监控是面试出现率最高的（95%），但很多人答得太空，全是分类罗列。能加分的点是把 AI 业务自己的指标单独拎出来：不只是 JS error 和 Web Vitals，还要记 model provider、token 消耗、流式首字延迟、是否被取消、是否重试、用户赞踩。这些是 AI 产品独有的可观测维度，传统监控根本覆盖不到。</p>
+</div>
 <h2 id="article-section-6-question-2">2. Vite vs Webpack <code>#Engineering</code></h2>
 <p><strong>一句话回答：</strong>Vite 开发时快，是因为利用原生 ESM 和按需转换；Webpack 会构建完整依赖图，在复杂老项目和高度定制场景仍然强。</p>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>Vite 开发为什么快，生产为什么还要打包？</strong>开发用原生 ESM 按需加载、不打包，所以快；生产为了 tree-shaking、压缩、长期缓存命中，还是得用 Rollup 打成少量产物。</li>
+<li><strong>什么场景 Webpack 仍然更合适？</strong>老项目深度定制了 loader / plugin、Module Federation 多项目共享、复杂多入口。这些企业级场景 Vite 生态还没完全覆盖。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>这题纯八股，答出 dev 和 prod 的差异就够。我的看法是 Vite 现在是新项目默认选，Webpack 是历史包袱。但别为了换而换，迁移成本和工作量要算进去，老项目跑得好好的没必要强行重写构建。</p>
+</div>
 <h2 id="article-section-6-question-3">3. 灰度发布与回滚 <code>#Engineering</code> <code>40%</code></h2>
 <p><strong>参考回答：</strong>我会区分 deployment 和 release。部署是代码到生产；发布是谁能看到它。安全灰度需要 feature flag、小流量首批、指标、错误预算、自动回滚信号，以及不重新部署也能关功能的开关。</p>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>deployment 和 release 的区别到底在哪？</strong>部署是代码上了生产机器；发布是让用户能看到。这两步分开是安全发布的基础，出了问题能先停止发布，不用回滚部署。</li>
+<li><strong>灰度出问题怎么自动回滚？</strong>设错误预算和关键指标阈值（错误率、延迟、SLO），一旦被吃掉就自动切回上一个 release，不需要重新发版。</li>
+<li><strong>feature flag 怎么设计才好用？</strong>独立于代码部署、能按人群或比例或环境灰度、有 kill switch 能秒关、带审计日志。秒关比"回滚发版"快得多。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>这题我会强调"发布独立于部署"。AI 功能尤其要灰度，因为模型行为不确定性高，不像普通功能改个按钮。我的节奏是先内部 dogfood，再 1% → 10% → 全量，每档盯着指标走。能秒关的 kill switch 比"回滚发版"重要得多，出事的时候差这几分钟就是事故和没事故的区别。</p>
+</div>
 </div>
 </section>
 
@@ -377,6 +577,18 @@ async function limitConcurrency&lt;T&gt;(
 
   return results;
 }</code></pre>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>为什么用 worker 模式而不是在 then 里递归？</strong>worker 模式每个 worker 自己循环拉任务，天然保证并发数恒定，逻辑清晰、错误处理统一；递归在 then 里调度容易写出并发数不准、错误吞掉的版本。</li>
+<li><strong>结果顺序怎么保证？</strong>用预分配的 results 数组按任务下标写，不能 push——push 出来的顺序是完成顺序，不是任务顺序。</li>
+<li><strong>某个任务失败了怎么办？</strong>看需求：要整体失败就在 worker 里抛错让 <code>Promise.all</code> reject；要部分成功就把异常 catch 成一个 error 值写回对应下标。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>这是高频手写题（70%），一定要能默写。我用 worker 模式，因为它把"并发数控制"和"任务拉取"解耦，最不容易写错。面试时我会主动点出两个细节：results 按下标写保序、workerCount 取 <code>min(limit, tasks.length)</code>。这两个往往就是面试官想听的边界处理，能写出来比写对主体更亮眼。</p>
+</div>
 <h2 id="article-section-7-question-2">2. Debounce 与 Throttle <code>#Coding</code> <code>67%</code></h2>
 <p><strong>一句话回答：</strong>Debounce 等调用停止后再执行；Throttle 保证一个时间窗口内最多执行一次。</p>
 <pre class="language-typescript" data-language="ts"><code class="language-typescript">type AnyVoidFunction = (...args: never[]) =&gt; void;
@@ -406,6 +618,18 @@ function throttle&lt;T extends AnyVoidFunction&gt;(
     fn(...args);
   };
 }</code></pre>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>debounce 的 leading / trailing 是什么？</strong>trailing（默认）是停了之后才执行一次；leading 是立即先执行一次。搜索框要 trailing，按钮防连点可能要 leading。</li>
+<li><strong>你写的 throttle 是时间戳版，有什么缺陷？</strong>最后一次调用如果落在窗口内就不会执行，结尾可能丢一次。完整版要加 trailing，保证收尾执行。</li>
+<li><strong>requestAnimationFrame 能当 throttle 用吗？</strong>能，按帧节流，特别适合滚动、resize 这种和渲染相关的场景，天然对齐帧。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>debounce / throttle 也是必背。我会顺手提一下 lodash 的 leading / trailing / maxWait 选项，说明我想过边界而不只是写个能跑的版本。场景对应能说清就够：搜索框用 debounce、滚动加载用 throttle、拖拽和动画用 rAF 节流。</p>
+</div>
 </div>
 </section>
 
@@ -442,6 +666,18 @@ async function readStreamingResponse(
   scheduleRender(buffer);
 }</code></pre>
 <blockquote><p><strong>参考回答：</strong>流式不是单纯网络问题，也是渲染问题。我会 buffer chunk，在接近帧友好的节奏里更新，处理未完成 Markdown，并把取消请求放在一等位置。否则 UI 会卡，或者旧响应继续写入页面。</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>代码块只输出了一半（``` 还没闭合），Markdown 渲染怎么办？</strong>要容错：检测到未闭合的 fence 就临时补全再渲染，别让整段崩成乱码或把后面的文本都当代码。</li>
+<li><strong>用户切走了，旧 stream 还在写 UI 怎么办？</strong>每个请求带 id，新请求来时 abort 旧的；渲染前校验当前响应 id 是不是最新的，不是就丢弃这次更新。这就是 race condition 防护。</li>
+<li><strong>为什么不能每个 chunk 直接 setState？</strong>高频 setState 触发重渲染，微任务队列堆积、主线程被占满、渲染卡顿。要 buffer 加按帧 flush。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>流式渲染是 AI 前端最核心的题（84%）。我会重点讲两个最常被忽略的点：取消是一等公民，不是事后补的；以及未闭合 Markdown 的容错。这两块没处理好，demo 看着没事，真实长答案就崩。我自己踩过"旧响应 race 覆盖新响应"的坑——用户连续问两个问题，慢的那次后到，把快的答案盖掉了。所以请求 id 校验现在是我流式模块的标配。</p>
+</div>
 <h2 id="article-section-8-question-2">2. SSE vs WebSocket <code>#AI</code> <code>71%</code></h2>
 <p><strong>一句话回答：</strong>SSE 适合单向模型输出；WebSocket 更适合双向、低延迟、长连接交互。</p>
 <table>
@@ -452,6 +688,18 @@ async function readStreamingResponse(
 <tr><td>Fetch stream</td><td>普通 HTTP 流式输出</td><td>要测试浏览器和代理行为</td></tr>
 </tbody>
 </table>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>SSE 断了会自动重连吗？</strong>原生 <code>EventSource</code> 会自动重连，还能带 <code>Last-Event-ID</code> 续传。但 fetch stream 不会，断线重连和续传都得自己实现。</li>
+<li><strong>SSE 在某些 Nginx / 代理下被 buffer 了怎么办？</strong>关闭代理缓冲（响应头加 <code>X-Accel-Buffering: no</code>）、设好 <code>Content-Type: text/event-stream</code>、确保服务端及时 flush。否则流式会退化成一次性批量返回。</li>
+<li><strong>什么时候才必须用 WebSocket？</strong>双向、低延迟、实时协作、语音通话这些场景。单向模型输出 SSE 完全够，别为了"看起来高级"上 WS 平白增加运维负担。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>这题我的实际倾向是 SSE / fetch stream 优先，因为单向模型输出根本不需要双向通道。我见过不少团队为了"看起来更现代"上 WebSocket，结果连接管理、心跳、重连、状态同步全成了额外负担。简单优先于复杂，除非有明确的实时协作需求，否则没必要引入 WS 的复杂度。</p>
+</div>
 <h2 id="article-section-8-question-3">3. Token 计算与上下文预算 <code>#AI</code> <code>77%</code></h2>
 <p><strong>一句话回答：</strong>Token 数取决于模型 tokenizer。前端在发送长 prompt、文件、历史会话前要估算或计算 token。</p>
 <pre class="language-typescript" data-language="ts"><code class="language-typescript">type PromptBudget = {
@@ -466,6 +714,18 @@ function hasEnoughBudget(budget: PromptBudget, contextWindow: number): boolean {
   const used = Object.values(budget).reduce((sum, count) =&gt; sum + count, 0);
   return used &lt;= contextWindow;
 }</code></pre>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>前端怎么估 token，不准怎么办？</strong>用 tiktoken 这类库按目标模型的 tokenizer 算。估不准时就保守，宁可多算触发裁剪，也别乐观少算导致超限报错。</li>
+<li><strong>历史会话太长怎么办？</strong>滑动窗口、摘要压缩、只留最近几轮加系统提示。不要把整段历史无脑发上去。</li>
+<li><strong>system、检索内容、用户输入怎么分预算？</strong>分桶管理：system 固定、retrieval 可裁剪、history 摘要、user input 保留、output 预留。超了就按优先级挤，优先砍检索和早期历史。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>token 预算这题，真正难的不是算 token，而是"超了怎么办"这个产品决策。我的做法是分桶管理加透明化——超了就告诉用户"内容过长，已省略早期对话"，而不是偷偷截断。偷偷截断会让模型突然失忆、用户摸不着头脑。把裁剪做成可见的，比假装没事更专业。</p>
+</div>
 <h2 id="article-section-8-question-4">4. RAG 与引用 <code>#AI</code> <code>75%</code></h2>
 <p><strong>一句话回答：</strong>RAG 不只是向量搜索。可靠 RAG 需要 chunking、indexing、retrieval、reranking、context assembly、generation 和 citation mapping。</p>
 <ul>
@@ -476,6 +736,18 @@ function hasEnoughBudget(budget: PromptBudget, contextWindow: number): boolean {
 <li>把答案 claim 映射回 source chunk，才能做引用。</li>
 </ul>
 <blockquote><p><strong>参考回答：</strong>企业 AI 前端里，引用应该是数据模型的一部分，不是 UI 装饰。前端应该知道答案哪一段来自哪个 source chunk。如果无法追溯，就应该降低可信度，而不是假装 grounded。</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>只做向量检索为什么不够？</strong>向量容易召回语义相近但实际不对的内容，专名、编号、关键词匹配很差。所以要 hybrid（向量加 BM25 关键词）再加 rerank。</li>
+<li><strong>chunk 怎么切才好？</strong>按语义、按标题切，别硬按固定字符。留 overlap 保留上下文。表格和代码整块别切断。</li>
+<li><strong>引用怎么和答案对齐？</strong>生成时让模型标注每段来自哪个 source，或后处理把答案句子和 source chunk 匹配。映射不上就降可信度或标注"未找到依据"。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>RAG 我的核心理念是"可追溯优先于看起来准确"。前端必须知道答案每一段来自哪个 source，映射不上就老实说"没找到依据"，而不是假装 grounded。企业场景里，一个编造却自信的回答比一句"我不确定"危险得多——前者会让用户拿着错误信息去做决策，后者最多让人觉得模型不够强。</p>
+</div>
 </div>
 </section>
 
@@ -492,8 +764,31 @@ function hasEnoughBudget(budget: PromptBudget, contextWindow: number): boolean {
 <li>Storage：conversation、message version、attachment、embedding、audit log。</li>
 <li>Observability：latency、token、cost、model error、feedback、tool-call trace。</li>
 </ul>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>前端怎么处理多模型 / 多 provider 的差异？</strong>BFF 加 model adapter 层，把 streaming、error、tool call、billing 格式全归一化，给前端一个统一 contract。前端绝不直接对接 provider SDK。</li>
+<li><strong>高并发下怎么控制成本？</strong>按用户或租户做 quota 和限流、缓存高频 query、按问题难度做模型路由（简单问题走便宜模型）、设 token 预算上限。</li>
+<li><strong>消息要存哪些版本信息？</strong>至少 message id、版本号、生成时用的 model 和参数、引用的 chunk id，方便回溯和重新生成。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>系统设计题我会反复强调 BFF 这一层。它不是简单转发，而是把 provider 差异、鉴权、限流、计费、可观测全部收口。前端拿到的是产品形态的 API，后端换模型前端无感。这层设计得好，后面换 provider、加 fallback、做灰度全都很轻松；设计得差，每次接新模型都要改前端。</p>
+</div>
 <h2 id="article-section-9-question-2">2. BFF 与 Schema 适配 <code>#Architecture</code> <code>70%</code></h2>
 <p><strong>参考回答：</strong>BFF 的价值是给前端一个产品形态的 API，而不是暴露一堆后端服务形态。AI 产品里尤其重要，因为不同模型 provider 的 streaming、error、billing、tool call 格式都不同。BFF 可以把这些差异归一成一个前端 contract。</p>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>BFF 会不会成为瓶颈或单点？</strong>会，所以要无状态、能水平扩展、加缓存。BFF 只做编排和适配，不做重计算，重活下沉到专门的服务。</li>
+<li><strong>BFF 和 gateway 有什么区别？</strong>gateway 是通用入口，管鉴权、限流、路由；BFF 是面向特定前端的适配层，贴近产品形态。两者可以共存，gateway 在前、BFF 在后。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>BFF 这题我会说清它"适配"的本质——给前端产品形态的 API，屏蔽后端服务形态。AI 场景特别需要，因为 provider 差异太大。但有个反面教训：别让 BFF 慢慢变成"什么都往里塞"的胖层，业务逻辑一旦大量堆进 BFF，它就从适配层变成了第二个后端，维护成本陡增。保持薄。</p>
+</div>
 <h2 id="article-section-9-question-3">3. 状态机 <code>#Architecture</code> <code>55%</code></h2>
 <p><strong>一句话回答：</strong>状态机用明确的状态和转移，让复杂异步 UI 可预测。</p>
 <pre class="language-typescript" data-language="ts"><code class="language-typescript">type ChatState = 'idle' | 'streaming' | 'cancelled' | 'failed' | 'done';
@@ -510,6 +805,18 @@ const transitions: Record&lt;ChatState, ChatEvent[]&gt; = {
 function canTransition(state: ChatState, event: ChatEvent): boolean {
   return transitions[state].includes(event);
 }</code></pre>
+<div class="ib-followup">
+<p class="ib-label">面试官可能追问</p>
+<ul>
+<li><strong>为什么用状态机而不是几个 boolean？</strong>几个 boolean 组合（isLoading + isError + isDone）会出现非法状态，比如既 loading 又 done。状态机用枚举状态加合法转移，从结构上消灭非法组合。</li>
+<li><strong>streaming 中途取消，状态怎么走？</strong>streaming 通过 cancel 转到 cancelled，cancelled 只能 retry 回 streaming 或 reset 回 idle。这样 cancelled 状态就不会再接 chunk 事件，避免脏更新。</li>
+<li><strong>XState 这种库有必要吗？</strong>简单场景用枚举加转移表就够了。状态多、有复杂副作用、需要可视化和可测试性时才上 XState 这种重库。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>状态机我的体会是：异步 UI 越复杂越值。AI 流式对话有 idle、streaming、cancelled、failed、done 五个状态，用几个 boolean 必然写出非法组合。一张转移表比一堆 if 清晰太多。不过简单场景别上重库，枚举加一张转移表就能解决大多数问题。</p>
+</div>
 </div>
 </section>
 
@@ -517,13 +824,58 @@ function canTransition(state: ChatState, event: ChatEvent): boolean {
 <div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">10 · HR</span><span style="flex:1;height:1px;background:#2763e9;"></span></div>
 <p id="article-section-10" style="margin:0 0 16px 0;padding:0;color:#2a2a34;font-size:22px;line-height:1.45;font-weight:850;text-align:left;letter-spacing:0;">HR 与软技能话术</p>
 <div class="interview-bank-section">
+<p>HR 面不像技术面那样"追问实现细节"，但它会往两个方向深挖：一是你回答里的每个说法都要能撑起一个具体例子，二是判断你说的方向是不是真的在持续投入。下面每道题配了"可能被深挖的方向"和"我的思考"。</p>
 <h2 id="article-section-10-question-1">1. 你的核心优势是什么？ <code>#HR</code></h2>
 <blockquote><p><strong>参考回答：</strong>我的优势是能把产品体验、前端架构和 AI 实现连接起来。我不只关心模型能不能回答，也关心 streaming UX、取消、监控、权限、成本和失败恢复。这能把 AI demo 推近真实产品。</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">可能被深挖的方向</p>
+<ul>
+<li><strong>"你说的这些能力，能举个具体例子吗？"</strong>一定要有 1 到 2 个 STAR 例子：什么项目、你做了什么、结果用数据说话。停在口号上就垮了。</li>
+<li><strong>"和纯算法 / AI 工程师比，你的短板是什么？"</strong>诚实承认（比如模型训练和微调不是我的主场），但说明定位是工程落地，和算法团队互补，而不是硬装全能。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>HR 题最容易答得空泛。我的原则是每个说法后面都要能立刻接一个具体例子。优势不是形容词堆砌，而是"我做过 X，结果是 Y"。诚实承认短板反而加分，面试官见过太多包装，真诚且有自知之明的人反而稀缺。</p>
+</div>
 <h2 id="article-section-10-question-2">2. 为什么做 AI 前端 / Agent 工程？</h2>
 <blockquote><p><strong>参考回答：</strong>以前前端主要是页面和交互。AI 产品多了一层：界面连接模型行为、上下文、工具和用户信任。我喜欢这个交叉点，它承接我的前端背景，也推动我做系统思考。</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">可能被深挖的方向</p>
+<ul>
+<li><strong>"你最近在学什么？"</strong>说一个真实的、最近在搞的东西——某个 agent 框架、一篇论文、一个 side project。这是测你是不是真在持续投入的试金石。</li>
+<li><strong>"这个方向你觉得天花板在哪？"</strong>表达自己的判断：工具链、可观测性、可靠性这些工程层面比模型能力本身更缺人做，这也是机会所在。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>动机题面试官其实在判断你是不是"追热点"。我用"承接前端背景加推动系统思考"来锚定，说明这是自然延伸不是冲动转型。最关键的是准备好"最近在学什么"的答案——这个问题答得具体、答得出最近一两周的东西，真实性立刻就立住了。</p>
+</div>
 <h2 id="article-section-10-question-3">3. 怎么解释空窗期？</h2>
 <blockquote><p><strong>参考回答：</strong>我有一段时间停下来重新调整方向。那段时间我把重心转向 AI tooling、前端架构和全栈产品能力。现在我希望找一个能认真投入这个方向的角色，而不是回到过去重复性的前端工作。</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">可能被深挖的方向</p>
+<ul>
+<li><strong>"这段时间有什么产出？"</strong>哪怕是 side project、开源贡献、技术文章、系统学习，都要有可见的产出，证明这段时间不是真空。</li>
+<li><strong>"为什么现在想回来？"</strong>把空窗讲成主动调整方向，期间有具体的学习和产出，现在准备好投入新方向，而不是被动"找不到工作"。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>空窗期最忌讳支支吾吾。我会正面讲成主动的选择：停下来是为了转向 AI 方向，期间有具体的学习和产出，现在准备认真投入。坦诚加有产出就等于可信。别过度解释，一两句讲清楚，然后把话题拉回到"我现在能做什么"。</p>
+</div>
 <h2 id="article-section-10-question-4">4. 面试收尾怎么说？</h2>
 <blockquote><p><strong>参考回答：</strong>我能带来的不只是 React 经验。我可以用生产化视角做 AI 功能：流式 UI、安全工具调用、检索体验、监控、性能和清晰架构。这是我想继续成长的方向，也是在团队里能创造价值的地方。</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">收尾要主动带出的信息</p>
+<ul>
+<li><strong>"你还有什么想问我们的？"</strong>别问不出错的问题。问有水平的：团队目前最大的技术挑战是什么、AI 功能的可靠性怎么衡量、发布和灰度流程是怎样的。问得好本身是加分项。</li>
+<li><strong>收尾的一句话定位。</strong>用一句话总结"我不只是会 React，我能把 AI 功能做成真正的产品"，把生产化视角这个差异点钉在面试官记忆里。</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">我的思考</p>
+<p>收尾是给面试官留下"生产化视角"印象的最后机会。我会先用一句话钉住定位，再把话语权交回去，反问一两个有深度的问题——这不只是礼貌，也是在表示我在认真评估这个团队值不值得去。问问题的水平，往往比回答更能暴露真实的段位。</p>
+</div>
 </div>
 </section>

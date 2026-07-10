@@ -17,6 +17,14 @@
 .interview-bank-section code{font-family:var(--ifm-font-family-monospace);font-size:0.92em}
 .interview-bank-section :not(pre)>code{padding:2px 5px;border-radius:5px;background:#eef2ff;color:#1d4ed8}
 .interview-bank-section hr{border:0;border-top:1px solid #edf0f5;margin:28px 0}
+.interview-bank-section .ib-followup{margin:18px 0 4px;padding:13px 16px 6px;border-left:3px solid #d97706;background:rgba(217,119,6,0.06);border-radius:0 8px 8px 0}
+.interview-bank-section .ib-followup .ib-label{margin:0 0 10px;color:#b45309;font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase}
+.interview-bank-section .ib-followup ul{margin:0 0 6px 1.1rem}
+.interview-bank-section .ib-followup li{margin:0 0 10px;color:#5a4a35;line-height:1.85}
+.interview-bank-section .ib-followup li:last-child{margin-bottom:4px}
+.interview-bank-section .ib-reflection{margin:14px 0 22px;padding:13px 16px;border-left:3px solid #0f766e;background:rgba(15,118,110,0.06);border-radius:0 8px 8px 0}
+.interview-bank-section .ib-reflection .ib-label{margin:0 0 8px;color:#0f766e;font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase}
+.interview-bank-section .ib-reflection p{margin:0;color:#33484a;line-height:1.9}
 </style>
 
 <p style="text-align:center;color:#2763e9;font-size:11px;letter-spacing:0.16em;font-weight:700;margin:0 0 28px;">AI Practice · Interview Question Bank · Agent Engineering</p>
@@ -69,6 +77,7 @@
 <tr><td>30</td><td>35%</td><td>HR</td><td>Core strengths and career gap explanation</td></tr>
 </tbody>
 </table>
+<p>Every high-frequency question has three parts: a <strong>sample answer</strong>, an <strong>Interviewer follow-ups</strong> block listing the drill-downs that actually come up, and a <strong>My take</strong> block with the judgement calls and war stories I lean on. For the top-mention topics, prepare all three.</p>
 </div>
 </section>
 
@@ -109,6 +118,18 @@ const usableAnswers: ModelAnswer[] = results.flatMap(result =&gt;
   result.status === 'fulfilled' ? [result.value] : [],
 );</code></pre>
 <blockquote><p><strong>Sample answer:</strong> In an AI product I do not treat all async calls the same. If the next step needs the previous result, I keep the flow sequential. If I am calling independent providers or retrieval sources, I run them concurrently. For user-facing AI features, I usually prefer <code>allSettled</code> because partial results are better than a blank screen. I also attach timeout and cancellation so stale requests do not keep updating the UI after the user has moved on.</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>If one task in Promise.all rejects, can you still get the values that already fulfilled?</strong> No. <code>all</code> is fail-fast: once one rejects, the whole thing rejects and the fulfilled values are lost. Use <code>allSettled</code> instead, or wrap each task with <code>.catch</code> so it resolves to a sentinel value before <code>all</code>.</li>
+<li><strong>After you call AbortController.abort(), what happens to the in-flight await?</strong> For fetch it throws an <code>AbortError</code>. But abort only signals the underlying layer; if your code never reads the signal, the <code>await</code> keeps running. You have to thread the signal all the way down and check it inside your own tasks.</li>
+<li><strong>Several models run in parallel — how do you decide which answer to use?</strong> Do not just race on whoever returns first. Balance quality against latency: let a fast model produce a placeholder, then swap in the reasoning model when it lands; or run both and pick by a validation rule or confidence score.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>When interviewers ask about Promise, they are not really testing API names — they want to see if you can match a concurrency strategy to a product situation. I have met plenty of people who recite the all / allSettled difference fluently but freeze at "what happens to the old request after the user navigates away." Cancellation and timeout are the traps you hit every day in production. One more thing people forget: more concurrency is not always better. Model providers rate-limit you, so firing a raw <code>Promise.all</code> at a dozen endpoints gets you a wall of 429s. A concurrency pool with throttling is the real answer.</p>
+</div>
 <h2 id="article-section-1-question-2">2. Event loop <code>#JavaScript</code> <code>48%</code></h2>
 <p><strong>One-line answer:</strong> The event loop runs one macrotask, drains all microtasks, gives the browser a chance to render, and then moves to the next macrotask.</p>
 <ul>
@@ -118,6 +139,18 @@ const usableAnswers: ModelAnswer[] = results.flatMap(result =&gt;
 <li>For long AI text rendering, batch updates and yield back to the browser.</li>
 </ul>
 <blockquote><p><strong>Sample answer:</strong> For streaming UI, I avoid setting React state for every token. Even though each update feels small, the microtask queue can grow quickly and block painting. I usually buffer chunks, flush on <code>requestAnimationFrame</code>, and keep rendering work under the frame budget.</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>Why is a for-loop full of await slow, and can you rewrite it with Promise.all?</strong> Sequential await makes each task wait for the previous one, so total time is the sum. If the tasks are independent, collect them into an array first and use <code>all</code> / <code>allSettled</code> — total time becomes the max instead of the sum. Confirm independence before doing it.</li>
+<li><strong>Which runs first, queueMicrotask or setTimeout(0)?</strong> Microtasks always drain right after the current macrotask and before the next one, so <code>queueMicrotask</code> wins. <code>setTimeout(0)</code> also has a roughly 4ms minimum-delay clamp in most browsers.</li>
+<li><strong>Where does requestAnimationFrame fit in the event loop?</strong> It is not part of the standard macro/micro queues. It is driven by the render cadence and fires before each paint, so flushing a stream on rAF naturally aligns with frames and stays smoother than setTimeout.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>Everyone can recite the event loop definition. The thing that actually separates a senior candidate is "microtasks starve rendering." I once shipped a streaming Markdown renderer that set state on every token; long answers froze the page, and only chunking plus an rAF flush fixed it. If you can say "I hit this bug and here is how I fixed it," that beats memorizing the definition every time.</p>
+</div>
 <h2 id="article-section-1-question-3">3. Garbage collection and memory leaks <code>#JavaScript</code> <code>53%</code></h2>
 <p><strong>One-line answer:</strong> JavaScript garbage collection is reachability-based. Objects reachable from roots stay alive; unreachable objects can be collected.</p>
 <ul>
@@ -144,6 +177,18 @@ useEffect(() =&gt; {
     window.removeEventListener('resize', handleResize);
   };
 }, [conversationId]);</code></pre>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>How do you actually track down a memory leak, step by step?</strong> Chrome DevTools Memory: take a heap snapshot, run a round of interaction (send ten messages, say), take another snapshot, and compare the delta. Or open the allocation timeline and watch which object types only grow. You are hunting for "monotonically increasing."</li>
+<li><strong>A long chat gets slower the longer it runs — what is leaking?</strong> Full history kept in memory, unflushed stream buffers, cached Markdown ASTs, stale closures, AbortControllers and listeners never released, or a global store that is never trimmed.</li>
+<li><strong>Do WeakMap / WeakSet prevent leaks?</strong> They just stop the key from blocking GC, which makes them fine for associated caches. They are not a cleanup silver bullet — if you still strongly reference the data somewhere else, it leaks all the same.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>Memory leaks are sneakier in AI apps than in classic frontends because long sessions are the norm. My rule is to bind every stream, listener, timer, and controller to the lifecycle of the conversation or component it belongs to, and abort plus remove them all when the session switches or the component unmounts. One easy miss: dumping the whole conversation into a global store and never trimming it. The store gets heavy over time, and re-renders get slower with it.</p>
+</div>
 </div>
 </section>
 
@@ -161,6 +206,18 @@ useEffect(() =&gt; {
 <li>New stacking contexts can come from <code>position + z-index</code>, <code>transform</code>, <code>opacity &lt; 1</code>, <code>filter</code>, and <code>isolation</code>.</li>
 </ul>
 <blockquote><p><strong>Sample answer:</strong> When a dropdown or tooltip is hidden behind another layer, I do not blindly raise <code>z-index</code>. I first check whether an ancestor created a new stacking context. In complex apps I usually put overlays into a portal, define a small z-index scale, and avoid local z-index wars.</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>Why is z-index 9999 still hidden behind another layer?</strong> Because an ancestor created a new stacking context, and z-index is only compared within the same context. Walk up the ancestor chain instead of cranking the number higher.</li>
+<li><strong>Which properties create a new stacking context?</strong><code>position</code> non-static with a z-index, <code>transform</code>, <code>opacity</code> below 1, <code>filter</code>, <code>will-change</code>, <code>isolation: isolate</code>, and <code>mix-blend-mode</code>. That list is your checklist when an overlay is clipped.</li>
+<li><strong>Common reasons sticky stops working?</strong> Usually a parent with <code>overflow: hidden/auto</code> constrains the sticky scroll context, or an ancestor is not tall enough to give it room to stick.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>This question almost always gets pushed into stacking context. Memorizing z-index values is useless; you have to understand that z-index is scoped. The engineering answer is a portal plus a fixed z-index scale (toast &gt; modal &gt; popover &gt; content) so individual components never invent their own z-index. Otherwise they fight each other eventually.</p>
+</div>
 <h2 id="article-section-2-question-2">2. Reflow, repaint, and composite <code>#CSS</code> <code>48%</code></h2>
 <p><strong>One-line answer:</strong> Layout changes trigger reflow, visual changes trigger repaint, and transform/opacity can often be handled by the compositor.</p>
 <ul>
@@ -179,8 +236,31 @@ useEffect(() =&gt; {
   transform: translateY(0);
   transition: opacity 160ms ease, transform 160ms ease;
 }</code></pre>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>What happens if you alternate reads and writes of offsetWidth?</strong> Forced synchronous layout, or layout thrashing. The browser is forced to recompute layout repeatedly because you read it and then mutate it. Fix it by batching all reads, then all writes.</li>
+<li><strong>How should will-change be used?</strong>Only for a property that is genuinely about to change a lot, and remove it when done. Leaving will-change on permanently keeps a compositor layer alive and burns memory.</li>
+<li><strong>Why is animating transform/opacity cheaper than left/top?</strong>left/top trigger layout; transform and opacity usually only hit composite and go straight to the GPU without dropping frames.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>I tie this one straight back to streaming UI. A message list that keeps appending will reflow constantly if its enter/exit animations animate height or width. Swapping to transform and opacity with a FLIP approach, plus <code>content-visibility: auto</code> to skip off-screen rendering, is what keeps a long conversation smooth.</p>
+</div>
 <h2 id="article-section-2-question-3">3. Responsive layout <code>#CSS</code></h2>
 <p><strong>Sample answer:</strong> I prefer layout primitives before media-query patches. For example, use flexible grid, fluid widths, and sensible min/max constraints first. Then use breakpoints for real product changes, such as moving a side panel under the main content or collapsing a full toolbar into an action menu.</p>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>Container queries versus media queries — when does each win?</strong>Media queries respond to the viewport; container queries respond to a component's own container. Reusable components that have to look right at any width are the container-query use case.</li>
+<li><strong>How do you handle responsive without the layout jumping on resize?</strong>Fluid units (clamp, min/max, vw), intrinsic sizing (min-content, fit-content), and a few real breakpoints instead of pixel-perfect ones for every device.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>I reach for layout primitives before media queries. A fluid grid plus clamp-based sizing handles most of the range by itself; breakpoints then handle genuine product changes, like collapsing a toolbar. If you find yourself writing a breakpoint per device, the primitives are doing too little work.</p>
+</div>
 </div>
 </section>
 
@@ -197,6 +277,18 @@ useEffect(() =&gt; {
 <li>Use React Query/SWR-style tools for server cache, invalidation, retries, and background refetch.</li>
 </ul>
 <blockquote><p><strong>Sample answer:</strong> For an AI chat product, I would keep the current input and streaming draft local or in a feature store. I would not put every token into Redux. Conversation metadata can be global, while historical messages should be paginated and cached. The important thing is to separate UI state, server state, and long-lived product state.</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>Where do the streaming tokens go, and why not Redux?</strong>Dispatching an action per token means high-frequency store writes plus re-renders on every subscribed component — a disaster. Keep them in local state or a feature store and flush in batches per frame.</li>
+<li><strong>Can React Query replace a global state library?</strong>For server state, yes. But UI state (modals, filters, drafts) still needs a home. Plenty of people assume RQ handles everything and end up stuffing UI state wherever it fits.</li>
+<li><strong>How do you avoid unnecessary re-renders with Zustand?</strong>Subscribe to a specific slice with a selector instead of the whole store. Otherwise every store change re-renders every component that touches it.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>The way I think about state management, "which library" is the secondary question and "which kind of state goes where" is the primary one. Three buckets: ephemeral UI state, cached server state, long-lived product state. That classification is what interviewers want to hear, not a Redux-versus-Zustand API comparison. My default is Zustand plus React Query, and I only reach for Redux on large teams that need strict conventions and middleware.</p>
+</div>
 <h2 id="article-section-3-question-2">2. React performance optimization <code>#React</code> <code>52%</code></h2>
 <p><strong>One-line answer:</strong> React performance work is mostly about reducing unnecessary renders, reducing expensive work during render, and shrinking the amount of DOM that needs to update.</p>
 <ul>
@@ -229,8 +321,32 @@ const visibleMessages = useMemo&lt;Message[]&gt;(
   () =&gt; filterMessages(messages, keyword),
   [messages, keyword],
 );</code></pre>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>You added memo but nothing got faster — why?</strong>Three possibilities: props change identity every render (functions or objects without useCallback/useMemo), the component is not expensive enough for memo to pay off, or the bottleneck is not render at all but network or heavy computation.</li>
+<li><strong>What happens if you overuse useMemo?</strong>Every render pays to compute the dependency array and store the cache, which costs memory. Wrapping a cheap value in useMemo can make things slower.</li>
+<li><strong>What does React 18 concurrent rendering change for performance work?</strong><code>useTransition</code> and <code>useDeferredValue</code> defer low-priority updates so a big list or form input stops blocking typing. But under concurrent mode you have to be careful about side-effect timing.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>The biggest misconception in React performance is "memo everything." Profile first with the React DevTools Profiler to find which components re-render and why, then fix that specifically. I prefer reducing load at the architecture level — virtualization, splitting heavy components, moving derivation into useMemo or a worker — over sprinkling memo across every component.</p>
+</div>
 <h2 id="article-section-3-question-3">3. Fiber and scheduling <code>#React</code> <code>55%</code></h2>
 <p><strong>Sample answer:</strong> Fiber turns React rendering work into units that can be paused, resumed, and prioritized. That is what makes concurrent rendering possible. In interview terms, I explain it as React moving from one big recursive render to a cooperative scheduler with a tree of work units.</p>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>Why was Fiber needed, and what was wrong with recursive rendering?</strong>Recursive rendering could not be interrupted, so a large component tree held the main thread for too long and blocked interaction. Fiber splits the work into units that can pause and yield between frames.</li>
+<li><strong>How is time-slicing triggered?</strong>The scheduler checks after each work unit whether the time budget (about 5ms) is up; if so it yields the main thread and resumes on the next frame.</li>
+<li><strong>useEffect versus useLayoutEffect in this scheduling model?</strong>Layout effects run synchronously after DOM mutation and block paint; plain effects run asynchronously after paint. Use a layout effect only when you must measure layout and adjust styles in the same frame.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>The three words that answer this are "interruptible, resumable, prioritizable." The bonus is explaining why interruptibility matters — a big list diff cannot lock the main thread. One layer deeper: React 18's concurrent mode is built on top of this scheduling, which is exactly why useTransition is possible.</p>
+</div>
 </div>
 </section>
 
@@ -246,6 +362,18 @@ const visibleMessages = useMemo&lt;Message[]&gt;(
 <li>JWT is stateless and scalable, but revocation and rotation need careful design.</li>
 <li>Access tokens should be short-lived. Refresh tokens need stricter protection.</li>
 </ul>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>localStorage or Cookie for a JWT?</strong>localStorage is convenient but exposed to XSS (any JS can read it). An HttpOnly Cookie resists theft by XSS but is vulnerable to CSRF, so it needs SameSite. No silver bullet — it depends on your threat model.</li>
+<li><strong>How do you force a JWT to log out?</strong>A stateless JWT cannot be revoked by itself. You keep a server-side blocklist (which makes it stateful again), use short access tokens plus refresh-token rotation, or rotate the signing key to invalidate everything.</li>
+<li><strong>What is refresh-token rotation?</strong>Every refresh issues a new access token and a new refresh token, and invalidates the old refresh token. Even a stolen refresh token stays valid only briefly.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>The point I push here is that statelessness is not free. JWT's selling point is no server state and easy scaling, and the price is hard revocation. I have seen teams adopt JWT by default, only to discover they cannot do "force logout" or "invalidate on password change." My preference is short access tokens plus a refresh token in an HttpOnly Cookie, paired with a server-revocable session. More robust than pure JWT.</p>
+</div>
 <h2 id="article-section-4-question-2">2. XSS, CSRF, and AI content injection <code>#Security</code> <code>59%</code></h2>
 <p><strong>One-line answer:</strong> XSS runs attacker-controlled code in the user’s browser. CSRF tricks the browser into sending an authenticated request. Prompt injection tricks the model or agent into ignoring the intended instruction boundary.</p>
 <ul>
@@ -255,6 +383,18 @@ const visibleMessages = useMemo&lt;Message[]&gt;(
 <li>For destructive tools, require permission checks, argument validation, and confirmation.</li>
 </ul>
 <blockquote><p><strong>Sample answer:</strong> In a classic frontend app, XSS is already dangerous. In an AI app it is worse because the output may look like normal generated content. I would sanitize rich text, isolate previews where possible, and make tool execution go through a server-side policy layer. The model can suggest an action, but it should not be allowed to execute arbitrary actions directly.</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>The model emits Markdown containing a script tag — how does your render pipeline stop it?</strong>Parse to an AST, sanitize with a DOMPurify allowlist, then render. Never trust model output with a raw innerHTML, even when it looks like normal content.</li>
+<li><strong>What is the real difference between prompt injection and XSS?</strong>XSS executes malicious code in the browser; prompt injection makes the model follow the wrong instructions. One is code injection, the other is semantic injection, and the defenses are completely different — sanitize for XSS, separate data from instructions for injection.</li>
+<li><strong>How do you protect an agent that calls tools?</strong>Model output is input, not authority. Tool execution goes through server-side argument validation, permission checks, and scope limits, with human confirmation for destructive actions. The model can only suggest; it cannot execute.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>Security is badly underweighted in AI apps. We at least know how to defend classic XSS. AI adds another layer: model output looks like "normal generated content," and an attacker can hide instructions inside retrieved content or user input. My rule is one sentence: the model can only ever suggest, never execute. Execution authority lives in a server-side policy layer, and the frontend never trusts model output directly.</p>
+</div>
 </div>
 </section>
 
@@ -271,6 +411,18 @@ const visibleMessages = useMemo&lt;Message[]&gt;(
 <li><strong>CLS</strong>: whether the page jumps while loading.</li>
 <li><strong>TTFB</strong>: whether the server starts responding quickly.</li>
 </ul>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>What did INP replace, and why?</strong>In 2024 INP replaced FID as a Core Web Vital. FID measured only the first interaction; INP measures the slowest interaction across the whole page lifecycle, which tracks real experience far better.</li>
+<li><strong>How do you chase a high CLS?</strong>Find unsized images, ad slots, and late-loading fonts that shift content. Give media explicit dimensions, reserve placeholders, and avoid inserting content above what is already visible.</li>
+<li><strong>What drives LCP?</strong>Usually the load time of the largest image or text block. Levers are preload, CDN, modern image formats, SSR, and inlining critical CSS for the first viewport.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>The big trap in performance metrics is "look at the average, ignore the tail." An average LCP of 2s with a P75 of 5s is just as bad an experience. Google's thresholds are all on P75. In monitoring I always watch the median and the P75 / P95 together — the average alone hides the tail where the real pain lives.</p>
+</div>
 <h2 id="article-section-5-question-2">2. Virtual scrolling <code>#Performance</code> <code>78%</code></h2>
 <p><strong>One-line answer:</strong> Virtual scrolling keeps the full data set in memory but only renders the visible rows plus a small overscan area.</p>
 <ul>
@@ -307,8 +459,32 @@ function getVisibleRange({
     end: Math.min(total, lastVisible + overscan),
   };
 }</code></pre>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>What if row heights are not fixed?</strong>You have to measure and cache each row height, then correct with a ResizeObserver after render. Much harder than the fixed case, and the total height jumps while scrolling until it settles.</li>
+<li><strong>What is special about virtual scrolling in a chat?</strong>Chat is inverted — history is prepended above, and you must preserve the user's current scroll position when it lands. During streaming append you also have to detect whether the user is near the bottom and only auto-follow then, otherwise you yank them away from the history they were reading.</li>
+<li><strong>How do you keep keyboard nav and accessibility working?</strong>Use <code>aria-rowcount</code> / <code>aria-rowindex</code> and make sure focus can move to rows that are currently virtualized out. Most libraries do this poorly, so expect to patch it yourself.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>The deepest hole I have fallen into with virtual scrolling is the inverted chat case. The instant history is prepended, if total height changes and you do not compensate, the message the user was reading gets shoved out of view. The other frequent pain is "the stream steals the scrollbar" — the user scrolls up to read history while the model keeps appending, and auto-scrolling to the bottom is maddening. Detecting "is the user near the bottom" before deciding to follow is the whole game for UX.</p>
+</div>
 <h2 id="article-section-5-question-3">3. Web Worker <code>#Performance</code> <code>62%</code></h2>
 <p><strong>Sample answer:</strong> I use a worker when the work is CPU-heavy and does not need direct DOM access: token counting, parsing a huge Markdown document, syntax highlighting, compression, or local embedding calculations. The tradeoff is serialization cost, so I would not move tiny tasks into a worker just for the sake of it.</p>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>Why is main-thread/worker communication expensive?</strong>Data has to be structured-cloned (or transferred), and large objects are costly to serialize. For small tasks a worker is actually slower than just running on the main thread.</li>
+<li><strong>Why is token counting a good worker candidate?</strong>Libraries like tiktoken walk the string and run BPE — pure CPU, tens to hundreds of milliseconds. On the main thread it blocks typing.</li>
+<li><strong>What does SharedArrayBuffer buy you?</strong>Shared memory with no copy. But it requires COOP / COEP cross-origin isolation headers, which is a deployment hurdle, so it is not free to adopt.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>More workers is not better. My bar is: the task takes longer than a frame (about 16ms) and does not need frequent DOM access. Token counting, large Markdown parsing, and local embedding are the textbook cases. Always price in the communication cost, or you end up slower than just computing on the main thread because of all the data you shipped back and forth.</p>
+</div>
 </div>
 </section>
 
@@ -326,10 +502,45 @@ function getVisibleRange({
 <li>Pipeline: SDK collection → batching → sampling → upload → server normalization → storage → dashboard and alerting.</li>
 </ul>
 <blockquote><p><strong>Sample answer:</strong> I would design the SDK first around reliability and low overhead. It should batch events, retry carefully, avoid blocking unload, support sampling, and always attach release and route context. For AI features I would also log request id, model provider, latency, token usage, cancellation, and whether the answer was streamed or retried.</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>The page is about to close — how do you keep the last few events from being lost?</strong>Use <code>navigator.sendBeacon</code> (it does not block unload) or <code>fetch</code> with <code>keepalive</code>. A plain fetch or XHR gets cancelled by the browser during unload and drops data.</li>
+<li><strong>How does the monitoring SDK avoid slowing down the product?</strong>Batching, sampling, sending on idle (<code>requestIdleCallback</code>), and failing soft. Everything inside the SDK is wrapped in try / catch so a monitoring bug never takes the page down with it.</li>
+<li><strong>How do you link one request across frontend and backend?</strong>The frontend generates or forwards a traceId, the BFF propagates it to every downstream service, and all logs and metrics key off that id to form a distributed trace.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>Observability shows up the most in interviews (95%), and most people answer it too vaguely with a list of categories. The way to stand out is to call out the metrics unique to AI business: not just JS errors and Web Vitals, but model provider, token spend, streaming time-to-first-token, whether the request was cancelled or retried, and the user's thumbs-up / thumbs-down. Those are observability dimensions traditional monitoring does not cover at all.</p>
+</div>
 <h2 id="article-section-6-question-2">2. Vite versus Webpack <code>#Engineering</code></h2>
 <p><strong>One-line answer:</strong> Vite is faster in development because it serves native ESM and transforms files on demand. Webpack builds a full dependency graph and is still powerful for complex legacy build pipelines.</p>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>Why is Vite fast in dev but still bundles for production?</strong>In dev it serves native ESM on demand with no bundling, which is why it is fast. In production it still bundles with Rollup for tree-shaking, minification, and long-term cache hits.</li>
+<li><strong>Where is Webpack still the better choice?</strong>Legacy projects with heavily customized loaders or plugins, Module Federation across multiple apps, and complex multi-entry enterprise builds. The Vite ecosystem has not fully covered those cases.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>Pure trivia — answering the dev-versus-prod difference is enough. My view is Vite is the default for new projects and Webpack is legacy baggage. But do not rewrite a working build just for the sake of it; price in the migration effort and the risk before you touch a project that already runs fine.</p>
+</div>
 <h2 id="article-section-6-question-3">3. Canary release and rollback <code>#Engineering</code> <code>40%</code></h2>
 <p><strong>Sample answer:</strong> I separate deployment from release. Deployment ships code to production; release controls who can see it. A safe rollout needs feature flags, a small first cohort, metrics, error budgets, automatic rollback signals, and a clean way to turn off the feature without redeploying.</p>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>What is the real difference between deployment and release?</strong>Deployment puts code on production machines; release decides who can see it. Splitting the two is the foundation of safe releases — when something goes wrong you can stop the release without rolling back the deployment.</li>
+<li><strong>How does rollback happen automatically?</strong>Set an error budget and threshold on key metrics (error rate, latency, SLO); when the budget is consumed, automatically cut back to the previous release without a redeploy.</li>
+<li><strong>What makes a feature flag well-designed?</strong>Independent of code deployment, able to target by cohort, percentage, or environment, with a kill switch for instant shutdown and an audit log. An instant kill beats a redeploy rollback.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>I stress "release is independent of deployment." AI features especially need gradual rollout, because model behavior is uncertain in a way a normal feature like a button is not. My cadence is internal dogfood first, then 1% → 10% → full, watching metrics at each step. An instant kill switch matters more than a rollback redeploy — when something breaks, those few minutes are the difference between an incident and a non-event.</p>
+</div>
 </div>
 </section>
 
@@ -361,6 +572,18 @@ async function limitConcurrency&lt;T&gt;(
   return results;
 }</code></pre>
 <blockquote><p><strong>Sample answer:</strong> I use this pattern when calling many APIs, uploading files, generating thumbnails, or running model requests with rate limits. The key is to preserve result order while controlling the number of active tasks.</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>Why a worker model instead of recursing inside then?</strong>Each worker loops and pulls tasks, which keeps the concurrency count exact and the error handling uniform. Recursing inside then tends to produce a version where the concurrency count drifts and errors get swallowed.</li>
+<li><strong>How do you preserve result order?</strong>Write into a pre-allocated results array keyed by task index — do not push. Push gives you completion order, not task order.</li>
+<li><strong>What if one task fails?</strong>Depends on the requirement: for all-or-nothing, rethrow inside the worker and let <code>Promise.all</code> reject; for partial success, catch the error into a sentinel value written back at that index.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>This is a high-frequency coding question (70%) and you must be able to write it from memory. I use the worker model because it decouples "concurrency control" from "task pulling," which is the least error-prone shape. In the interview I proactively call out two details: results written by index for ordering, and workerCount as <code>min(limit, tasks.length)</code>. Those two edge cases are usually what the interviewer is listening for, and nailing them beats just getting the body right.</p>
+</div>
 <h2 id="article-section-7-question-2">2. Debounce and throttle <code>#Coding</code> <code>67%</code></h2>
 <p><strong>One-line answer:</strong> Debounce waits until calls stop. Throttle guarantees execution at most once in a time window.</p>
 <pre class="language-typescript" data-language="ts"><code class="language-typescript">type AnyFunction = (...args: never[]) =&gt; void;
@@ -385,6 +608,18 @@ function throttle&lt;T extends AnyFunction&gt;(fn: T, interval: number): (...arg
     fn(...args);
   };
 }</code></pre>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>What are debounce's leading and trailing options?</strong>Trailing (the default) fires once after calls stop; leading fires immediately on the first call. A search box wants trailing; a "prevent double-submit" button may want leading.</li>
+<li><strong>Your throttle is the timestamp version — what is it missing?</strong>If the final call lands inside the window it never runs, so the trailing call is lost. A complete version adds a trailing call to guarantee the final invocation.</li>
+<li><strong>Can requestAnimationFrame act as a throttle?</strong>Yes — it throttles by frame, which is ideal for scroll and resize because it naturally aligns with paint.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>Debounce and throttle are also must-memorize. I drop in a mention of lodash's leading / trailing / maxWait options to show I have thought about the edges, not just written a version that runs. Being able to name the scenario for each is enough: search box uses debounce, scroll-loading uses throttle, drag and animation use rAF.</p>
+</div>
 </div>
 </section>
 
@@ -421,6 +656,18 @@ async function readStreamingResponse(
   scheduleRender(buffer);
 }</code></pre>
 <blockquote><p><strong>Sample answer:</strong> The main mistake is thinking streaming is only a network problem. In practice it is also a rendering problem. I would buffer chunks, render at frame-friendly intervals, handle incomplete Markdown, and make cancellation first-class. Otherwise the UI gets janky or stale responses keep writing into the page.</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>A code block is only half-output (the closing fence has not arrived) — what does your Markdown renderer do?</strong>Be tolerant: detect the unclosed fence, close it temporarily for the render pass, and do not let the rest of the text render as code or blow up the layout.</li>
+<li><strong>The user navigated away but the old stream is still writing to the UI — what now?</strong>Give every request an id, abort the old one when a new request starts, and before applying an update check whether the current response id is still the latest — otherwise drop it. This is your race-condition guard.</li>
+<li><strong>Why can't you setState on every chunk?</strong>High-frequency setState triggers re-render after re-render, the microtask queue piles up, the main thread saturates, and the UI freezes. You need buffering plus a per-frame flush.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>Streaming rendering is the single most important AI-frontend question (84%). I lean on two points that get skipped most often: cancellation is first-class, not an afterthought; and incomplete Markdown has to be tolerated. Get either wrong and the demo looks fine while the real long answers break. I have personally hit "the stale response races over the new one" — the user asks two questions back to back, the slow one lands last and overwrites the fast answer. So request-id checking is now standard in every streaming module I write.</p>
+</div>
 <h2 id="article-section-8-question-2">2. SSE versus WebSocket <code>#AI</code> <code>71%</code></h2>
 <p><strong>One-line answer:</strong> SSE is a good default for one-way model output. WebSocket is better for bidirectional, low-latency, long-lived interaction.</p>
 <table>
@@ -431,6 +678,18 @@ async function readStreamingResponse(
 <tr><td>Fetch stream</td><td>Simple streaming over normal HTTP</td><td>Browser and proxy behaviour needs testing</td></tr>
 </tbody>
 </table>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>Does SSE reconnect on its own?</strong>The native <code>EventSource</code> auto-reconnects and can resume with <code>Last-Event-ID</code>. A fetch stream does not — you implement reconnect and resume yourself.</li>
+<li><strong>SSE gets buffered by Nginx or a proxy — what do you do?</strong>Disable proxy buffering (set the <code>X-Accel-Buffering: no</code> response header), set <code>Content-Type: text/event-stream</code>, and make sure the server flushes. Otherwise streaming degrades into one batched response.</li>
+<li><strong>When do you actually need WebSocket?</strong>Bidirectional, low-latency, realtime collaboration, or voice. One-way model output is fine over SSE — do not reach for WebSocket to look modern and then carry the extra operational weight for nothing.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>My real-world preference is SSE or fetch stream first, because one-way model output does not need a bidirectional channel at all. I have watched teams adopt WebSocket because it felt more modern and then inherit connection management, heartbeats, reconnect logic, and state sync as pure extra burden. Simple beats complex unless there is a concrete realtime-collaboration requirement.</p>
+</div>
 <h2 id="article-section-8-question-3">3. Token counting and context budgeting <code>#AI</code> <code>77%</code></h2>
 <p><strong>One-line answer:</strong> Token count is model-tokenizer dependent. Frontend should estimate or calculate tokens before sending long prompts, files, or conversation history.</p>
 <ul>
@@ -439,6 +698,18 @@ async function readStreamingResponse(
 <li>Summarize or trim older messages instead of blindly sending the whole conversation.</li>
 <li>Show the user when content is too long and explain what will be omitted.</li>
 </ul>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>How does the frontend estimate tokens, and what if it is inaccurate?</strong>Use a library like tiktoken against the target model's tokenizer. When the estimate is unreliable, be conservative — over-count and trigger trimming sooner rather than under-counting and hitting a hard error.</li>
+<li><strong>The conversation history is too long — what do you do?</strong>Sliding window, summarization, or keeping only the last few turns plus the system prompt. Never send the whole history blindly.</li>
+<li><strong>How do you split the budget across system, retrieval, and user input?</strong>Bucketed: system is fixed, retrieval is trimmable, history gets summarized, user input is preserved, and output is reserved. When over budget, cut by priority — retrieval and old history first.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>The hard part of token budgeting is not counting tokens — it is the product decision of "what happens when we are over." My approach is bucketing plus transparency: when over budget, tell the user "this is long, so earlier conversation was omitted" instead of silently truncating. Silent truncation makes the model suddenly lose memory and leaves the user confused. Making the cut visible is more professional than pretending nothing happened.</p>
+</div>
 <h2 id="article-section-8-question-4">4. RAG and citations <code>#AI</code> <code>75%</code></h2>
 <p><strong>One-line answer:</strong> RAG is not just vector search. A reliable RAG system needs chunking, indexing, retrieval, reranking, context assembly, generation, and citation mapping.</p>
 <ul>
@@ -449,8 +720,31 @@ async function readStreamingResponse(
 <li>Map generated claims back to source chunks for citations.</li>
 </ul>
 <blockquote><p><strong>Sample answer:</strong> For an enterprise AI frontend, I would make citations part of the data model, not a decorative UI layer. The frontend should know which answer span came from which source chunk. If the answer cannot be traced, the UI should lower confidence instead of pretending it is grounded.</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>Why is vector search alone not enough?</strong>Vectors recall things that are semantically close but actually wrong, and they are bad at proper nouns, IDs, and exact keyword matches. So you go hybrid (vector plus BM25) and then rerank.</li>
+<li><strong>How should chunks be cut?</strong>By meaning and by heading, not by a fixed character count. Leave overlap to preserve context. Keep tables and code as whole blocks and never cut through them.</li>
+<li><strong>How do you align citations with the answer?</strong>Have the model tag each span with its source during generation, or post-process by matching answer sentences to source chunks. When something cannot be matched, lower confidence or label it "no source found."</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>My core belief with RAG is "traceability beats looking accurate." The frontend has to know which source each answer span came from, and when it cannot trace one, it should honestly say "no source found" instead of pretending it is grounded. In an enterprise setting, a confidently fabricated answer is far more dangerous than an honest "I'm not sure" — the first sends a user off to act on wrong information, the second just makes the model look less capable.</p>
+</div>
 <h2 id="article-section-8-question-5">5. Prompt injection and tool calling <code>#AI</code></h2>
 <p><strong>Sample answer:</strong> I treat prompt injection as an instruction-boundary problem. Retrieved content, user input, and tool results are data. They should not be able to override system policy. For tool calling, I validate arguments server-side, check permissions, limit tool scope, and require confirmation for destructive actions.</p>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>How do you separate instructions from data in the prompt?</strong>Mark retrieved and user-supplied content as untrusted data inside clear delimiters, keep system policy in a privileged section the model is told never to override, and never let data segments issue commands.</li>
+<li><strong>How do you rate-limit what an agent can actually do?</strong>Least-privilege tool scopes, per-user and per-session action quotas, a human-in-the-loop gate for anything destructive, and full audit logging of every tool call.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>Prompt injection is the security problem most AI demos quietly ignore. My position is that the model only ever suggests actions; the server validates, authorizes, and executes. If you let model output directly drive destructive tools, one injected instruction inside a retrieved document is all it takes. The defense is not a better prompt — it is a real permission boundary on the execution side.</p>
+</div>
 </div>
 </section>
 
@@ -468,8 +762,31 @@ async function readStreamingResponse(
 <li>Observability: latency, token usage, cost, model errors, user feedback, and tool-call traces.</li>
 </ul>
 <blockquote><p><strong>Sample answer:</strong> I would not put provider-specific details directly into the frontend. I would hide them behind a BFF and a model adapter layer. That gives us room to switch models, add fallback, enforce policy, and attach consistent tracing without rewriting the UI.</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>How does the frontend handle multiple models or providers?</strong>A BFF plus a model adapter layer normalizes streaming, errors, tool calls, and billing into one contract for the frontend. The frontend never talks to a provider SDK directly.</li>
+<li><strong>How do you control cost under high concurrency?</strong>Per-user or per-tenant quota and rate limiting, caching common queries, model routing by question difficulty (cheap model for easy ones), and a hard token-budget cap.</li>
+<li><strong>What version info do messages need to store?</strong>At minimum a message id, version number, the model and params used to generate it, and the cited chunk ids — enough to trace and regenerate.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>In system-design questions I keep coming back to the BFF layer. It is not a dumb forwarder — it absorbs provider differences, auth, rate limiting, billing, and observability all at once. The frontend gets a product-shaped API and stays unaware when a model swaps behind it. Design that layer well and swapping providers, adding fallback, or rolling out gradually all stay easy; design it badly and every new model means a frontend rewrite.</p>
+</div>
 <h2 id="article-section-9-question-2">2. BFF and schema adaptation <code>#Architecture</code> <code>70%</code></h2>
 <p><strong>Sample answer:</strong> A BFF is useful when the frontend needs a product-shaped API rather than raw backend service shapes. For AI products, it is especially useful because each model provider streams, errors, bills, and formats tool calls differently. The BFF can normalize those differences into one frontend contract.</p>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>Can the BFF become a bottleneck or single point of failure?</strong>Yes, so keep it stateless, horizontally scalable, and cached. It should do orchestration and adaptation only — push heavy computation down into dedicated services.</li>
+<li><strong>What is the difference between a BFF and a gateway?</strong>A gateway is a general entry point handling auth, rate limiting, and routing; a BFF is an adaptation layer for a specific frontend, close to the product shape. They coexist — gateway in front, BFF behind.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>The thing I make clear on BFF is its "adaptation" essence: give the frontend a product-shaped API and hide the backend service shapes. AI needs it badly because provider differences are huge. The cautionary tale is the reverse drift — do not let the BFF slowly accumulate business logic until it becomes a second backend. Once that happens, maintenance cost spikes. Keep it thin.</p>
+</div>
 <h2 id="article-section-9-question-3">3. State machine <code>#Architecture</code> <code>55%</code></h2>
 <p><strong>One-line answer:</strong> A state machine makes async UI predictable by defining valid states and transitions explicitly.</p>
 <pre class="language-typescript" data-language="ts"><code class="language-typescript">type ChatState = 'idle' | 'streaming' | 'cancelled' | 'failed' | 'done';
@@ -486,6 +803,18 @@ const transitions: Record&lt;ChatState, ChatEvent[]&gt; = {
 function canTransition(state: ChatState, event: ChatEvent): boolean {
   return transitions[state].includes(event);
 }</code></pre>
+<div class="ib-followup">
+<p class="ib-label">Interviewer follow-ups</p>
+<ul>
+<li><strong>Why a state machine instead of a few booleans?</strong>A few booleans (isLoading + isError + isDone) admit illegal combinations like "loading and done at once." A state machine uses enumerated states and legal transitions to make those illegal combinations impossible by construction.</li>
+<li><strong>How does state move when a stream is cancelled mid-flight?</strong>streaming goes to cancelled via cancel, and cancelled can only retry back to streaming or reset to idle. That way a cancelled state can never accept a chunk event, which prevents dirty updates.</li>
+<li><strong>Is a library like XState necessary?</strong>For simple cases, an enum plus a transition table is enough. Reach for XState when states multiply, side effects get complex, and you need visualization and testability.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>My experience with state machines: the more complex the async UI, the more they pay off. An AI streaming chat has five states — idle, streaming, cancelled, failed, done — and a few booleans will inevitably produce an illegal combination. One transition table is clearer than a pile of ifs. But do not pull in a heavy library for a simple case; an enum and a table solve most of them.</p>
+</div>
 </div>
 </section>
 
@@ -493,13 +822,58 @@ function canTransition(state: ChatState, event: ChatEvent): boolean {
 <div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;"><span style="color:#2763e9;font-size:12px;font-weight:800;letter-spacing:0.14em;white-space:nowrap;">10 · HR</span><span style="flex:1;height:1px;background:#2763e9;"></span></div>
 <p id="article-section-10" style="margin:0 0 16px 0;padding:0;color:#2a2a34;font-size:22px;line-height:1.45;font-weight:850;text-align:left;letter-spacing:0;">HR and Soft-Skill Scripts</p>
 <div class="interview-bank-section">
+<p>HR rounds do not drill into implementation details the way technical rounds do, but they push in two directions: every claim you make has to survive a request for a concrete example, and they are testing whether the direction you describe is something you are genuinely investing in. Each question below has a "where they dig deeper" block and a "my take."</p>
 <h2 id="article-section-10-question-1">1. What is your core strength? <code>#HR</code></h2>
 <blockquote><p><strong>Sample answer:</strong> My strongest advantage is that I can connect product experience, frontend architecture, and AI implementation. I am not only thinking about whether the model can answer. I also care about streaming UX, cancellation, observability, permissions, cost, and failure recovery. That helps me turn an AI demo into something closer to a real product.</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">Where they dig deeper</p>
+<ul>
+<li><strong>"Can you give a concrete example of those abilities?"</strong>You need one or two STAR examples: which project, what you did, and the result in numbers. Stopping at slogans collapses the answer.</li>
+<li><strong>"Compared to a pure algorithm or AI engineer, what is your weak spot?"</strong>Admit it honestly (model training and fine-tuning are not my home ground), then frame your positioning as engineering delivery that complements the algorithm team rather than pretending to be a generalist.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>HR questions are the easiest to answer vaguely. My rule is that every claim has to be followed immediately by a concrete example. A strength is not a stack of adjectives; it is "I did X, and the result was Y." Admitting a weak spot honestly is itself a plus — interviewers have seen too much packaging, and someone genuine with self-awareness is rare.</p>
+</div>
 <h2 id="article-section-10-question-2">2. Why AI frontend / agent engineering?</h2>
 <blockquote><p><strong>Sample answer:</strong> Frontend used to be mostly about screens and interactions. AI products add a new layer: the interface is now connected to model behaviour, context, tools, and user trust. I like that intersection. It fits my frontend background, but it also pushes me into systems thinking.</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">Where they dig deeper</p>
+<ul>
+<li><strong>"What have you been learning recently?"</strong>Name something real and recent — an agent framework, a paper, a side project. This is the litmus test for whether you are actually investing in the direction.</li>
+<li><strong>"Where do you think the ceiling is for this direction?"</strong>Show a real opinion: tooling, observability, and reliability are underserved compared to model capability itself, and that gap is the opportunity.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>What the interviewer is really measuring on a motivation question is whether you are chasing a trend. I anchor on "it builds on my frontend background and pushes me toward systems thinking," which frames it as a natural extension rather than an impulsive pivot. The key is a ready answer to "what have you been learning recently" — name something from the last week or two and your authenticity is established on the spot.</p>
+</div>
 <h2 id="article-section-10-question-3">3. How do you explain a career gap?</h2>
 <blockquote><p><strong>Sample answer:</strong> I had a period where I stepped back and reset my direction. I used that time to rebuild my focus around AI tooling, frontend architecture, and full-stack product work. I am now looking for a role where I can apply that direction seriously, not just return to the same kind of frontend work I did before.</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">Where they dig deeper</p>
+<ul>
+<li><strong>"What did you produce during that time?"</strong>Even a side project, open-source contribution, technical writing, or systematic study counts — anything visible that proves the period was not empty.</li>
+<li><strong>"Why come back now?"</strong>Frame the gap as an active redirect with concrete learning and output behind it, and say you are ready to commit to the new direction now, not that you were struggling to find work.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>The worst thing you can do on a gap question is hedge. I frame it openly as an active choice: I stepped back to redirect toward AI, I have concrete learning and output from that time, and now I am ready to commit. Honest plus visible output equals credible. Do not over-explain — make the point in a sentence or two and steer back to "here is what I can do now."</p>
+</div>
 <h2 id="article-section-10-question-4">4. What should a strong closing answer sound like?</h2>
 <blockquote><p><strong>Sample answer:</strong> What I can bring is not just React experience. I can help build AI features with a production mindset: streaming UI, safe tool calls, retrieval UX, monitoring, performance, and clean architecture. That is the direction I want to grow in, and it is where I think I can create the most value.</p></blockquote>
+<div class="ib-followup">
+<p class="ib-label">Points to land at the close</p>
+<ul>
+<li><strong>"Do you have any questions for us?"</strong>Do not ask a nothing question. Ask something with teeth: what is the team's biggest technical challenge right now, how is AI feature reliability measured, what does the release and rollout process look like. A good question is itself a plus.</li>
+<li><strong>The one-line positioning.</strong>Sum up with "I am not just React — I can turn an AI feature into a real product," and pin the production-mindset differentiator into the interviewer's memory.</li>
+</ul>
+</div>
+<div class="ib-reflection">
+<p class="ib-label">My take</p>
+<p>The close is the last chance to leave a "production mindset" impression. I pin the positioning in one sentence, then hand the floor back and ask one or two sharp questions — not just courtesy, but a signal that I am genuinely evaluating whether this team is worth joining. The quality of your questions often reveals your real level more than your answers do.</p>
+</div>
 </div>
 </section>

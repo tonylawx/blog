@@ -544,3 +544,61 @@ html.blog-post-page .container.margin-vert--lg > .row > .col.col--2 {
 [data-theme='dark'] .thin-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
+
+/* ===== Syntax highlighting for raw-HTML (.stt-article) code blocks =====
+ * These posts inject <pre><code class="language-*"> via dangerouslySetInnerHTML,
+ * so Docusaurus's Prism never sees them. A client component (SttCodeHighlight)
+ * runs prismjs on them after mount; these token colors pair with the posts'
+ * fixed dark #111827 code background. Palette is One-Dark-ish. */
+.stt-article .token.comment,
+.stt-article .token.prolog,
+.stt-article .token.doctype,
+.stt-article .token.cdata {
+  color: #6b7280;
+  font-style: italic;
+}
+.stt-article .token.punctuation {
+  color: #9ca3af;
+}
+.stt-article .token.property,
+.stt-article .token.tag,
+.stt-article .token.boolean,
+.stt-article .token.number,
+.stt-article .token.constant,
+.stt-article .token.symbol {
+  color: #f78c6c;
+}
+.stt-article .token.selector,
+.stt-article .token.attr-name,
+.stt-article .token.string,
+.stt-article .token.char,
+.stt-article .token.builtin,
+.stt-article .token.inserted {
+  color: #c3e88d;
+}
+.stt-article .token.operator,
+.stt-article .token.entity,
+.stt-article .token.url,
+.stt-article .token.variable {
+  color: #89ddff;
+}
+.stt-article .token.atrule,
+.stt-article .token.attr-value,
+.stt-article .token.keyword,
+.stt-article .token.class-name {
+  color: #c792ea;
+}
+.stt-article .token.function {
+  color: #82aaff;
+}
+.stt-article .token.regex,
+.stt-article .token.important {
+  color: #ffcb6b;
+}
+.stt-article .token.important,
+.stt-article .token.bold {
+  font-weight: 600;
+}
+.stt-article .token.italic {
+  font-style: italic;
+}
