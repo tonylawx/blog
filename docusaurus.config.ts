@@ -43,6 +43,22 @@ const config: Config = {
         docs: false,
         blog: {
           showReadingTime: true,
+          // Every post injects its real content via ./article.html?raw, so the
+          // default reading time (which counts the MDX body) reports ~1 min for
+          // everything. A prebuild script (scripts/compute-reading-time.mjs)
+          // computes a CJK-aware time from the article HTML into frontmatter
+          // `reading_time`; read it here, falling back to the default otherwise.
+          readingTime: ({content, locale, frontMatter, defaultReadingTime}) => {
+            const override = frontMatter?.reading_time;
+            if (
+              override !== undefined &&
+              override !== null &&
+              !Number.isNaN(Number(override))
+            ) {
+              return Number(override);
+            }
+            return defaultReadingTime({content, locale});
+          },
           postsPerPage: 'ALL',
           blogSidebarCount: 'ALL',
           feedOptions: {
