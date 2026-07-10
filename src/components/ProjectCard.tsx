@@ -2,8 +2,15 @@ import React from 'react';
 import type {Project} from '../data/projects';
 import {Icon} from '@iconify/react';
 import robotIcon from '@iconify-icons/mdi/robot-outline';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
 export default function ProjectCard({project}: {project: Project}): JSX.Element {
+  const {i18n} = useDocusaurusContext();
+  const desc =
+    i18n.currentLocale === 'zh' && project.descriptionZh
+      ? project.descriptionZh
+      : project.description;
+
   return (
     <a
       className="card-interactive card padding--lg"
@@ -18,7 +25,7 @@ export default function ProjectCard({project}: {project: Project}): JSX.Element 
         )}
         <h3 style={{marginBottom: 0}}>{project.name}</h3>
       </div>
-      <p style={{flexGrow: 1, marginBottom: '0.5rem'}}>{project.description}</p>
+      <p style={{flexGrow: 1, marginBottom: '0.5rem'}}>{desc}</p>
       <div style={{display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.4rem'}}>
         {project.aiAgent && (
           <span className="project-ai-badge" title="Built for use by AI agents">
