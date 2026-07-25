@@ -127,7 +127,7 @@ See [Projects](/projects) for the full list.
 
 ## Education
 
-B.Sc. — Computer Science
+B.Eng. — Software Engineering
 
 ## Contact
 
