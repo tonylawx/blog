@@ -934,7 +934,7 @@ See [Projects](/projects) for the full list.
 
 ## Education
 
-B.Sc. — Computer Science
+B.Eng. — Software Engineering
 
 ## Contact
 
@@ -978,7 +978,7 @@ slug: about
 
 ## 教育
 
-计算机科学 理学学士
+软件工程 工学学士
 
 ## 联系方式
 
