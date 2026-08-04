@@ -14,6 +14,7 @@ import xIcon from '@iconify-icons/simple-icons/x';
 import threadsIcon from '@iconify-icons/simple-icons/threads';
 import telegramIcon from '@iconify-icons/simple-icons/telegram';
 import githubIcon from '@iconify-icons/simple-icons/github';
+import wiseIcon from '@iconify-icons/simple-icons/wise';
 
 type Locale = 'en' | 'zh';
 
@@ -67,6 +68,14 @@ const LINKS: LinkItem[] = [
     color: '#f59e0b',
     icon: giftIcon,
     glyphColor: '#f59e0b',
+  },
+  {
+    label: {en: 'Wise Invite', zh: 'Wise 邀请福利'},
+    desc: {en: 'International money transfer invite', zh: '跨境汇款邀请奖励'},
+    href: 'https://wise.com/invite/ilpc/haoyanl20',
+    color: '#9fe870',
+    icon: wiseIcon,
+    glyphColor: '#9fe870',
   },
   {
     label: {en: 'X (Twitter)', zh: 'X (Twitter)'},
