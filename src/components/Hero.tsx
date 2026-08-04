@@ -21,7 +21,17 @@ export default function Hero(): JSX.Element {
         <p className="hero__subtitle" style={{fontSize: '1.25rem', opacity: 0.85}}>
           {siteConfig.tagline}
         </p>
-        <div style={{display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: '1.5rem'}}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '0.75rem',
+            marginTop: '1.5rem',
+            maxWidth: '22rem',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}
+        >
           <Link className="button button--primary button--lg" to="/blog">
             <Translate>Read the blog</Translate>
           </Link>
