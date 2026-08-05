@@ -4,14 +4,14 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import mimetypes
+import os
 import re
-import ssl
 import socket
+import ssl
 import sys
+import tempfile
 import urllib.error
-import urllib.parse
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -51,7 +51,7 @@ ARTICLE_EN_TO_ZH_LABELS = {
 ARTICLE_ZH_TO_EN_LABELS = {value: key for key, value in ARTICLE_EN_TO_ZH_LABELS.items()}
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Create a WeChat Official Account draft from a local HTML file."
     )
@@ -61,6 +61,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--digest", default="", help="Optional digest/summary.")
     parser.add_argument("--thumb-media-id", default=None, help="Optional cover thumbnail media id.")
     parser.add_argument("--thumb-image", type=Path, default=None, help="Optional local cover image to upload.")
+    parser.add_argument(
+        "--thumb-image-url",
+        default=None,
+        help="Downloadable cover image URL (e.g. Image2/CDN). Fetched locally then uploaded as thumb.",
+    )
+    parser.add_argument(
+        "--thumb-image-stdin",
+        action="store_true",
+        help="Read raw cover image bytes from stdin and upload as thumb (no DevSpace/GitHub land).",
+    )
     parser.add_argument("--content-source-url", default="", help="Optional source URL shown in WeChat.")
     parser.add_argument(
         "--sanitize-for-draft-add",
@@ -80,7 +90,150 @@ def parse_args() -> argparse.Namespace:
         default=os.environ.get("WECHAT_APPSECRET"),
         help="WeChat AppSecret.",
     )
-    return parser.parse_args()
+    return parser.parse_args(argv)
+
+
+def _detect_image_suffix(data: bytes, fallback: str = ".png") -> str:
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return ".png"
+    if data.startswith(b"\xff\xd8\xff"):
+        return ".jpg"
+    if data.startswith((b"GIF87a", b"GIF89a")):
+        return ".gif"
+    if data.startswith(b"BM"):
+        return ".bmp"
+    if data.startswith(b"RIFF") and len(data) >= 12 and data[8:12] == b"WEBP":
+        return ".webp"
+    return fallback
+
+
+def _suffix_from_url(url: str) -> str:
+    path = urllib.parse.urlparse(url).path
+    suffix = Path(path).suffix.lower()
+    if suffix == ".jpeg":
+        return ".jpg"
+    if suffix in {".png", ".jpg", ".gif", ".bmp", ".webp"}:
+        return suffix
+    return ".png"
+
+
+_GITHUB_FETCH_HOSTS = frozenset({"raw.githubusercontent.com", "github.com", "api.github.com"})
+
+
+def _github_token_from_env() -> str:
+    return (os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or "").strip()
+
+
+def _thumb_fetch_headers(url: str) -> dict[str, str]:
+    headers = {"User-Agent": "us-stock-analyst-wechat-thumb/1.0"}
+    host = urllib.parse.urlparse(url).hostname or ""
+    token = _github_token_from_env()
+    if token and host in _GITHUB_FETCH_HOSTS:
+        headers["Authorization"] = f"Bearer {token}"
+        headers["Accept"] = "application/vnd.github.raw"
+    return headers
+
+
+def fetch_thumb_image_url(url: str, *, timeout: int = 120) -> bytes:
+    request = urllib.request.Request(
+        url,
+        headers=_thumb_fetch_headers(url),
+        method="GET",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            data = response.read()
+    except urllib.error.HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace")
+        raise SystemExit(f"Thumb image URL HTTP {exc.code}: {body}") from exc
+    except urllib.error.URLError as exc:
+        raise SystemExit(f"Failed to fetch thumb image URL: {exc}") from exc
+    if not data:
+        raise SystemExit("Thumb image URL returned empty body")
+    return data
+
+
+def count_thumb_sources(
+    *,
+    thumb_image: Path | None,
+    thumb_image_url: str | None,
+    thumb_image_stdin: bool,
+    thumb_media_id: str | None = None,
+) -> int:
+    return sum(
+        [
+            bool(thumb_image),
+            bool(thumb_image_url),
+            bool(thumb_image_stdin),
+            bool(thumb_media_id),
+        ]
+    )
+
+
+def materialize_thumb_image(
+    *,
+    thumb_image: Path | None = None,
+    thumb_image_url: str | None = None,
+    thumb_image_stdin: bool = False,
+) -> tuple[Path | None, Path | None]:
+    """Resolve thumb bytes to a local path.
+
+    Returns ``(path, temp_path)``. ``temp_path`` is set when this function created
+    a temporary file that the caller should delete after upload/SCP.
+    """
+    sources = count_thumb_sources(
+        thumb_image=thumb_image,
+        thumb_image_url=thumb_image_url,
+        thumb_image_stdin=thumb_image_stdin,
+    )
+    if sources > 1:
+        raise SystemExit(
+            "Provide at most one of --thumb-image, --thumb-image-url, --thumb-image-stdin"
+        )
+    if thumb_image is not None:
+        path = thumb_image.expanduser()
+        if not path.exists():
+            raise SystemExit(f"Thumb image not found: {path}")
+        return path, None
+    if not thumb_image_url and not thumb_image_stdin:
+        return None, None
+
+    if thumb_image_stdin:
+        data = sys.stdin.buffer.read()
+        if not data:
+            raise SystemExit("stdin was empty; expected raw cover image bytes")
+        suffix = _detect_image_suffix(data)
+    else:
+        assert thumb_image_url is not None
+        data = fetch_thumb_image_url(thumb_image_url)
+        suffix = _detect_image_suffix(data, fallback=_suffix_from_url(thumb_image_url))
+
+    handle = tempfile.NamedTemporaryFile(prefix="wechat-thumb-", suffix=suffix, delete=False)
+    temp_path = Path(handle.name)
+    try:
+        handle.write(data)
+    finally:
+        handle.close()
+    return temp_path, temp_path
+
+
+def strip_thumb_source_args(argv: list[str]) -> list[str]:
+    """Remove local-only thumb source flags before forwarding to the remote script."""
+    cleaned: list[str] = []
+    skip_next = False
+    for arg in argv:
+        if skip_next:
+            skip_next = False
+            continue
+        if arg in {"--thumb-image-url", "--thumb-image"}:
+            skip_next = True
+            continue
+        if arg == "--thumb-image-stdin" or arg.startswith("--thumb-image-url=") or arg.startswith(
+            "--thumb-image="
+        ):
+            continue
+        cleaned.append(arg)
+    return cleaned
 
 
 def post_json(url: str, payload: dict) -> dict:
@@ -452,9 +605,9 @@ def create_draft(args: argparse.Namespace, access_token: str) -> dict:
     return response
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     configure_wechat_proxy()
-    args = parse_args()
+    args = parse_args(argv)
     if args.appid:
         args.appid = args.appid.strip()
     if args.app_secret:
@@ -463,18 +616,37 @@ def main() -> int:
         raise SystemExit("WECHAT_APPID and WECHAT_APPSECRET are required.")
     if not args.html_file.exists():
         raise SystemExit(f"HTML file not found: {args.html_file}")
+    if args.thumb_media_id and count_thumb_sources(
+        thumb_image=args.thumb_image,
+        thumb_image_url=args.thumb_image_url,
+        thumb_image_stdin=args.thumb_image_stdin,
+    ):
+        raise SystemExit(
+            "Do not combine --thumb-media-id with --thumb-image / --thumb-image-url / --thumb-image-stdin"
+        )
 
-    access_token = get_access_token(args.appid, args.app_secret)
-    thumb_upload = None
-    if not args.thumb_media_id and args.thumb_image:
-        thumb_upload = upload_thumb_image(access_token, args.thumb_image)
-        args.thumb_media_id = thumb_upload.get("media_id")
-    response = create_draft(args, access_token)
-    payload = {"draft": response}
-    if thumb_upload is not None:
-        payload["thumb_upload"] = thumb_upload
-    print(json.dumps(payload, ensure_ascii=False, indent=2))
-    return 0
+    thumb_path, thumb_temp = materialize_thumb_image(
+        thumb_image=args.thumb_image,
+        thumb_image_url=args.thumb_image_url,
+        thumb_image_stdin=args.thumb_image_stdin,
+    )
+    args.thumb_image = thumb_path
+
+    try:
+        access_token = get_access_token(args.appid, args.app_secret)
+        thumb_upload = None
+        if not args.thumb_media_id and args.thumb_image:
+            thumb_upload = upload_thumb_image(access_token, args.thumb_image)
+            args.thumb_media_id = thumb_upload.get("media_id")
+        response = create_draft(args, access_token)
+        payload = {"draft": response}
+        if thumb_upload is not None:
+            payload["thumb_upload"] = thumb_upload
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+    finally:
+        if thumb_temp is not None:
+            thumb_temp.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

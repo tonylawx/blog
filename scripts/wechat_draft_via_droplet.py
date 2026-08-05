@@ -4,6 +4,15 @@
 This wrapper keeps the public interface of scripts/wechat_draft.py, but executes
 the actual WeChat API calls on root@167.71.219.62 so draft/add sees the
 whitelisted outbound IP.
+
+Cover thumbs can arrive as:
+- ``--thumb-image PATH`` local file (existing)
+- ``--thumb-image-url URL`` Image2/CDN URL fetched here, then SCP'd to the VPS
+- ``--thumb-image-stdin`` raw PNG/JPEG bytes on stdin, then SCP'd to the VPS
+
+The remote process always receives a concrete ``--thumb-image`` path. Image2
+output therefore never needs DevSpace, GitHub, or Base64 chunking before
+``material/add_material`` → ``thumb_media_id`` → ``draft/add``.
 """
 
 from __future__ import annotations
@@ -12,7 +21,6 @@ import argparse
 import os
 import re
 import shlex
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -20,11 +28,15 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+try:
+    from wechat_draft import materialize_thumb_image, strip_thumb_source_args
+except ModuleNotFoundError:
+    from scripts.wechat_draft import materialize_thumb_image, strip_thumb_source_args
+
 
 DEFAULT_REMOTE = "root@167.71.219.62"
 REMOTE_SCRIPT_NAME = "wechat_draft.py"
 LOCAL_SCRIPT = Path(__file__).with_name(REMOTE_SCRIPT_NAME)
-CREDENTIAL_KEYS = ("WECHAT_APPID", "WECHAT_APPSECRET")
 
 
 def run(command: list[str], *, capture: bool = False) -> subprocess.CompletedProcess[str]:
@@ -42,144 +54,33 @@ def scp_upload(local_path: Path, remote_path: str) -> None:
     run(["scp", "-O", str(local_path), remote_path])
 
 
-def _parse_credential_exports(text: str) -> dict[str, str]:
-    """Extract WECHAT_* assignments from shell rc / env-file text without executing it."""
-    values: dict[str, str] = {}
-    pattern = re.compile(
-        r"^(?:export\s+)?(WECHAT_APPID|WECHAT_APPSECRET)\s*=\s*(?:\"([^\"]*)\"|'([^']*)'|(\S+))\s*(?:#.*)?$"
-    )
-    for raw_line in text.splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#"):
-            continue
-        match = pattern.match(line)
-        if not match:
-            continue
-        key = match.group(1)
-        value = match.group(2) or match.group(3) or match.group(4) or ""
-        if value:
-            values[key] = value
-    return values
+def load_wechat_env() -> tuple[str, str]:
+    appid = os.environ.get("WECHAT_APPID", "")
+    secret = os.environ.get("WECHAT_APPSECRET", "")
+    if appid and secret:
+        return appid, secret
 
-
-def _credentials_from_env_files() -> tuple[str, str] | None:
-    candidates: list[Path] = []
-    env_file = os.environ.get("WECHAT_ENV_FILE", "").strip()
-    if env_file:
-        candidates.append(Path(env_file).expanduser())
-    home = Path.home()
-    candidates.extend(
-        [
-            home / ".config" / "wechat" / "env",
-            home / ".wechat.env",
-            home / ".zshrc",
-            home / ".bashrc",
-            home / ".profile",
-        ]
-    )
-    found: dict[str, str] = {}
-    for path in candidates:
-        try:
-            if not path.is_file():
-                continue
-            parsed = _parse_credential_exports(path.read_text(encoding="utf-8", errors="replace"))
-        except OSError:
-            continue
-        for key in CREDENTIAL_KEYS:
-            if key in parsed and key not in found:
-                found[key] = parsed[key]
-        if all(key in found for key in CREDENTIAL_KEYS):
-            return found["WECHAT_APPID"], found["WECHAT_APPSECRET"]
-    return None
-
-
-def _credentials_from_login_shell() -> tuple[str, str] | None:
-    """Ask a login shell for exported WECHAT_* vars. Prefer bash/sh; use zsh only if present."""
-    python_snippet = (
+    command = (
+        "source ~/.zshrc >/dev/null 2>&1; "
         "python3 - <<'PY'\n"
         "import os\n"
         "print(os.environ.get('WECHAT_APPID', ''))\n"
         "print(os.environ.get('WECHAT_APPSECRET', ''))\n"
         "PY"
     )
-    shell_plans: list[tuple[str, list[str]]] = []
-    bash = shutil.which("bash")
-    if bash:
-        shell_plans.append(
-            (
-                bash,
-                [
-                    bash,
-                    "-lc",
-                    "[ -f \"$HOME/.bashrc\" ] && . \"$HOME/.bashrc\" >/dev/null 2>&1; "
-                    "[ -f \"$HOME/.profile\" ] && . \"$HOME/.profile\" >/dev/null 2>&1; "
-                    + python_snippet,
-                ],
-            )
-        )
-    sh_path = shutil.which("sh")
-    if sh_path:
-        shell_plans.append(
-            (
-                sh_path,
-                [
-                    sh_path,
-                    "-lc",
-                    "[ -f \"$HOME/.profile\" ] && . \"$HOME/.profile\" >/dev/null 2>&1; "
-                    + python_snippet,
-                ],
-            )
-        )
-    zsh = shutil.which("zsh")
-    if zsh:
-        shell_plans.append(
-            (
-                zsh,
-                [
-                    zsh,
-                    "-lc",
-                    "source ~/.zshrc >/dev/null 2>&1; " + python_snippet,
-                ],
-            )
-        )
-
-    for _shell, command in shell_plans:
-        try:
-            result = run(command, capture=True)
-        except (FileNotFoundError, subprocess.CalledProcessError):
-            continue
-        lines = result.stdout.splitlines()
-        if len(lines) >= 2 and lines[0] and lines[1]:
-            return lines[0], lines[1]
-    return None
-
-
-def load_wechat_env() -> tuple[str, str]:
-    appid = os.environ.get("WECHAT_APPID", "").strip()
-    secret = os.environ.get("WECHAT_APPSECRET", "").strip()
-    if appid and secret:
-        return appid, secret
-
-    from_files = _credentials_from_env_files()
-    if from_files:
-        return from_files
-
-    from_shell = _credentials_from_login_shell()
-    if from_shell:
-        return from_shell
-
-    raise SystemExit(
-        "WECHAT_APPID and WECHAT_APPSECRET are required. "
-        "Export them in the environment, set WECHAT_ENV_FILE to a dotenv-like file, "
-        "or put `export WECHAT_APPID=...` / `export WECHAT_APPSECRET=...` in "
-        "~/.config/wechat/env (preferred on hosts without zsh)."
-    )
+    result = run(["zsh", "-lc", command], capture=True)
+    lines = result.stdout.splitlines()
+    if len(lines) >= 2 and lines[0] and lines[1]:
+        return lines[0], lines[1]
+    raise SystemExit("WECHAT_APPID and WECHAT_APPSECRET are required.")
 
 
 def parse_known_paths(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--html-file", type=Path, required=True)
     parser.add_argument("--thumb-image", type=Path)
+    parser.add_argument("--thumb-image-url")
+    parser.add_argument("--thumb-image-stdin", action="store_true")
     parser.add_argument("--write-cleaned-html", type=Path)
     return parser.parse_known_args(argv)
 
@@ -187,7 +88,7 @@ def parse_known_paths(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
 def replace_arg_value(argv: list[str], option: str, value: str) -> list[str]:
     replaced = argv[:]
     if option not in replaced:
-        return replaced
+        return replaced + [option, value]
     index = replaced.index(option)
     if index + 1 >= len(replaced):
         raise SystemExit(f"Missing value for {option}")
@@ -234,50 +135,59 @@ def stage_html_content_images(html_file: Path, remote_dir: str) -> tuple[Path, l
     return staged_file, uploads
 
 
-def main() -> None:
-    paths, _ = parse_known_paths(sys.argv[1:])
+def main(argv: list[str] | None = None) -> None:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    paths, _ = parse_known_paths(argv)
     if not LOCAL_SCRIPT.exists():
         raise SystemExit(f"Local publisher script not found: {LOCAL_SCRIPT}")
     if not paths.html_file.exists():
         raise SystemExit(f"HTML file not found: {paths.html_file}")
-    if paths.thumb_image and not paths.thumb_image.exists():
-        raise SystemExit(f"Thumb image not found: {paths.thumb_image}")
+
+    thumb_path, thumb_temp = materialize_thumb_image(
+        thumb_image=paths.thumb_image,
+        thumb_image_url=paths.thumb_image_url,
+        thumb_image_stdin=paths.thumb_image_stdin,
+    )
 
     remote = os.environ.get("WECHAT_DRAFT_PROXY_HOST", DEFAULT_REMOTE)
     appid, secret = load_wechat_env()
 
     remote_dir = f"/tmp/wechat-draft-{next(tempfile._get_candidate_names())}"
-    run(["ssh", remote, "mkdir", "-p", remote_dir])
-    scp_upload(LOCAL_SCRIPT, f"{remote}:{remote_dir}/{REMOTE_SCRIPT_NAME}")
-    staged_html, content_images = stage_html_content_images(paths.html_file, remote_dir)
-    scp_upload(staged_html, f"{remote}:{remote_dir}/article.html")
-    staged_html.unlink(missing_ok=True)
-    for local_image, remote_image in content_images:
-        scp_upload(local_image, f"{remote}:{remote_image}")
+    try:
+        run(["ssh", remote, "mkdir", "-p", remote_dir])
+        scp_upload(LOCAL_SCRIPT, f"{remote}:{remote_dir}/{REMOTE_SCRIPT_NAME}")
+        staged_html, content_images = stage_html_content_images(paths.html_file, remote_dir)
+        scp_upload(staged_html, f"{remote}:{remote_dir}/article.html")
+        staged_html.unlink(missing_ok=True)
+        for local_image, remote_image in content_images:
+            scp_upload(local_image, f"{remote}:{remote_image}")
 
-    remote_args = sys.argv[1:]
-    remote_args = replace_arg_value(remote_args, "--html-file", f"{remote_dir}/article.html")
-    if paths.thumb_image:
-        suffix = paths.thumb_image.suffix or ".png"
-        remote_thumb = f"{remote_dir}/thumb{suffix}"
-        scp_upload(paths.thumb_image, f"{remote}:{remote_thumb}")
-        remote_args = replace_arg_value(remote_args, "--thumb-image", remote_thumb)
+        remote_args = strip_thumb_source_args(argv)
+        remote_args = replace_arg_value(remote_args, "--html-file", f"{remote_dir}/article.html")
+        if thumb_path is not None:
+            suffix = thumb_path.suffix or ".png"
+            remote_thumb = f"{remote_dir}/thumb{suffix}"
+            scp_upload(thumb_path, f"{remote}:{remote_thumb}")
+            remote_args = replace_arg_value(remote_args, "--thumb-image", remote_thumb)
 
-    remote_cleaned = None
-    if paths.write_cleaned_html:
-        remote_cleaned = f"{remote_dir}/article.draft-add.html"
-        remote_args = replace_arg_value(remote_args, "--write-cleaned-html", remote_cleaned)
+        remote_cleaned = None
+        if paths.write_cleaned_html:
+            remote_cleaned = f"{remote_dir}/article.draft-add.html"
+            remote_args = replace_arg_value(remote_args, "--write-cleaned-html", remote_cleaned)
 
-    quoted_args = " ".join(shlex.quote(arg) for arg in remote_args)
-    command = (
-        f"WECHAT_APPID={shlex.quote(appid)} "
-        f"WECHAT_APPSECRET={shlex.quote(secret)} "
-        f"python3 {shlex.quote(remote_dir + '/' + REMOTE_SCRIPT_NAME)} {quoted_args}"
-    )
-    run(["ssh", remote, command])
+        quoted_args = " ".join(shlex.quote(arg) for arg in remote_args)
+        command = (
+            f"WECHAT_APPID={shlex.quote(appid)} "
+            f"WECHAT_APPSECRET={shlex.quote(secret)} "
+            f"python3 {shlex.quote(remote_dir + '/' + REMOTE_SCRIPT_NAME)} {quoted_args}"
+        )
+        run(["ssh", remote, command])
 
-    if remote_cleaned and paths.write_cleaned_html:
-        run(["scp", "-O", f"{remote}:{remote_cleaned}", str(paths.write_cleaned_html)])
+        if remote_cleaned and paths.write_cleaned_html:
+            run(["scp", "-O", f"{remote}:{remote_cleaned}", str(paths.write_cleaned_html)])
+    finally:
+        if thumb_temp is not None:
+            thumb_temp.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
