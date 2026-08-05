@@ -3,6 +3,6 @@
   "english_title": "After the SPX High, QQQ Is the Real Test 20260804",
   "date": "2026-08-04",
   "slug": "2026-08-04-85e685",
-  "rerun_requested_at": "2026-08-05T12:02:00+08:00",
-  "rerun_reason": "Replace 240x135 preview cover with the 1280x720 source image"
+  "rerun_requested_at": "2026-08-05T13:19:00+08:00",
+  "rerun_reason": "Generate a native 1280x720 PNG cover in GitHub Actions without Base64"
 }
