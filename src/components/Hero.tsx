@@ -6,36 +6,25 @@ import Translate from '@docusaurus/Translate';
 export default function Hero(): JSX.Element {
   const {siteConfig} = useDocusaurusContext();
   return (
-    <header
-      className="hero"
-      style={{
-        background: 'var(--home-hero-bg)',
-        padding: '4rem 1rem',
-        textAlign: 'center',
-      }}
-    >
+    <header className="home-hero hero">
       <div className="container">
-        <h1 className="hero__title" style={{fontSize: 'clamp(2rem, 5vw, 3.25rem)'}}>
+        <h1 className="hero__title home-hero__title">
           Hi, I'm Tony Law 👋
         </h1>
-        <p className="hero__subtitle" style={{fontSize: '1.25rem', opacity: 0.85}}>
+        <p className="hero__subtitle home-hero__subtitle">
           {siteConfig.tagline}
         </p>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '0.75rem',
-            marginTop: '1.5rem',
-            maxWidth: '22rem',
-            marginLeft: 'auto',
-            marginRight: 'auto',
-          }}
-        >
-          <Link className="button button--primary button--lg" to="/blog">
+        <div className="home-hero__actions">
+          <Link
+            className="button button--primary button--lg home-hero__btn"
+            to="/blog"
+          >
             <Translate>Read the blog</Translate>
           </Link>
-          <Link className="button button--secondary button--lg" to="/about">
+          <Link
+            className="button button--secondary button--lg home-hero__btn"
+            to="/about"
+          >
             <Translate>Contact</Translate>
           </Link>
         </div>
