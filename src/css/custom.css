@@ -34,6 +34,60 @@
   --home-hero-bg: linear-gradient(135deg, #eff6ff 0%, #ffffff 60%);
   --home-card-border: #e5e7eb;
   --home-card-bg: #ffffff;
+  --home-hero-secondary-bg: #e5e7eb;
+  --home-hero-secondary-border: #d1d5db;
+  --home-hero-secondary-color: #111827;
+}
+
+/* Homepage hero — equal-width CTAs + Safari/iOS polish.
+ * Infima `.button` is `inline-block`; Safari won't stretch those grid items
+ * to the column width, so unequal labels look unequal. Force fill + flex. */
+.home-hero {
+  background: var(--home-hero-bg);
+  padding: 4rem 1rem;
+  padding-left: max(1rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1rem, env(safe-area-inset-right, 0px));
+  text-align: center;
+  -webkit-font-smoothing: antialiased;
+}
+.home-hero__title {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+}
+.home-hero__subtitle {
+  font-size: 1.25rem;
+  opacity: 0.85;
+}
+.home-hero__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 22rem;
+  margin: 1.5rem auto 0;
+}
+.home-hero__btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  white-space: normal;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.home-hero__btn.button--secondary {
+  background-color: var(--home-hero-secondary-bg);
+  border-color: var(--home-hero-secondary-border);
+  color: var(--home-hero-secondary-color);
+}
+.home-hero__btn.button--secondary:hover {
+  background-color: var(--home-hero-secondary-border);
+  border-color: var(--home-hero-secondary-border);
+  color: var(--home-hero-secondary-color);
 }
 
 [data-theme='dark'] {
@@ -48,6 +102,9 @@
   --home-hero-bg: linear-gradient(135deg, #0f172a 0%, #111827 60%);
   --home-card-border: #1e293b;
   --home-card-bg: rgba(17, 24, 39, 0.7);
+  --home-hero-secondary-bg: rgba(255, 255, 255, 0.08);
+  --home-hero-secondary-border: rgba(255, 255, 255, 0.28);
+  --home-hero-secondary-color: #f8fafc;
 
   /* Improved background layering for depth */
   --ifm-background-color: #0f1117;
