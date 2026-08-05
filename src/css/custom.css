@@ -79,6 +79,16 @@
   -webkit-appearance: none;
   appearance: none;
 }
+.home-hero__btn.button--primary {
+  background-color: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+  color: #fff;
+}
+.home-hero__btn.button--primary:hover {
+  background-color: var(--ifm-color-primary-dark);
+  border-color: var(--ifm-color-primary-dark);
+  color: #fff;
+}
 .home-hero__btn.button--secondary {
   background-color: var(--home-hero-secondary-bg);
   border-color: var(--home-hero-secondary-border);
@@ -88,6 +98,33 @@
   background-color: var(--home-hero-secondary-border);
   border-color: var(--home-hero-secondary-border);
   color: var(--home-hero-secondary-color);
+}
+
+/* Safari dark mode: Infima paints secondary buttons with near-black text
+ * (`gray-900`), which disappears on dark surfaces. Force light labels and a
+ * clearer solid/ghost CTA pair on the hero. */
+html[data-theme='dark'] .button.button--secondary {
+  color: var(--ifm-font-color-base);
+}
+html[data-theme='dark'] .home-hero__btn.button--primary {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  color: #fff;
+}
+html[data-theme='dark'] .home-hero__btn.button--primary:hover {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+html[data-theme='dark'] .home-hero__btn.button--secondary {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #f8fafc;
+}
+html[data-theme='dark'] .home-hero__btn.button--secondary:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #fff;
 }
 
 [data-theme='dark'] {
@@ -252,6 +289,19 @@
 
 html {
   font-family: var(--ifm-font-family-base);
+}
+
+/* Tell Safari which UI chrome palette to use. Without this, iOS Safari can
+ * keep a light status-bar / form-control scheme while the page is dark. */
+:root {
+  color-scheme: light;
+}
+html[data-theme='dark'] {
+  color-scheme: dark;
+  background-color: var(--ifm-background-color);
+}
+html[data-theme='dark'] body {
+  background-color: var(--ifm-background-color);
 }
 
 /* Card utility used by ProjectCard / FeaturedPosts */
@@ -436,6 +486,7 @@ html.blog-post-page .container.margin-vert--lg > .row > .col.col--2 {
     box-shadow 0.18s ease;
 }
 [data-theme='dark'] .links-card {
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
 .links-card:hover,
@@ -585,6 +636,7 @@ html.blog-post-page .container.margin-vert--lg > .row > .col.col--2 {
 [data-theme='dark'] .card-interactive {
   background: var(--home-card-bg);
   border-color: var(--home-card-border);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
 [data-theme='dark'] .card-interactive:hover {
@@ -592,11 +644,19 @@ html.blog-post-page .container.margin-vert--lg > .row > .col.col--2 {
   box-shadow: 0 4px 20px -8px rgba(96, 165, 250, 0.18);
 }
 
-/* ===== Dark-mode navbar & footer refinements ===== */
+/* ===== Dark-mode navbar & footer refinements =====
+ * Safari needs `-webkit-backdrop-filter`. Also keep a near-opaque fallback so
+ * the bar never reads as a white strip over the dark hero. */
 [data-theme='dark'] .navbar {
-  background: rgba(15, 17, 23, 0.85);
+  background: rgba(15, 17, 23, 0.92);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
   backdrop-filter: saturate(180%) blur(14px);
   border-bottom: 1px solid #1e293b;
+}
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  [data-theme='dark'] .navbar {
+    background: #0f1117;
+  }
 }
 
 /* ===== Scrollbar styling for dark mode ===== */
