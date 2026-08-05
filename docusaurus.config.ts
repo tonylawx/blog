@@ -126,6 +126,18 @@ const config: Config = {
     image: 'img/og.png',
     metadata: [
       {name: 'twitter:card', content: 'summary_large_image'},
+      // Safari / iOS status bar — Root also syncs a non-media theme-color to
+      // the active Docusaurus theme; these cover first paint before JS.
+      {
+        name: 'theme-color',
+        content: '#ffffff',
+        media: '(prefers-color-scheme: light)',
+      },
+      {
+        name: 'theme-color',
+        content: '#0f1117',
+        media: '(prefers-color-scheme: dark)',
+      },
     ],
     colorMode: {
       defaultMode: 'light',
