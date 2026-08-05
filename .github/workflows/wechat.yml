@@ -32,7 +32,14 @@ jobs:
           echo "html=$html" >> $GITHUB_OUTPUT
           title=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['title'])" "wechat-runs/$slug/meta.json" 2>/dev/null || echo "$slug")
           echo "title=$title" >> $GITHUB_OUTPUT
-          [ -f "wechat-runs/$slug/abstract_cover.png" ] && echo "thumb=wechat-runs/$slug/abstract_cover.png" >> $GITHUB_OUTPUT
+          if [ -f "wechat-runs/$slug/highres_cover.b64" ]; then
+            thumb="wechat-runs/$slug/abstract_cover.highres.jpg"
+            sed 's/__NEXT__$//' "wechat-runs/$slug/highres_cover.b64" | base64 --decode > "$thumb"
+            echo "thumb=$thumb" >> $GITHUB_OUTPUT
+            echo "using high-resolution cover: $(file -b "$thumb")"
+          elif [ -f "wechat-runs/$slug/abstract_cover.png" ]; then
+            echo "thumb=wechat-runs/$slug/abstract_cover.png" >> $GITHUB_OUTPUT
+          fi
           echo "publishing: $title"
       - name: publish WeChat draft via droplet
         working-directory: scripts
