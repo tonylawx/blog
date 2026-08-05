@@ -12,6 +12,7 @@ import argparse
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -23,6 +24,7 @@ from pathlib import Path
 DEFAULT_REMOTE = "root@167.71.219.62"
 REMOTE_SCRIPT_NAME = "wechat_draft.py"
 LOCAL_SCRIPT = Path(__file__).with_name(REMOTE_SCRIPT_NAME)
+CREDENTIAL_KEYS = ("WECHAT_APPID", "WECHAT_APPSECRET")
 
 
 def run(command: list[str], *, capture: bool = False) -> subprocess.CompletedProcess[str]:
@@ -40,25 +42,138 @@ def scp_upload(local_path: Path, remote_path: str) -> None:
     run(["scp", "-O", str(local_path), remote_path])
 
 
-def load_wechat_env() -> tuple[str, str]:
-    appid = os.environ.get("WECHAT_APPID", "")
-    secret = os.environ.get("WECHAT_APPSECRET", "")
-    if appid and secret:
-        return appid, secret
+def _parse_credential_exports(text: str) -> dict[str, str]:
+    """Extract WECHAT_* assignments from shell rc / env-file text without executing it."""
+    values: dict[str, str] = {}
+    pattern = re.compile(
+        r"^(?:export\s+)?(WECHAT_APPID|WECHAT_APPSECRET)\s*=\s*(?:\"([^\"]*)\"|'([^']*)'|(\S+))\s*(?:#.*)?$"
+    )
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        match = pattern.match(line)
+        if not match:
+            continue
+        key = match.group(1)
+        value = match.group(2) or match.group(3) or match.group(4) or ""
+        if value:
+            values[key] = value
+    return values
 
-    command = (
-        "source ~/.zshrc >/dev/null 2>&1; "
+
+def _credentials_from_env_files() -> tuple[str, str] | None:
+    candidates: list[Path] = []
+    env_file = os.environ.get("WECHAT_ENV_FILE", "").strip()
+    if env_file:
+        candidates.append(Path(env_file).expanduser())
+    home = Path.home()
+    candidates.extend(
+        [
+            home / ".config" / "wechat" / "env",
+            home / ".wechat.env",
+            home / ".zshrc",
+            home / ".bashrc",
+            home / ".profile",
+        ]
+    )
+    found: dict[str, str] = {}
+    for path in candidates:
+        try:
+            if not path.is_file():
+                continue
+            parsed = _parse_credential_exports(path.read_text(encoding="utf-8", errors="replace"))
+        except OSError:
+            continue
+        for key in CREDENTIAL_KEYS:
+            if key in parsed and key not in found:
+                found[key] = parsed[key]
+        if all(key in found for key in CREDENTIAL_KEYS):
+            return found["WECHAT_APPID"], found["WECHAT_APPSECRET"]
+    return None
+
+
+def _credentials_from_login_shell() -> tuple[str, str] | None:
+    """Ask a login shell for exported WECHAT_* vars. Prefer bash/sh; use zsh only if present."""
+    python_snippet = (
         "python3 - <<'PY'\n"
         "import os\n"
         "print(os.environ.get('WECHAT_APPID', ''))\n"
         "print(os.environ.get('WECHAT_APPSECRET', ''))\n"
         "PY"
     )
-    result = run(["zsh", "-lc", command], capture=True)
-    lines = result.stdout.splitlines()
-    if len(lines) >= 2 and lines[0] and lines[1]:
-        return lines[0], lines[1]
-    raise SystemExit("WECHAT_APPID and WECHAT_APPSECRET are required.")
+    shell_plans: list[tuple[str, list[str]]] = []
+    bash = shutil.which("bash")
+    if bash:
+        shell_plans.append(
+            (
+                bash,
+                [
+                    bash,
+                    "-lc",
+                    "[ -f \"$HOME/.bashrc\" ] && . \"$HOME/.bashrc\" >/dev/null 2>&1; "
+                    "[ -f \"$HOME/.profile\" ] && . \"$HOME/.profile\" >/dev/null 2>&1; "
+                    + python_snippet,
+                ],
+            )
+        )
+    sh_path = shutil.which("sh")
+    if sh_path:
+        shell_plans.append(
+            (
+                sh_path,
+                [
+                    sh_path,
+                    "-lc",
+                    "[ -f \"$HOME/.profile\" ] && . \"$HOME/.profile\" >/dev/null 2>&1; "
+                    + python_snippet,
+                ],
+            )
+        )
+    zsh = shutil.which("zsh")
+    if zsh:
+        shell_plans.append(
+            (
+                zsh,
+                [
+                    zsh,
+                    "-lc",
+                    "source ~/.zshrc >/dev/null 2>&1; " + python_snippet,
+                ],
+            )
+        )
+
+    for _shell, command in shell_plans:
+        try:
+            result = run(command, capture=True)
+        except (FileNotFoundError, subprocess.CalledProcessError):
+            continue
+        lines = result.stdout.splitlines()
+        if len(lines) >= 2 and lines[0] and lines[1]:
+            return lines[0], lines[1]
+    return None
+
+
+def load_wechat_env() -> tuple[str, str]:
+    appid = os.environ.get("WECHAT_APPID", "").strip()
+    secret = os.environ.get("WECHAT_APPSECRET", "").strip()
+    if appid and secret:
+        return appid, secret
+
+    from_files = _credentials_from_env_files()
+    if from_files:
+        return from_files
+
+    from_shell = _credentials_from_login_shell()
+    if from_shell:
+        return from_shell
+
+    raise SystemExit(
+        "WECHAT_APPID and WECHAT_APPSECRET are required. "
+        "Export them in the environment, set WECHAT_ENV_FILE to a dotenv-like file, "
+        "or put `export WECHAT_APPID=...` / `export WECHAT_APPSECRET=...` in "
+        "~/.config/wechat/env (preferred on hosts without zsh)."
+    )
 
 
 def parse_known_paths(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
