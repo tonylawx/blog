@@ -4,5 +4,8 @@
   "date": "2026-08-04",
   "slug": "2026-08-04-85e685",
   "rerun_requested_at": "2026-08-05T13:19:00+08:00",
-  "rerun_reason": "Generate a native 1280x720 PNG cover in GitHub Actions without Base64"
+  "rerun_reason": "Agent Image2 cover landed for GitHub raw URL WeChat Action test",
+  "cover_provider": "agent",
+  "cover_tool": "cursor_generate_image",
+  "cover_landed_at": "2026-08-05T16:02:36.984740+08:00"
 }
