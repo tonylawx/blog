@@ -158,6 +158,41 @@ html[data-theme='dark'] .home-hero__btn.button--secondary:hover {
 }
 
 /* ===================================================================
+ * Article tables (shared light-mode baseline)
+ * -------------------------------------------------------------------
+ * Matches the interview-bank table look: light header, soft borders,
+ * horizontal scroll on narrow viewports. Prefer wrapping tables in
+ * `.stt-table-wrap` so overflow scrolling does not break table layout
+ * (avoid `display:block` on the <table> itself).
+ * =================================================================== */
+.stt-article .stt-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 16px 0;
+  -webkit-overflow-scrolling: touch;
+}
+.stt-article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+  color: #454550;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.stt-article th,
+.stt-article td {
+  border: 1px solid #e4e7ed;
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+.stt-article th {
+  background: #f7f9fc;
+  color: #2a2a34;
+  font-weight: 800;
+}
+
+/* ===================================================================
  * Dark-mode overrides for article.html content
  * -------------------------------------------------------------------
  * article.html posts embed their own <style> blocks with hardcoded
