@@ -172,7 +172,8 @@ html[data-theme='dark'] .home-hero__btn.button--secondary:hover {
   -webkit-overflow-scrolling: touch;
 }
 .stt-article table {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
   margin: 0;
   color: #454550;
@@ -190,6 +191,9 @@ html[data-theme='dark'] .home-hero__btn.button--secondary:hover {
   background: #f7f9fc;
   color: #2a2a34;
   font-weight: 800;
+  /* Keep short CJK headers like 类型/角色 on one line; wide tables scroll. */
+  white-space: nowrap;
+  word-break: keep-all;
 }
 
 /* ===================================================================
