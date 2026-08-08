@@ -590,7 +590,7 @@ def create_draft(args: argparse.Namespace, access_token: str) -> dict:
         "digest": args.digest,
         "content": html,
         "content_source_url": args.content_source_url,
-        "need_open_comment": 0,
+        "need_open_comment": 1,
         "only_fans_can_comment": 0,
     }
     if args.thumb_media_id:
