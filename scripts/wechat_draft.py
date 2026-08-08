@@ -592,6 +592,25 @@ def create_draft(args: argparse.Namespace, access_token: str) -> dict:
         "content_source_url": args.content_source_url,
         "need_open_comment": 1,
         "only_fans_can_comment": 0,
+        # Full-frame 2.35:1 crop (no zoom). 1:1 uses the horizontal center square.
+        "cover_info": {
+            "crop_percent_list": [
+                {
+                    "ratio": "2.35_1",
+                    "x1": "0",
+                    "y1": "0",
+                    "x2": "1",
+                    "y2": "1",
+                },
+                {
+                    "ratio": "1_1",
+                    "x1": "0.2857",
+                    "y1": "0",
+                    "x2": "0.7143",
+                    "y2": "1",
+                },
+            ]
+        },
     }
     if args.thumb_media_id:
         article["thumb_media_id"] = args.thumb_media_id
