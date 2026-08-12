@@ -1,11 +1,17 @@
 {
-  "title": "GOOG Pullback Looks Buyable; IGV Still Needs 107 20260811",
-  "english_title": "GOOG Pullback Looks Buyable; IGV Still Needs 107",
-  "date": "2026-08-11",
   "slug": "2026-08-11-f7deac-en",
-  "locale": "en",
-  "format": "listening",
+  "mode": "wechat_only",
+  "title": "GOOG Pullback Looks Buyable; IGV Still Needs 107 20260811",
+  "digest": "GOOG looks buyable on pullbacks; watch IGV 107, CRM, INTU, and APP.",
   "author": "RhinoFinance",
-  "financial_english_editor_applied": true,
-  "republish": "fix-bold-not-bullet"
+  "content_source_url": "",
+  "need_open_comment": 1,
+  "only_fans_can_comment": 0,
+  "article_html": "article.wechat.html",
+  "thumb_image": "abstract_cover.png",
+  "created_at": "2026-08-12T05:44:51Z",
+  "source_run_dir": "/workspace/workflow_runs/rhino_finance/2026-08-12",
+  "english_listening": true,
+  "fix_no_bullets": true,
+  "locale": "en"
 }
