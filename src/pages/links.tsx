@@ -15,6 +15,7 @@ import threadsIcon from '@iconify-icons/simple-icons/threads';
 import telegramIcon from '@iconify-icons/simple-icons/telegram';
 import githubIcon from '@iconify-icons/simple-icons/github';
 import wiseIcon from '@iconify-icons/simple-icons/wise';
+import wechatIcon from '@iconify-icons/simple-icons/wechat';
 
 type Locale = 'en' | 'zh';
 
@@ -52,6 +53,14 @@ const LINKS: LinkItem[] = [
     href: 'https://theta.tonylaw.cc',
     color: '#2763e9',
     img: '/img/theta-icon.png',
+  },
+  {
+    label: {en: 'WeChat Official Account', zh: '微信公众号'},
+    desc: {en: '蜘蛛也会思考 · US stocks & options', zh: '蜘蛛也会思考 · 美股期权分析'},
+    href: 'https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzU1MTAyMzY1MQ==',
+    color: '#07c160',
+    icon: wechatIcon,
+    glyphColor: '#07c160',
   },
   {
     label: {en: 'Binance Referral', zh: '币安邀请福利'},
