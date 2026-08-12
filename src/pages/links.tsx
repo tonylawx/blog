@@ -55,14 +55,6 @@ const LINKS: LinkItem[] = [
     img: '/img/theta-icon.png',
   },
   {
-    label: {en: 'WeChat Official Account', zh: '微信公众号'},
-    desc: {en: '蜘蛛也会思考 · US stocks & options', zh: '蜘蛛也会思考 · 美股期权分析'},
-    href: 'https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzU1MTAyMzY1MQ==&scene=110#wechat_redirect',
-    color: '#07c160',
-    icon: wechatIcon,
-    glyphColor: '#07c160',
-  },
-  {
     label: {en: 'Binance Referral', zh: '币安邀请福利'},
     desc: {en: 'Refer2Earn · USDC rewards', zh: 'Refer2Earn · USDC 奖励活动'},
     href: 'https://www.bsmkweb.cc/referral/earn-together/refer2earn-usdc/claim?hl=zh-CN&ref=GRO_28502_8G320&utm_source=referral_entrance',
@@ -85,6 +77,14 @@ const LINKS: LinkItem[] = [
     color: '#9fe870',
     icon: wiseIcon,
     glyphColor: '#9fe870',
+  },
+  {
+    label: {en: 'WeChat Official Account', zh: '微信公众号'},
+    desc: {en: '蜘蛛也会思考 · US stocks & options', zh: '蜘蛛也会思考 · 美股期权分析'},
+    href: 'https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzU1MTAyMzY1MQ==&scene=110#wechat_redirect',
+    color: '#07c160',
+    icon: wechatIcon,
+    glyphColor: '#07c160',
   },
   {
     label: {en: 'X (Twitter)', zh: 'X (Twitter)'},
