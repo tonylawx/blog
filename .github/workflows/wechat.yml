@@ -27,39 +27,59 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H -t ed25519 "$DROPLET_HOST" >> ~/.ssh/known_hosts 2>/dev/null
       - name: publish touched wechat runs via droplet
-        working-directory: scripts
         env:
           WECHAT_APPID: ${{ secrets.WECHAT_APPID }}
           WECHAT_APPSECRET: ${{ secrets.WECHAT_APPSECRET }}
           WECHAT_DRAFT_PROXY_HOST: root@${{ secrets.DROPLET_HOST }}
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          set -euo pipefail
-          # Prefer every slug touched by this commit. After checkout, `ls -1t`
-          # mtimes are unreliable and previously republished the Chinese sibling
-          # when an English `*-en` folder was the intended change.
-          slugs=""
-          if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
-            slugs=$(git diff-tree --no-commit-id --name-only -r HEAD -- wechat-runs/ \
-              | awk -F/ 'NF>=2 {print $2}' \
-              | grep -vE '^\.' \
-              | awk 'NF && !seen[$0]++')
-          fi
-          if [ -z "${slugs:-}" ]; then
-            slugs=$(ls -1 ../wechat-runs/ 2>/dev/null | grep -vE '^\.' | sort | tail -1)
-          fi
-          [ -n "${slugs:-}" ] || { echo "no wechat-runs/ found"; exit 1; }
+          set -eu
+          # Resolve touched slugs in Python to avoid bash pipefail/grep pitfalls.
+          mapfile -t slugs < <(python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
 
-          printf '%s\n' "$slugs" | while IFS= read -r slug; do
-            [ -n "$slug" ] || continue
-            html="../wechat-runs/$slug/article.wechat.html"
-            cover="../wechat-runs/$slug/abstract_cover.png"
-            meta="../wechat-runs/$slug/meta.json"
+          def run(args):
+              return subprocess.check_output(args, text=True).strip()
+
+          slugs = []
+          try:
+              run(["git", "rev-parse", "--verify", "HEAD^"])
+              names = run(["git", "diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD", "--", "wechat-runs/"])
+              seen = set()
+              for line in names.splitlines():
+                  parts = Path(line).parts
+                  if len(parts) >= 2 and parts[0] == "wechat-runs":
+                      slug = parts[1]
+                      if slug and not slug.startswith(".") and slug not in seen:
+                          seen.add(slug)
+                          slugs.append(slug)
+          except subprocess.CalledProcessError:
+              pass
+
+          if not slugs:
+              root = Path("wechat-runs")
+              if root.exists():
+                  candidates = sorted(p.name for p in root.iterdir() if p.is_dir() and not p.name.startswith("."))
+                  if candidates:
+                      slugs = [candidates[-1]]
+
+          if not slugs:
+              raise SystemExit("no wechat-runs/ found")
+          print("\n".join(slugs))
+          PY
+          )
+
+          echo "touched_slugs: ${slugs[*]}"
+          for slug in "${slugs[@]}"; do
+            html="wechat-runs/$slug/article.wechat.html"
+            cover="wechat-runs/$slug/abstract_cover.png"
+            meta="wechat-runs/$slug/meta.json"
             [ -f "$html" ] || { echo "missing $html"; exit 1; }
             [ -f "$cover" ] || { echo "missing $cover — Action requires cover in wechat-runs"; exit 1; }
-            title=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['title'])" "$meta" 2>/dev/null || echo "$slug")
-            locale=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1])).get('locale',''))" "$meta" 2>/dev/null || true)
-            author=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1])).get('author',''))" "$meta" 2>/dev/null || true)
+            title=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['title'])" "$meta")
+            locale=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1])).get('locale') or '')" "$meta")
+            author=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1])).get('author') or '')" "$meta")
             if [ -z "$author" ]; then
               if [ "$locale" = "en" ]; then
                 author="AI US Market Analyst"
@@ -72,7 +92,7 @@ jobs:
             echo "selected_slug: $slug"
             echo "locale: ${locale:-zh}"
             echo "cover_url: $thumb_url"
-            python3 wechat_draft_via_droplet.py \
+            python3 scripts/wechat_draft_via_droplet.py \
               --html-file "$html" \
               --title "$title" \
               --author "$author" \
