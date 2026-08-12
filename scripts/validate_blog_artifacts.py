@@ -13,6 +13,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DATE_SLUG_RE = re.compile(r"^20\d{2}-\d{2}-\d{2}-[0-9a-f]{6}$")
+# English listening WeChat drafts are staged as <date-hash>-en alongside the CN run.
+WECHAT_SLUG_RE = re.compile(r"^20\d{2}-\d{2}-\d{2}-[0-9a-f]{6}(?:-en)?$")
 CJK_RE = re.compile(r"[\u3400-\u9fff]")
 
 
@@ -99,6 +101,7 @@ def validate_wechat_run(errors: list[str], slug: str) -> None:
     article = run_dir / "article.wechat.html"
     cover = run_dir / "abstract_cover.png"
     meta = run_dir / "meta.json"
+    is_english = slug.endswith("-en")
     if assert_exists(errors, article, "WeChat draft HTML"):
         html = read_text(article)
         if "<html" in html.lower():
@@ -107,6 +110,10 @@ def validate_wechat_run(errors: list[str], slug: str) -> None:
             fail(errors, f"WeChat draft HTML does not look like rendered HTML: {article}")
         if "#d7e2ff" in html.lower():
             fail(errors, f"WeChat draft HTML section label rules must use #2763e9, not #d7e2ff: {article}")
+        if is_english and CJK_RE.search(html):
+            fail(errors, f"English WeChat draft HTML contains Chinese characters: {article}")
+        if is_english and "US Stocks · Options · News · Views" not in html:
+            fail(errors, f"English WeChat draft missing EN SEO line: {article}")
     assert_exists(errors, cover, "WeChat abstract cover")
     if assert_exists(errors, meta, "WeChat metadata"):
         try:
@@ -116,6 +123,10 @@ def validate_wechat_run(errors: list[str], slug: str) -> None:
         else:
             if not str(data.get("title", "")).strip():
                 fail(errors, f"WeChat meta is missing title: {meta}")
+            if is_english and data.get("locale") != "en":
+                fail(errors, f"English WeChat meta must set locale=en: {meta}")
+            if is_english and CJK_RE.search(str(data.get("title", ""))):
+                fail(errors, f"English WeChat title contains Chinese characters: {meta}")
 
     forbidden = list((ROOT / run_dir).glob("*.html"))
     for path in forbidden:
@@ -125,6 +136,12 @@ def validate_wechat_run(errors: list[str], slug: str) -> None:
 
 
 def validate_slug(errors: list[str], slug: str, *, strict_handoff: bool) -> None:
+    if slug.endswith("-en"):
+        if not WECHAT_SLUG_RE.match(slug):
+            return
+        if (ROOT / "wechat-runs" / slug).exists():
+            validate_wechat_run(errors, slug)
+        return
     if not DATE_SLUG_RE.match(slug):
         return
     if (ROOT / "blog" / slug).exists():

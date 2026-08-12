@@ -524,10 +524,11 @@ def normalize_article_label_text(text: str, locale: str) -> str:
     if not match:
         return text
     number, delimiter, label, trailing = match.groups()
-    if locale == "zh":
-        mapped = ARTICLE_ZH_TO_EN_LABELS.get(label.strip())
-    else:
-        mapped = ARTICLE_EN_TO_ZH_LABELS.get(re.sub(r"\s+", " ", label.strip()).upper())
+    # Approved template uses English labels for both locales. Never remap
+    # MACRO/SEMIS/... into Chinese (English listening drafts must stay English);
+    # only map accidental Chinese labels back to English.
+    _ = locale
+    mapped = ARTICLE_ZH_TO_EN_LABELS.get(label.strip())
     if not mapped:
         return text
     return f"{number}{delimiter}{mapped}{trailing}"

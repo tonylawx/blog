@@ -8,11 +8,12 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
-          # Need HEAD^ so we can prefer the wechat-runs slug changed in this push.
+          # Need HEAD^ so we can publish every wechat-runs slug touched in this push
+          # (Chinese + English listening draft land together).
           fetch-depth: 2
       - uses: actions/setup-python@v5
         with: {python-version: '3.13'}
@@ -25,38 +26,7 @@ jobs:
           printf '%s\n' "$DROPLET_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H -t ed25519 "$DROPLET_HOST" >> ~/.ssh/known_hosts 2>/dev/null
-      - name: find latest wechat run + GitHub cover URL
-        id: art
-        run: |
-          # Prefer the slug touched by this commit. After a fresh checkout,
-          # `ls -1t` mtimes are unreliable and can republish an older sibling
-          # (e.g. CN when EN `*-en` was the only change).
-          slug=""
-          if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
-            slug=$(git diff-tree --no-commit-id --name-only -r HEAD -- wechat-runs/ \
-              | awk -F/ 'NF>=2 {print $2}' \
-              | grep -vE '^\.' \
-              | awk 'NF && !seen[$0]++' \
-              | head -1)
-          fi
-          if [ -z "$slug" ]; then
-            slug=$(ls -1 wechat-runs/ 2>/dev/null | grep -vE '^\.' | sort | tail -1)
-          fi
-          [ -z "$slug" ] && { echo "no wechat-runs/ found"; exit 1; }
-          html="wechat-runs/$slug/article.wechat.html"
-          cover="wechat-runs/$slug/abstract_cover.png"
-          [ -f "$html" ] || { echo "missing $html"; exit 1; }
-          [ -f "$cover" ] || { echo "missing $cover — Action requires cover in wechat-runs"; exit 1; }
-          title=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['title'])" "wechat-runs/$slug/meta.json" 2>/dev/null || echo "$slug")
-          thumb_url="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/${cover}"
-          echo "slug=$slug" >> "$GITHUB_OUTPUT"
-          echo "html=$html" >> "$GITHUB_OUTPUT"
-          echo "title=$title" >> "$GITHUB_OUTPUT"
-          echo "thumb_url=$thumb_url" >> "$GITHUB_OUTPUT"
-          echo "publishing: $title"
-          echo "selected_slug: $slug"
-          echo "cover_url: $thumb_url"
-      - name: publish WeChat draft via droplet
+      - name: publish touched wechat runs via droplet
         working-directory: scripts
         env:
           WECHAT_APPID: ${{ secrets.WECHAT_APPID }}
@@ -64,7 +34,47 @@ jobs:
           WECHAT_DRAFT_PROXY_HOST: root@${{ secrets.DROPLET_HOST }}
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          python3 wechat_draft_via_droplet.py \
-            --html-file "../${{ steps.art.outputs.html }}" \
-            --title "${{ steps.art.outputs.title }}" \
-            --thumb-image-url "${{ steps.art.outputs.thumb_url }}"
+          set -euo pipefail
+          # Prefer every slug touched by this commit. After checkout, `ls -1t`
+          # mtimes are unreliable and previously republished the Chinese sibling
+          # when an English `*-en` folder was the intended change.
+          slugs=""
+          if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+            slugs=$(git diff-tree --no-commit-id --name-only -r HEAD -- wechat-runs/ \
+              | awk -F/ 'NF>=2 {print $2}' \
+              | grep -vE '^\.' \
+              | awk 'NF && !seen[$0]++')
+          fi
+          if [ -z "${slugs:-}" ]; then
+            slugs=$(ls -1 ../wechat-runs/ 2>/dev/null | grep -vE '^\.' | sort | tail -1)
+          fi
+          [ -n "${slugs:-}" ] || { echo "no wechat-runs/ found"; exit 1; }
+
+          printf '%s\n' "$slugs" | while IFS= read -r slug; do
+            [ -n "$slug" ] || continue
+            html="../wechat-runs/$slug/article.wechat.html"
+            cover="../wechat-runs/$slug/abstract_cover.png"
+            meta="../wechat-runs/$slug/meta.json"
+            [ -f "$html" ] || { echo "missing $html"; exit 1; }
+            [ -f "$cover" ] || { echo "missing $cover — Action requires cover in wechat-runs"; exit 1; }
+            title=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['title'])" "$meta" 2>/dev/null || echo "$slug")
+            locale=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1])).get('locale',''))" "$meta" 2>/dev/null || true)
+            author=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1])).get('author',''))" "$meta" 2>/dev/null || true)
+            if [ -z "$author" ]; then
+              if [ "$locale" = "en" ]; then
+                author="AI US Market Analyst"
+              else
+                author="AI 美股分析师"
+              fi
+            fi
+            thumb_url="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/wechat-runs/${slug}/abstract_cover.png"
+            echo "publishing: $title"
+            echo "selected_slug: $slug"
+            echo "locale: ${locale:-zh}"
+            echo "cover_url: $thumb_url"
+            python3 wechat_draft_via_droplet.py \
+              --html-file "$html" \
+              --title "$title" \
+              --author "$author" \
+              --thumb-image-url "$thumb_url"
+          done
