@@ -34,67 +34,190 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -eu
-          # Resolve touched slugs in Python to avoid bash pipefail/grep pitfalls.
-          mapfile -t slugs < <(python3 - <<'PY'
-          from pathlib import Path
+          # Resolve touched slugs, then publish CN+EN as one 多图文 draft when
+          # both exist (Chinese = 头条, English listening = 次条).
+          python3 - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import os
           import subprocess
+          import tempfile
+          from pathlib import Path
 
-          def run(args):
-              return subprocess.check_output(args, text=True).strip()
+          def run(args: list[str], *, check: bool = True) -> str:
+              return subprocess.check_output(args, text=True).strip() if check else subprocess.run(
+                  args, check=False, text=True, stdout=subprocess.PIPE
+              ).stdout.strip()
 
-          slugs = []
-          try:
-              run(["git", "rev-parse", "--verify", "HEAD^"])
-              names = run(["git", "diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD", "--", "wechat-runs/"])
-              seen = set()
-              for line in names.splitlines():
-                  parts = Path(line).parts
-                  if len(parts) >= 2 and parts[0] == "wechat-runs":
-                      slug = parts[1]
-                      if slug and not slug.startswith(".") and slug not in seen:
-                          seen.add(slug)
-                          slugs.append(slug)
-          except subprocess.CalledProcessError:
-              pass
+          def load_meta(slug: str) -> dict:
+              return json.loads(Path(f"wechat-runs/{slug}/meta.json").read_text(encoding="utf-8"))
 
-          if not slugs:
-              root = Path("wechat-runs")
-              if root.exists():
-                  candidates = sorted(p.name for p in root.iterdir() if p.is_dir() and not p.name.startswith("."))
-                  if candidates:
-                      slugs = [candidates[-1]]
+          def author_for(slug: str, meta: dict) -> str:
+              author = (meta.get("author") or "").strip()
+              if author:
+                  return author
+              if (meta.get("locale") or "") == "en" or slug.endswith("-en"):
+                  return "RhinoFinance"
+              return "AI 美股分析师"
 
-          if not slugs:
-              raise SystemExit("no wechat-runs/ found")
-          print("\n".join(slugs))
+          def thumb_url(slug: str) -> str:
+              repo = os.environ["GITHUB_REPOSITORY"]
+              sha = os.environ["GITHUB_SHA"]
+              return f"https://raw.githubusercontent.com/{repo}/{sha}/wechat-runs/{slug}/abstract_cover.png"
+
+          def collect_touched_slugs() -> list[str]:
+              slugs: list[str] = []
+              try:
+                  run(["git", "rev-parse", "--verify", "HEAD^"])
+                  names = run(
+                      ["git", "diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD", "--", "wechat-runs/"]
+                  )
+                  seen: set[str] = set()
+                  for line in names.splitlines():
+                      parts = Path(line).parts
+                      if len(parts) >= 2 and parts[0] == "wechat-runs":
+                          slug = parts[1]
+                          if slug and not slug.startswith(".") and slug not in seen:
+                              seen.add(slug)
+                              slugs.append(slug)
+              except subprocess.CalledProcessError:
+                  pass
+              if not slugs:
+                  root = Path("wechat-runs")
+                  if root.exists():
+                      candidates = sorted(
+                          p.name for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")
+                      )
+                      if candidates:
+                          slugs = [candidates[-1]]
+              if not slugs:
+                  raise SystemExit("no wechat-runs/ found")
+              return slugs
+
+          def publish_units(slugs: list[str]) -> list[dict]:
+              """Pair <slug> + <slug>-en into one multi draft; skip lone -en when paired."""
+              slug_set = set(slugs)
+              units: list[dict] = []
+              seen: set[str] = set()
+              for slug in slugs:
+                  if slug in seen:
+                      continue
+                  if slug.endswith("-en"):
+                      primary = slug[: -len("-en")]
+                      primary_dir = Path(f"wechat-runs/{primary}")
+                      if primary in slug_set or primary_dir.exists():
+                          # Will be (or was) published with the Chinese headline.
+                          if primary not in slug_set and primary_dir.exists():
+                              # EN-only touch: still bundle with existing CN if present.
+                              units.append({"kind": "multi", "primary": primary, "secondary": slug})
+                              seen.add(slug)
+                              seen.add(primary)
+                          continue
+                      units.append({"kind": "single", "slug": slug})
+                      seen.add(slug)
+                      continue
+
+                  secondary = f"{slug}-en"
+                  secondary_dir = Path(f"wechat-runs/{secondary}")
+                  if secondary in slug_set or secondary_dir.exists():
+                      units.append({"kind": "multi", "primary": slug, "secondary": secondary})
+                      seen.add(slug)
+                      seen.add(secondary)
+                  else:
+                      units.append({"kind": "single", "slug": slug})
+                      seen.add(slug)
+              return units
+
+          def publish_single(slug: str) -> None:
+              html = Path(f"wechat-runs/{slug}/article.wechat.html")
+              cover = Path(f"wechat-runs/{slug}/abstract_cover.png")
+              meta_path = Path(f"wechat-runs/{slug}/meta.json")
+              if not html.exists():
+                  raise SystemExit(f"missing {html}")
+              if not cover.exists():
+                  raise SystemExit(f"missing {cover} — Action requires cover in wechat-runs")
+              meta = load_meta(slug)
+              title = meta["title"]
+              author = author_for(slug, meta)
+              locale = meta.get("locale") or ("en" if slug.endswith("-en") else "zh")
+              print(f"publishing_single: {title}")
+              print(f"selected_slug: {slug}")
+              print(f"locale: {locale}")
+              print(f"cover_url: {thumb_url(slug)}")
+              subprocess.run(
+                  [
+                      "python3",
+                      "scripts/wechat_draft_via_droplet.py",
+                      "--html-file",
+                      str(html),
+                      "--title",
+                      title,
+                      "--author",
+                      author,
+                      "--thumb-image-url",
+                      thumb_url(slug),
+                  ],
+                  check=True,
+              )
+
+          def publish_multi(primary: str, secondary: str) -> None:
+              for slug in (primary, secondary):
+                  html = Path(f"wechat-runs/{slug}/article.wechat.html")
+                  cover = Path(f"wechat-runs/{slug}/abstract_cover.png")
+                  if not html.exists():
+                      raise SystemExit(f"missing {html}")
+                  if not cover.exists():
+                      raise SystemExit(f"missing {cover} — Action requires cover in wechat-runs")
+              primary_meta = load_meta(primary)
+              secondary_meta = load_meta(secondary)
+              articles = [
+                  {
+                      "title": primary_meta["title"],
+                      "author": author_for(primary, primary_meta),
+                      "digest": primary_meta.get("digest") or "",
+                      "html_file": str(Path(f"wechat-runs/{primary}/article.wechat.html").resolve()),
+                      "thumb_image_url": thumb_url(primary),
+                      "need_open_comment": int(primary_meta.get("need_open_comment", 1)),
+                      "only_fans_can_comment": int(primary_meta.get("only_fans_can_comment", 0)),
+                  },
+                  {
+                      "title": secondary_meta["title"],
+                      "author": author_for(secondary, secondary_meta),
+                      "digest": secondary_meta.get("digest") or "",
+                      "html_file": str(Path(f"wechat-runs/{secondary}/article.wechat.html").resolve()),
+                      "thumb_image_url": thumb_url(secondary),
+                      "need_open_comment": int(secondary_meta.get("need_open_comment", 1)),
+                      "only_fans_can_comment": int(secondary_meta.get("only_fans_can_comment", 0)),
+                  },
+              ]
+              print(f"publishing_multi: 头条={primary_meta['title']}")
+              print(f"publishing_multi: 次条={secondary_meta['title']}")
+              print(f"selected_slugs: {primary} + {secondary}")
+              with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".json", delete=False) as handle:
+                  json.dump(articles, handle, ensure_ascii=False, indent=2)
+                  handle.write("\n")
+                  manifest = handle.name
+              try:
+                  subprocess.run(
+                      [
+                          "python3",
+                          "scripts/wechat_draft_via_droplet.py",
+                          "--articles-json",
+                          manifest,
+                      ],
+                      check=True,
+                  )
+              finally:
+                  Path(manifest).unlink(missing_ok=True)
+
+          touched = collect_touched_slugs()
+          print("touched_slugs:", " ".join(touched))
+          units = publish_units(touched)
+          print("publish_units:", json.dumps(units, ensure_ascii=False))
+          for unit in units:
+              if unit["kind"] == "multi":
+                  publish_multi(unit["primary"], unit["secondary"])
+              else:
+                  publish_single(unit["slug"])
           PY
-          )
-
-          echo "touched_slugs: ${slugs[*]}"
-          for slug in "${slugs[@]}"; do
-            html="wechat-runs/$slug/article.wechat.html"
-            cover="wechat-runs/$slug/abstract_cover.png"
-            meta="wechat-runs/$slug/meta.json"
-            [ -f "$html" ] || { echo "missing $html"; exit 1; }
-            [ -f "$cover" ] || { echo "missing $cover — Action requires cover in wechat-runs"; exit 1; }
-            title=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['title'])" "$meta")
-            locale=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1])).get('locale') or '')" "$meta")
-            author=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1])).get('author') or '')" "$meta")
-            if [ -z "$author" ]; then
-              if [ "$locale" = "en" ]; then
-                author="RhinoFinance"
-              else
-                author="AI 美股分析师"
-              fi
-            fi
-            thumb_url="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/wechat-runs/${slug}/abstract_cover.png"
-            echo "publishing: $title"
-            echo "selected_slug: $slug"
-            echo "locale: ${locale:-zh}"
-            echo "cover_url: $thumb_url"
-            python3 scripts/wechat_draft_via_droplet.py \
-              --html-file "$html" \
-              --title "$title" \
-              --author "$author" \
-              --thumb-image-url "$thumb_url"
-          done

@@ -53,10 +53,28 @@ ARTICLE_ZH_TO_EN_LABELS = {value: key for key, value in ARTICLE_EN_TO_ZH_LABELS.
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Create a WeChat Official Account draft from a local HTML file."
+        description=(
+            "Create a WeChat Official Account draft from a local HTML file "
+            "(single article) or an articles JSON manifest (多图文)."
+        )
     )
-    parser.add_argument("--title", required=True, help="Draft title.")
-    parser.add_argument("--html-file", type=Path, required=True, help="Path to the rendered HTML file.")
+    parser.add_argument("--title", default=None, help="Draft title (single-article mode).")
+    parser.add_argument(
+        "--html-file",
+        type=Path,
+        default=None,
+        help="Path to the rendered HTML file (single-article mode).",
+    )
+    parser.add_argument(
+        "--articles-json",
+        type=Path,
+        default=None,
+        help=(
+            "JSON array of articles for 多图文 draft/add. Each item needs title + html_file; "
+            "optional author, digest, content_source_url, thumb_image, thumb_media_id. "
+            "Order is 头条 first, then 次条…"
+        ),
+    )
     parser.add_argument("--author", default="AI 美股分析师", help="WeChat article author name.")
     parser.add_argument("--digest", default="", help="Optional digest/summary.")
     parser.add_argument("--thumb-media-id", default=None, help="Optional cover thumbnail media id.")
@@ -82,7 +100,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--write-cleaned-html",
         type=Path,
         default=None,
-        help="Optional output path to write the cleaned HTML used for draft/add.",
+        help="Optional output path to write the cleaned HTML used for draft/add (first article only).",
     )
     parser.add_argument("--appid", default=os.environ.get("WECHAT_APPID"), help="WeChat AppID.")
     parser.add_argument(
@@ -90,7 +108,31 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=os.environ.get("WECHAT_APPSECRET"),
         help="WeChat AppSecret.",
     )
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if args.articles_json is None:
+        if not args.title or args.html_file is None:
+            parser.error("--title and --html-file are required unless --articles-json is set")
+    return args
+
+
+DEFAULT_COVER_INFO = {
+    "crop_percent_list": [
+        {
+            "ratio": "2.35_1",
+            "x1": "0",
+            "y1": "0",
+            "x2": "1",
+            "y2": "1",
+        },
+        {
+            "ratio": "1_1",
+            "x1": "0.2857",
+            "y1": "0",
+            "x2": "0.7143",
+            "y2": "1",
+        },
+    ]
+}
 
 
 def _detect_image_suffix(data: bytes, fallback: str = ".png") -> str:
@@ -573,56 +615,152 @@ def clean_html_for_draft_add(html: str) -> str:
     return html + "\n"
 
 
-def create_draft(args: argparse.Namespace, access_token: str) -> dict:
-    html = args.html_file.read_text(encoding="utf-8")
-    content_image_uploads = []
+def load_articles_manifest(path: Path) -> list[dict]:
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(raw, list) or not raw:
+        raise SystemExit(f"--articles-json must be a non-empty JSON array: {path}")
+    articles: list[dict] = []
+    for index, item in enumerate(raw):
+        if not isinstance(item, dict):
+            raise SystemExit(f"articles[{index}] must be an object")
+        title = str(item.get("title") or "").strip()
+        html_file = item.get("html_file")
+        if not title or not html_file:
+            raise SystemExit(f"articles[{index}] requires title and html_file")
+        articles.append(
+            {
+                "title": title,
+                "author": str(item.get("author") or "AI 美股分析师"),
+                "digest": str(item.get("digest") or ""),
+                "html_file": Path(html_file),
+                "content_source_url": str(item.get("content_source_url") or ""),
+                "thumb_media_id": (str(item["thumb_media_id"]).strip() if item.get("thumb_media_id") else None),
+                "thumb_image": Path(item["thumb_image"]) if item.get("thumb_image") else None,
+                "need_open_comment": int(item.get("need_open_comment", 1)),
+                "only_fans_can_comment": int(item.get("only_fans_can_comment", 0)),
+            }
+        )
+    return articles
+
+
+def build_article_payload(
+    *,
+    title: str,
+    author: str,
+    digest: str,
+    html: str,
+    content_source_url: str = "",
+    thumb_media_id: str | None = None,
+    need_open_comment: int = 1,
+    only_fans_can_comment: int = 0,
+) -> dict:
+    article = {
+        "title": title,
+        "author": author,
+        "digest": digest,
+        "content": html,
+        "content_source_url": content_source_url,
+        "need_open_comment": need_open_comment,
+        "only_fans_can_comment": only_fans_can_comment,
+        # Full-frame 2.35:1 crop (no zoom). 1:1 uses the horizontal center square
+        # (WeChat shows this crop as the small 次条 cover).
+        "cover_info": DEFAULT_COVER_INFO,
+    }
+    if thumb_media_id:
+        article["thumb_media_id"] = thumb_media_id
+    return article
+
+
+def prepare_article_html(
+    html_file: Path,
+    access_token: str,
+    *,
+    sanitize: bool,
+    write_cleaned_html: Path | None = None,
+) -> tuple[str, list[dict]]:
+    if not html_file.exists():
+        raise SystemExit(f"HTML file not found: {html_file}")
+    html = html_file.read_text(encoding="utf-8")
     html, content_image_uploads = upload_local_content_images(
         html,
         access_token,
-        args.html_file.parent,
+        html_file.parent,
     )
-    if args.sanitize_for_draft_add:
+    if sanitize:
         html = clean_html_for_draft_add(html)
-    if args.write_cleaned_html is not None:
-        args.write_cleaned_html.write_text(html, encoding="utf-8")
-    article = {
-        "title": args.title,
-        "author": args.author,
-        "digest": args.digest,
-        "content": html,
-        "content_source_url": args.content_source_url,
-        "need_open_comment": 1,
-        "only_fans_can_comment": 0,
-        # Full-frame 2.35:1 crop (no zoom). 1:1 uses the horizontal center square.
-        "cover_info": {
-            "crop_percent_list": [
-                {
-                    "ratio": "2.35_1",
-                    "x1": "0",
-                    "y1": "0",
-                    "x2": "1",
-                    "y2": "1",
-                },
-                {
-                    "ratio": "1_1",
-                    "x1": "0.2857",
-                    "y1": "0",
-                    "x2": "0.7143",
-                    "y2": "1",
-                },
-            ]
-        },
-    }
-    if args.thumb_media_id:
-        article["thumb_media_id"] = args.thumb_media_id
+    if write_cleaned_html is not None:
+        write_cleaned_html.write_text(html, encoding="utf-8")
+    return html, content_image_uploads
+
+
+def create_draft_articles(
+    article_specs: list[dict],
+    access_token: str,
+    *,
+    sanitize: bool = True,
+    write_cleaned_html: Path | None = None,
+) -> dict:
+    """Create one draft/add payload with 1..N articles (头条 first)."""
+    articles: list[dict] = []
+    content_image_uploads: list[dict] = []
+    thumb_uploads: list[dict] = []
+
+    for index, spec in enumerate(article_specs):
+        thumb_media_id = spec.get("thumb_media_id")
+        thumb_image = spec.get("thumb_image")
+        if not thumb_media_id and thumb_image:
+            thumb_upload = upload_thumb_image(access_token, Path(thumb_image))
+            thumb_media_id = thumb_upload.get("media_id")
+            thumb_uploads.append({"index": index, **thumb_upload})
+        html, uploads = prepare_article_html(
+            Path(spec["html_file"]),
+            access_token,
+            sanitize=sanitize,
+            write_cleaned_html=write_cleaned_html if index == 0 else None,
+        )
+        content_image_uploads.extend(uploads)
+        articles.append(
+            build_article_payload(
+                title=spec["title"],
+                author=spec.get("author") or "AI 美股分析师",
+                digest=spec.get("digest") or "",
+                html=html,
+                content_source_url=spec.get("content_source_url") or "",
+                thumb_media_id=thumb_media_id,
+                need_open_comment=int(spec.get("need_open_comment", 1)),
+                only_fans_can_comment=int(spec.get("only_fans_can_comment", 0)),
+            )
+        )
 
     url = f"{DRAFT_ADD_URL}?{urllib.parse.urlencode({'access_token': access_token})}"
-    response = post_json(url, {"articles": [article]})
+    response = post_json(url, {"articles": articles})
     if response.get("errcode", 0) != 0:
         raise SystemExit(f"Failed to create draft: {json.dumps(response, ensure_ascii=False)}")
     if content_image_uploads:
         response["content_image_uploads"] = content_image_uploads
+    if thumb_uploads:
+        response["thumb_uploads"] = thumb_uploads
+    response["article_count"] = len(articles)
     return response
+
+
+def create_draft(args: argparse.Namespace, access_token: str) -> dict:
+    return create_draft_articles(
+        [
+            {
+                "title": args.title,
+                "author": args.author,
+                "digest": args.digest,
+                "html_file": args.html_file,
+                "content_source_url": args.content_source_url,
+                "thumb_media_id": args.thumb_media_id,
+                "thumb_image": None,
+            }
+        ],
+        access_token,
+        sanitize=args.sanitize_for_draft_add,
+        write_cleaned_html=args.write_cleaned_html,
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -634,26 +772,51 @@ def main(argv: list[str] | None = None) -> int:
         args.app_secret = args.app_secret.strip()
     if not args.appid or not args.app_secret:
         raise SystemExit("WECHAT_APPID and WECHAT_APPSECRET are required.")
-    if not args.html_file.exists():
-        raise SystemExit(f"HTML file not found: {args.html_file}")
-    if args.thumb_media_id and count_thumb_sources(
-        thumb_image=args.thumb_image,
-        thumb_image_url=args.thumb_image_url,
-        thumb_image_stdin=args.thumb_image_stdin,
-    ):
-        raise SystemExit(
-            "Do not combine --thumb-media-id with --thumb-image / --thumb-image-url / --thumb-image-stdin"
-        )
 
-    thumb_path, thumb_temp = materialize_thumb_image(
-        thumb_image=args.thumb_image,
-        thumb_image_url=args.thumb_image_url,
-        thumb_image_stdin=args.thumb_image_stdin,
-    )
-    args.thumb_image = thumb_path
-
+    thumb_temps: list[Path] = []
     try:
         access_token = get_access_token(args.appid, args.app_secret)
+
+        if args.articles_json is not None:
+            specs = load_articles_manifest(args.articles_json)
+            for spec in specs:
+                if spec.get("thumb_image") is not None:
+                    path = Path(spec["thumb_image"]).expanduser()
+                    if not path.exists():
+                        raise SystemExit(f"Thumb image not found: {path}")
+                    spec["thumb_image"] = path
+                if not Path(spec["html_file"]).exists():
+                    raise SystemExit(f"HTML file not found: {spec['html_file']}")
+            response = create_draft_articles(
+                specs,
+                access_token,
+                sanitize=args.sanitize_for_draft_add,
+                write_cleaned_html=args.write_cleaned_html,
+            )
+            payload = {"draft": response, "mode": "multi", "article_count": len(specs)}
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+            return 0
+
+        if args.html_file is None or not args.html_file.exists():
+            raise SystemExit(f"HTML file not found: {args.html_file}")
+        if args.thumb_media_id and count_thumb_sources(
+            thumb_image=args.thumb_image,
+            thumb_image_url=args.thumb_image_url,
+            thumb_image_stdin=args.thumb_image_stdin,
+        ):
+            raise SystemExit(
+                "Do not combine --thumb-media-id with --thumb-image / --thumb-image-url / --thumb-image-stdin"
+            )
+
+        thumb_path, thumb_temp = materialize_thumb_image(
+            thumb_image=args.thumb_image,
+            thumb_image_url=args.thumb_image_url,
+            thumb_image_stdin=args.thumb_image_stdin,
+        )
+        if thumb_temp is not None:
+            thumb_temps.append(thumb_temp)
+        args.thumb_image = thumb_path
+
         thumb_upload = None
         if not args.thumb_media_id and args.thumb_image:
             thumb_upload = upload_thumb_image(access_token, args.thumb_image)
@@ -665,8 +828,8 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
         return 0
     finally:
-        if thumb_temp is not None:
-            thumb_temp.unlink(missing_ok=True)
+        for path in thumb_temps:
+            path.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
