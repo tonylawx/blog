@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
@@ -7,6 +7,7 @@ import {Icon, type IconifyIcon} from '@iconify/react';
 import emailIcon from '@iconify-icons/mdi/email-outline';
 import giftIcon from '@iconify-icons/mdi/gift-outline';
 import postIcon from '@iconify-icons/mdi/post-outline';
+import qrIcon from '@iconify-icons/mdi/qrcode';
 import arrowExternalIcon from '@iconify-icons/mdi/arrow-top-right';
 import arrowInternalIcon from '@iconify-icons/mdi/arrow-right';
 // Brand icons — Simple Icons
@@ -33,12 +34,10 @@ type LinkItem = {
   glyphColor?: string;
   /** Local image (e.g. a product logo). Mutually exclusive with `icon`. */
   img?: string;
-  /**
-   * Optional custom URL scheme (e.g. `weixin://`). On click, the browser tries
-   * this scheme first; if it can't be opened (desktop / app not installed) it
-   * falls back to opening `href` in a new tab after a short delay.
-   */
-  scheme?: string;
+  /** Show a QR code modal instead of navigating away. */
+  qrCode?: string;
+  /** Optional hint shown under the QR code in the modal. */
+  qrHint?: LocalizedText;
 };
 
 const PAGE_TEXT: Record<Locale, {description: string; tagline: string}> = {
@@ -50,6 +49,11 @@ const PAGE_TEXT: Record<Locale, {description: string; tagline: string}> = {
     description: '我的常用链接：THETA、X、Threads、Telegram、GitHub、邮箱和博客。',
     tagline: '软件工程师 / 美股期权交易者',
   },
+};
+
+const QR_MODAL_TEXT: Record<Locale, {close: string}> = {
+  en: {close: 'Close'},
+  zh: {close: '关闭'},
 };
 
 const LINKS: LinkItem[] = [
@@ -86,9 +90,13 @@ const LINKS: LinkItem[] = [
   },
   {
     label: {en: 'WeChat Official Account', zh: '微信公众号'},
-    desc: {en: '蜘蛛也会思考 · US stocks & options', zh: '蜘蛛也会思考 · 美股期权分析'},
-    href: 'https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzU1MTAyMzY1MQ==&scene=110#wechat_redirect',
-    scheme: 'weixin://dl/officialaccounts?username=gh_9bb953b1fe4a',
+    desc: {en: '蜘蛛也会思考 · tap to scan QR code', zh: '蜘蛛也会思考 · 点击扫码关注'},
+    href: '#',
+    qrCode: '/img/wechat-qrcode.png',
+    qrHint: {
+      en: 'Scan with WeChat to follow',
+      zh: '微信扫描二维码，关注我的账号',
+    },
     color: '#07c160',
     icon: wechatIcon,
     glyphColor: '#07c160',
@@ -142,39 +150,87 @@ function getLocale(locale: string | undefined): Locale {
   return locale === 'zh' ? 'zh' : 'en';
 }
 
-/**
- * Try to open a custom URL scheme (e.g. weixin://). If the browser can't
- * handle it within ~800 ms (app not installed / desktop browser), fall back to
- * opening the http fallback URL in a new tab.
- */
-function handleSchemeClick(
-  e: React.MouseEvent<HTMLAnchorElement>,
-  scheme: string,
-  fallback: string,
-): void {
-  e.preventDefault();
-  const start = Date.now();
-  window.location.href = scheme;
-  // If the page is still visible after 800 ms the scheme wasn't handled.
-  const timer = setTimeout(() => {
-    if (Date.now() - start < 1500) {
-      window.open(fallback, '_blank', 'noopener,noreferrer');
+type QrModalProps = {
+  open: boolean;
+  title: string;
+  hint?: string;
+  qrCode: string;
+  closeLabel: string;
+  onClose: () => void;
+};
+
+function QrModal({
+  open,
+  title,
+  hint,
+  qrCode,
+  closeLabel,
+  onClose,
+}: QrModalProps): JSX.Element | null {
+  useEffect(() => {
+    if (!open) {
+      return undefined;
     }
-  }, 800);
-  // If the user left the page (app opened), clear the timer on visibility change.
-  const cleanup = () => {
-    if (document.hidden) {
-      clearTimeout(timer);
-      document.removeEventListener('visibilitychange', cleanup);
-    }
-  };
-  document.addEventListener('visibilitychange', cleanup);
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [open, onClose]);
+
+  if (!open) {
+    return null;
+  }
+
+  return (
+    <div className="links-qr-modal" role="presentation" onClick={onClose}>
+      <div
+        className="links-qr-modal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="links-qr-modal-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <button
+          type="button"
+          className="links-qr-modal__close"
+          aria-label={closeLabel}
+          onClick={onClose}
+        >
+          ×
+        </button>
+        <h2 id="links-qr-modal-title" className="links-qr-modal__title">
+          {title}
+        </h2>
+        <img
+          src={qrCode}
+          alt={title}
+          className="links-qr-modal__image"
+        />
+        {hint ? <p className="links-qr-modal__hint">{hint}</p> : null}
+      </div>
+    </div>
+  );
 }
 
 export default function LinksPage(): JSX.Element {
   const {siteConfig, i18n} = useDocusaurusContext();
   const locale = getLocale(i18n.currentLocale);
   const pageText = PAGE_TEXT[locale];
+  const qrModalText = QR_MODAL_TEXT[locale];
+  const [qrModal, setQrModal] = useState<{
+    title: string;
+    hint?: string;
+    qrCode: string;
+  } | null>(null);
+
+  const closeQrModal = useCallback(() => setQrModal(null), []);
 
   return (
     <Layout title="Links" description={pageText.description}>
@@ -196,7 +252,7 @@ export default function LinksPage(): JSX.Element {
         <p style={{opacity: 0.65, marginBottom: '2rem', fontSize: '0.95rem'}}>{pageText.tagline}</p>
         <div className="links-list">
           {LINKS.map((item) => {
-            const internal = item.href.startsWith('/');
+            const internal = item.href.startsWith('/') && !item.qrCode;
             const label = item.label[locale];
             const styleVars = {
               '--brand': item.color,
@@ -216,12 +272,32 @@ export default function LinksPage(): JSX.Element {
                   <span className="links-desc">{item.desc[locale]}</span>
                 </span>
                 <Icon
-                  icon={internal ? arrowInternalIcon : arrowExternalIcon}
+                  icon={item.qrCode ? qrIcon : internal ? arrowInternalIcon : arrowExternalIcon}
                   aria-hidden="true"
                   className="links-arrow"
                 />
               </>
             );
+
+            if (item.qrCode) {
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  className={`links-card links-card--button${item.img ? ' links-card--img' : ''}`}
+                  style={styleVars}
+                  onClick={() =>
+                    setQrModal({
+                      title: label,
+                      hint: item.qrHint?.[locale],
+                      qrCode: item.qrCode!,
+                    })
+                  }
+                >
+                  {card}
+                </button>
+              );
+            }
 
             if (internal) {
               return (
@@ -233,20 +309,6 @@ export default function LinksPage(): JSX.Element {
                 >
                   {card}
                 </Link>
-              );
-            }
-
-            if (item.scheme) {
-              return (
-                <a
-                  key={label}
-                  href={item.href}
-                  onClick={(e) => handleSchemeClick(e, item.scheme!, item.href)}
-                  className={`links-card${item.img ? ' links-card--img' : ''}`}
-                  style={styleVars}
-                >
-                  {card}
-                </a>
               );
             }
 
@@ -265,6 +327,14 @@ export default function LinksPage(): JSX.Element {
           })}
         </div>
       </main>
+      <QrModal
+        open={qrModal !== null}
+        title={qrModal?.title ?? ''}
+        hint={qrModal?.hint}
+        qrCode={qrModal?.qrCode ?? ''}
+        closeLabel={qrModalText.close}
+        onClose={closeQrModal}
+      />
     </Layout>
   );
 }
