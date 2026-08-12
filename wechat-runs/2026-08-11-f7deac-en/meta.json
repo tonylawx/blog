@@ -9,8 +9,9 @@
   "only_fans_can_comment": 0,
   "article_html": "article.wechat.html",
   "thumb_image": "abstract_cover.png",
-  "created_at": "2026-08-12T05:43:11Z",
+  "created_at": "2026-08-12T05:44:51Z",
   "source_run_dir": "/workspace/workflow_runs/rhino_finance/2026-08-12",
   "english_listening": true,
-  "fix_no_bullets": true
+  "fix_no_bullets": true,
+  "locale": "en"
 }
