@@ -57,7 +57,7 @@ const LINKS: LinkItem[] = [
   {
     label: {en: 'WeChat Official Account', zh: '微信公众号'},
     desc: {en: '蜘蛛也会思考 · US stocks & options', zh: '蜘蛛也会思考 · 美股期权分析'},
-    href: 'https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzU1MTAyMzY1MQ==',
+    href: 'https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzU1MTAyMzY1MQ==&scene=110#wechat_redirect',
     color: '#07c160',
     icon: wechatIcon,
     glyphColor: '#07c160',
