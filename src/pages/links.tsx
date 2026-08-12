@@ -33,6 +33,12 @@ type LinkItem = {
   glyphColor?: string;
   /** Local image (e.g. a product logo). Mutually exclusive with `icon`. */
   img?: string;
+  /**
+   * Optional custom URL scheme (e.g. `weixin://`). On click, the browser tries
+   * this scheme first; if it can't be opened (desktop / app not installed) it
+   * falls back to opening `href` in a new tab after a short delay.
+   */
+  scheme?: string;
 };
 
 const PAGE_TEXT: Record<Locale, {description: string; tagline: string}> = {
@@ -82,6 +88,7 @@ const LINKS: LinkItem[] = [
     label: {en: 'WeChat Official Account', zh: '微信公众号'},
     desc: {en: '蜘蛛也会思考 · US stocks & options', zh: '蜘蛛也会思考 · 美股期权分析'},
     href: 'https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzU1MTAyMzY1MQ==&scene=110#wechat_redirect',
+    scheme: 'weixin://search?query=%E8%9C%98%E8%9B%9B%E4%B9%9F%E4%BC%9A%E6%80%9D%E8%80%83',
     color: '#07c160',
     icon: wechatIcon,
     glyphColor: '#07c160',
@@ -133,6 +140,35 @@ const LINKS: LinkItem[] = [
 
 function getLocale(locale: string | undefined): Locale {
   return locale === 'zh' ? 'zh' : 'en';
+}
+
+/**
+ * Try to open a custom URL scheme (e.g. weixin://). If the browser can't
+ * handle it within ~800 ms (app not installed / desktop browser), fall back to
+ * opening the http fallback URL in a new tab.
+ */
+function handleSchemeClick(
+  e: React.MouseEvent<HTMLAnchorElement>,
+  scheme: string,
+  fallback: string,
+): void {
+  e.preventDefault();
+  const start = Date.now();
+  window.location.href = scheme;
+  // If the page is still visible after 800 ms the scheme wasn't handled.
+  const timer = setTimeout(() => {
+    if (Date.now() - start < 1500) {
+      window.open(fallback, '_blank', 'noopener,noreferrer');
+    }
+  }, 800);
+  // If the user left the page (app opened), clear the timer on visibility change.
+  const cleanup = () => {
+    if (document.hidden) {
+      clearTimeout(timer);
+      document.removeEventListener('visibilitychange', cleanup);
+    }
+  };
+  document.addEventListener('visibilitychange', cleanup);
 }
 
 export default function LinksPage(): JSX.Element {
@@ -187,16 +223,34 @@ export default function LinksPage(): JSX.Element {
               </>
             );
 
-            return internal ? (
-              <Link
-                key={label}
-                to={item.href}
-                className={`links-card${item.img ? ' links-card--img' : ''}`}
-                style={styleVars}
-              >
-                {card}
-              </Link>
-            ) : (
+            if (internal) {
+              return (
+                <Link
+                  key={label}
+                  to={item.href}
+                  className={`links-card${item.img ? ' links-card--img' : ''}`}
+                  style={styleVars}
+                >
+                  {card}
+                </Link>
+              );
+            }
+
+            if (item.scheme) {
+              return (
+                <a
+                  key={label}
+                  href={item.href}
+                  onClick={(e) => handleSchemeClick(e, item.scheme!, item.href)}
+                  className={`links-card${item.img ? ' links-card--img' : ''}`}
+                  style={styleVars}
+                >
+                  {card}
+                </a>
+              );
+            }
+
+            return (
               <a
                 key={label}
                 href={item.href}
