@@ -11,6 +11,9 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Need HEAD^ so we can prefer the wechat-runs slug changed in this push.
+          fetch-depth: 2
       - uses: actions/setup-python@v5
         with: {python-version: '3.13'}
       - name: configure ssh to droplet
@@ -25,7 +28,20 @@ jobs:
       - name: find latest wechat run + GitHub cover URL
         id: art
         run: |
-          slug=$(ls -1t wechat-runs/ 2>/dev/null | grep -vE '^\.' | head -1)
+          # Prefer the slug touched by this commit. After a fresh checkout,
+          # `ls -1t` mtimes are unreliable and can republish an older sibling
+          # (e.g. CN when EN `*-en` was the only change).
+          slug=""
+          if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+            slug=$(git diff-tree --no-commit-id --name-only -r HEAD -- wechat-runs/ \
+              | awk -F/ 'NF>=2 {print $2}' \
+              | grep -vE '^\.' \
+              | awk 'NF && !seen[$0]++' \
+              | head -1)
+          fi
+          if [ -z "$slug" ]; then
+            slug=$(ls -1 wechat-runs/ 2>/dev/null | grep -vE '^\.' | sort | tail -1)
+          fi
           [ -z "$slug" ] && { echo "no wechat-runs/ found"; exit 1; }
           html="wechat-runs/$slug/article.wechat.html"
           cover="wechat-runs/$slug/abstract_cover.png"
@@ -38,6 +54,7 @@ jobs:
           echo "title=$title" >> "$GITHUB_OUTPUT"
           echo "thumb_url=$thumb_url" >> "$GITHUB_OUTPUT"
           echo "publishing: $title"
+          echo "selected_slug: $slug"
           echo "cover_url: $thumb_url"
       - name: publish WeChat draft via droplet
         working-directory: scripts
