@@ -82,7 +82,7 @@ jobs:
             author=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1])).get('author') or '')" "$meta")
             if [ -z "$author" ]; then
               if [ "$locale" = "en" ]; then
-                author="AI US Market Analyst"
+                author="RhinoFinance"
               else
                 author="AI 美股分析师"
               fi
