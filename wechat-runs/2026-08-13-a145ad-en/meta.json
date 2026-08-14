@@ -8,5 +8,7 @@
   "author": "RhinoFinance",
   "financial_english_editor_applied": true,
   "spoken_names": true,
-  "listening_source": "agent_file"
+  "listening_source": "agent_file",
+  "cover_fix": "edge_to_edge_no_black_bars",
+  "cover_fixed_at": "2026-08-14T07:06:30.512923+00:00"
 }
