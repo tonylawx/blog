@@ -11,6 +11,7 @@ import socket
 import ssl
 import sys
 import tempfile
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -19,6 +20,8 @@ from pathlib import Path
 
 TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/stable_token"
 DRAFT_ADD_URL = "https://api.weixin.qq.com/cgi-bin/draft/add"
+FREEPUBLISH_SUBMIT_URL = "https://api.weixin.qq.com/cgi-bin/freepublish/submit"
+FREEPUBLISH_GET_URL = "https://api.weixin.qq.com/cgi-bin/freepublish/get"
 MEDIA_UPLOAD_URL = "https://api.weixin.qq.com/cgi-bin/material/add_material"
 CONTENT_IMAGE_UPLOAD_URL = "https://api.weixin.qq.com/cgi-bin/media/uploadimg"
 ARTICLE_BLUE = "#2763e9"
@@ -55,8 +58,23 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Create a WeChat Official Account draft from a local HTML file "
-            "(single article) or an articles JSON manifest (多图文)."
+            "(single article) or an articles JSON manifest (多图文), "
+            "or submit an existing draft via freepublish/submit."
         )
+    )
+    parser.add_argument(
+        "--freepublish-media-id",
+        default=None,
+        help=(
+            "Existing draft/add media_id to publish via cgi-bin/freepublish/submit. "
+            "Does not create a new draft. Use this after the OA editor edits are done."
+        ),
+    )
+    parser.add_argument(
+        "--freepublish-wait-seconds",
+        type=int,
+        default=45,
+        help="Seconds to poll freepublish/get after submit (0 = submit only).",
     )
     parser.add_argument("--title", default=None, help="Draft title (single-article mode).")
     parser.add_argument(
@@ -109,9 +127,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="WeChat AppSecret.",
     )
     args = parser.parse_args(argv)
+    if args.freepublish_media_id:
+        media_id = str(args.freepublish_media_id).strip()
+        if not media_id:
+            parser.error("--freepublish-media-id is empty")
+        args.freepublish_media_id = media_id
+        return args
     if args.articles_json is None:
         if not args.title or args.html_file is None:
-            parser.error("--title and --html-file are required unless --articles-json is set")
+            parser.error(
+                "--title and --html-file are required unless --articles-json "
+                "or --freepublish-media-id is set"
+            )
     return args
 
 
@@ -387,6 +414,42 @@ def configure_wechat_proxy() -> None:
     # HTTP proxy through the SOCKS tunnel.  Disable urllib's ProxyHandler here;
     # the socket create_connection wrapper is the proxy layer for this process.
     urllib.request.install_opener(urllib.request.build_opener(urllib.request.ProxyHandler({})))
+
+
+def submit_freepublish(access_token: str, media_id: str) -> dict:
+    url = f"{FREEPUBLISH_SUBMIT_URL}?{urllib.parse.urlencode({'access_token': access_token})}"
+    response = post_json(url, {"media_id": media_id})
+    if response.get("errcode", 0) != 0:
+        raise SystemExit(f"Failed to submit freepublish: {json.dumps(response, ensure_ascii=False)}")
+    return response
+
+
+def get_freepublish(access_token: str, publish_id: str) -> dict:
+    url = f"{FREEPUBLISH_GET_URL}?{urllib.parse.urlencode({'access_token': access_token})}"
+    return post_json(url, {"publish_id": publish_id})
+
+
+def poll_freepublish_status(
+    access_token: str,
+    publish_id: str,
+    *,
+    timeout_seconds: int,
+    interval_seconds: float = 3.0,
+) -> dict:
+    """Poll freepublish/get until terminal status or timeout.
+
+    publish_status: 0 success, 1 publishing, 2 original fail, 3 user fail, 4 platform fail.
+    """
+    deadline = time.monotonic() + max(0, int(timeout_seconds))
+    last: dict = {}
+    while True:
+        last = get_freepublish(access_token, publish_id)
+        status = last.get("publish_status")
+        if last.get("errcode", 0) not in (0, None) or status in (0, 2, 3, 4):
+            return last
+        if time.monotonic() >= deadline:
+            return last
+        time.sleep(interval_seconds)
 
 
 def get_access_token(appid: str, app_secret: str) -> str:
@@ -776,6 +839,33 @@ def main(argv: list[str] | None = None) -> int:
     thumb_temps: list[Path] = []
     try:
         access_token = get_access_token(args.appid, args.app_secret)
+
+        if args.freepublish_media_id:
+            submit = submit_freepublish(access_token, args.freepublish_media_id)
+            payload: dict = {
+                "mode": "freepublish",
+                "media_id": args.freepublish_media_id,
+                "submit": submit,
+            }
+            publish_id = str(submit.get("publish_id") or "").strip()
+            wait_seconds = max(0, int(args.freepublish_wait_seconds or 0))
+            if publish_id and wait_seconds:
+                status = poll_freepublish_status(
+                    access_token,
+                    publish_id,
+                    timeout_seconds=wait_seconds,
+                )
+                payload["status"] = status
+                publish_status = status.get("publish_status")
+                if publish_status in (2, 3, 4) or (
+                    status.get("errcode", 0) not in (0, None) and publish_status != 0
+                ):
+                    print(json.dumps(payload, ensure_ascii=False, indent=2))
+                    raise SystemExit(
+                        f"freepublish did not succeed: {json.dumps(status, ensure_ascii=False)}"
+                    )
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+            return 0
 
         if args.articles_json is not None:
             specs = load_articles_manifest(args.articles_json)

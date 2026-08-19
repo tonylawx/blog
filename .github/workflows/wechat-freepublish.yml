@@ -1,0 +1,51 @@
+name: wechat-freepublish
+on:
+  workflow_dispatch:
+    inputs:
+      media_id:
+        description: Existing WeChat draft media_id from draft/add. Submits via freepublish/submit; does not create a new draft.
+        required: true
+        type: string
+      wait_seconds:
+        description: Seconds to poll freepublish/get after submit (0 = submit only).
+        required: false
+        default: "45"
+        type: string
+
+jobs:
+  freepublish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.13'}
+      - name: configure ssh to droplet
+        env:
+          DROPLET_SSH_KEY: ${{ secrets.DROPLET_SSH_KEY }}
+          DROPLET_HOST: ${{ secrets.DROPLET_HOST }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$DROPLET_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H -t ed25519 "$DROPLET_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+      - name: submit existing draft via freepublish
+        env:
+          WECHAT_APPID: ${{ secrets.WECHAT_APPID }}
+          WECHAT_APPSECRET: ${{ secrets.WECHAT_APPSECRET }}
+          WECHAT_DRAFT_PROXY_HOST: root@${{ secrets.DROPLET_HOST }}
+          MEDIA_ID: ${{ inputs.media_id }}
+          WAIT_SECONDS: ${{ inputs.wait_seconds }}
+        run: |
+          set -eu
+          media_id="$(printf '%s' "$MEDIA_ID" | tr -d '[:space:]')"
+          if [ -z "$media_id" ]; then
+            echo "media_id is required" >&2
+            exit 1
+          fi
+          wait_seconds="${WAIT_SECONDS:-45}"
+          echo "freepublish_media_id=${media_id}"
+          echo "freepublish_wait_seconds=${wait_seconds}"
+          python3 scripts/wechat_draft_via_droplet.py \
+            --freepublish-media-id "$media_id" \
+            --freepublish-wait-seconds "$wait_seconds"
