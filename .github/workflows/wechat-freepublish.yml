@@ -3,11 +3,19 @@ on:
   workflow_dispatch:
     inputs:
       media_id:
-        description: Existing WeChat draft media_id from draft/add. Submits via freepublish/submit; does not create a new draft.
+        description: Existing WeChat draft media_id from draft/add. Does not create a new draft.
         required: true
         type: string
+      mode:
+        description: mass = cgi-bin/message/mass/sendall (群发); freepublish = cgi-bin/freepublish/submit (发表)
+        required: false
+        default: mass
+        type: choice
+        options:
+          - mass
+          - freepublish
       wait_seconds:
-        description: Seconds to poll freepublish/get after submit (0 = submit only).
+        description: Seconds to poll freepublish/get after submit (ignored for mass).
         required: false
         default: "45"
         type: string
@@ -29,12 +37,13 @@ jobs:
           printf '%s\n' "$DROPLET_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H -t ed25519 "$DROPLET_HOST" >> ~/.ssh/known_hosts 2>/dev/null
-      - name: submit existing draft via freepublish
+      - name: submit existing draft via WeChat API
         env:
           WECHAT_APPID: ${{ secrets.WECHAT_APPID }}
           WECHAT_APPSECRET: ${{ secrets.WECHAT_APPSECRET }}
           WECHAT_DRAFT_PROXY_HOST: root@${{ secrets.DROPLET_HOST }}
           MEDIA_ID: ${{ inputs.media_id }}
+          MODE: ${{ inputs.mode }}
           WAIT_SECONDS: ${{ inputs.wait_seconds }}
         run: |
           set -eu
@@ -43,9 +52,15 @@ jobs:
             echo "media_id is required" >&2
             exit 1
           fi
+          mode="${MODE:-mass}"
           wait_seconds="${WAIT_SECONDS:-45}"
-          echo "freepublish_media_id=${media_id}"
-          echo "freepublish_wait_seconds=${wait_seconds}"
-          python3 scripts/wechat_draft_via_droplet.py \
-            --freepublish-media-id "$media_id" \
-            --freepublish-wait-seconds "$wait_seconds"
+          echo "wechat_media_id=${media_id}"
+          echo "wechat_publish_mode=${mode}"
+          if [ "$mode" = "freepublish" ]; then
+            python3 scripts/wechat_draft_via_droplet.py \
+              --freepublish-media-id "$media_id" \
+              --freepublish-wait-seconds "$wait_seconds"
+          else
+            python3 scripts/wechat_draft_via_droplet.py \
+              --mass-send-media-id "$media_id"
+          fi

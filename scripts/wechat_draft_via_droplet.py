@@ -84,8 +84,10 @@ def parse_known_paths(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
     parser.add_argument("--thumb-image-url")
     parser.add_argument("--thumb-image-stdin", action="store_true")
     parser.add_argument("--write-cleaned-html", type=Path)
+    parser.add_argument("--mass-send-media-id")
     parser.add_argument("--freepublish-media-id")
     parser.add_argument("--freepublish-wait-seconds", type=int)
+    parser.add_argument("--send-ignore-reprint", type=int)
     return parser.parse_known_args(argv)
 
 
@@ -258,11 +260,13 @@ def main(argv: list[str] | None = None) -> None:
         run(["ssh", remote, "mkdir", "-p", remote_dir])
         scp_upload(LOCAL_SCRIPT, f"{remote}:{remote_dir}/{REMOTE_SCRIPT_NAME}")
 
-        if paths.freepublish_media_id:
-            media_id = str(paths.freepublish_media_id).strip()
+        if paths.mass_send_media_id or paths.freepublish_media_id:
+            flag = "--mass-send-media-id" if paths.mass_send_media_id else "--freepublish-media-id"
+            raw_id = paths.mass_send_media_id or paths.freepublish_media_id
+            media_id = str(raw_id).strip()
             if not media_id:
-                raise SystemExit("--freepublish-media-id is empty")
-            remote_args = replace_arg_value(list(argv), "--freepublish-media-id", media_id)
+                raise SystemExit(f"{flag} is empty")
+            remote_args = replace_arg_value(list(argv), flag, media_id)
             quoted_args = " ".join(shlex.quote(arg) for arg in remote_args)
             command = (
                 f"WECHAT_APPID={shlex.quote(appid)} "
