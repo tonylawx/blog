@@ -2,8 +2,8 @@
 """Run the WeChat draft publisher from the whitelisted droplet.
 
 This wrapper keeps the public interface of scripts/wechat_draft.py, but executes
-the actual WeChat API calls on root@167.71.219.62 so draft/add sees the
-whitelisted outbound IP.
+the actual WeChat API calls on root@167.71.219.62 so draft/add and
+freepublish/submit see the whitelisted outbound IP.
 
 Cover thumbs can arrive as:
 - ``--thumb-image PATH`` local file (existing)
@@ -84,6 +84,8 @@ def parse_known_paths(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
     parser.add_argument("--thumb-image-url")
     parser.add_argument("--thumb-image-stdin", action="store_true")
     parser.add_argument("--write-cleaned-html", type=Path)
+    parser.add_argument("--freepublish-media-id")
+    parser.add_argument("--freepublish-wait-seconds", type=int)
     return parser.parse_known_args(argv)
 
 
@@ -255,6 +257,20 @@ def main(argv: list[str] | None = None) -> None:
     try:
         run(["ssh", remote, "mkdir", "-p", remote_dir])
         scp_upload(LOCAL_SCRIPT, f"{remote}:{remote_dir}/{REMOTE_SCRIPT_NAME}")
+
+        if paths.freepublish_media_id:
+            media_id = str(paths.freepublish_media_id).strip()
+            if not media_id:
+                raise SystemExit("--freepublish-media-id is empty")
+            remote_args = replace_arg_value(list(argv), "--freepublish-media-id", media_id)
+            quoted_args = " ".join(shlex.quote(arg) for arg in remote_args)
+            command = (
+                f"WECHAT_APPID={shlex.quote(appid)} "
+                f"WECHAT_APPSECRET={shlex.quote(secret)} "
+                f"python3 {shlex.quote(remote_dir + '/' + REMOTE_SCRIPT_NAME)} {quoted_args}"
+            )
+            run(["ssh", remote, command])
+            return
 
         if paths.articles_json is not None:
             if not paths.articles_json.exists():
