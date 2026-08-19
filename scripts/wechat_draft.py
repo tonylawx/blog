@@ -22,6 +22,8 @@ TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/stable_token"
 DRAFT_ADD_URL = "https://api.weixin.qq.com/cgi-bin/draft/add"
 FREEPUBLISH_SUBMIT_URL = "https://api.weixin.qq.com/cgi-bin/freepublish/submit"
 FREEPUBLISH_GET_URL = "https://api.weixin.qq.com/cgi-bin/freepublish/get"
+MASS_SENDALL_URL = "https://api.weixin.qq.com/cgi-bin/message/mass/sendall"
+MASS_GET_URL = "https://api.weixin.qq.com/cgi-bin/message/mass/get"
 MEDIA_UPLOAD_URL = "https://api.weixin.qq.com/cgi-bin/material/add_material"
 CONTENT_IMAGE_UPLOAD_URL = "https://api.weixin.qq.com/cgi-bin/media/uploadimg"
 ARTICLE_BLUE = "#2763e9"
@@ -59,8 +61,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         description=(
             "Create a WeChat Official Account draft from a local HTML file "
             "(single article) or an articles JSON manifest (多图文), "
-            "or submit an existing draft via freepublish/submit."
+            "or publish an existing draft via mass/sendall or freepublish/submit."
         )
+    )
+    parser.add_argument(
+        "--mass-send-media-id",
+        default=None,
+        help=(
+            "Existing draft/add media_id to group-send via cgi-bin/message/mass/sendall. "
+            "Does not create a new draft. This is the 群发 path."
+        ),
     )
     parser.add_argument(
         "--freepublish-media-id",
@@ -75,6 +85,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=int,
         default=45,
         help="Seconds to poll freepublish/get after submit (0 = submit only).",
+    )
+    parser.add_argument(
+        "--send-ignore-reprint",
+        type=int,
+        default=1,
+        choices=(0, 1),
+        help="mass/sendall send_ignore_reprint (1 = continue if judged 转载).",
     )
     parser.add_argument("--title", default=None, help="Draft title (single-article mode).")
     parser.add_argument(
@@ -127,6 +144,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="WeChat AppSecret.",
     )
     args = parser.parse_args(argv)
+    if args.mass_send_media_id and args.freepublish_media_id:
+        parser.error("Use only one of --mass-send-media-id or --freepublish-media-id")
+    if args.mass_send_media_id:
+        media_id = str(args.mass_send_media_id).strip()
+        if not media_id:
+            parser.error("--mass-send-media-id is empty")
+        args.mass_send_media_id = media_id
+        return args
     if args.freepublish_media_id:
         media_id = str(args.freepublish_media_id).strip()
         if not media_id:
@@ -136,8 +161,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     if args.articles_json is None:
         if not args.title or args.html_file is None:
             parser.error(
-                "--title and --html-file are required unless --articles-json "
-                "or --freepublish-media-id is set"
+                "--title and --html-file are required unless --articles-json, "
+                "--mass-send-media-id, or --freepublish-media-id is set"
             )
     return args
 
@@ -427,6 +452,38 @@ def submit_freepublish(access_token: str, media_id: str) -> dict:
 def get_freepublish(access_token: str, publish_id: str) -> dict:
     url = f"{FREEPUBLISH_GET_URL}?{urllib.parse.urlencode({'access_token': access_token})}"
     return post_json(url, {"publish_id": publish_id})
+
+
+def mass_clientmsgid(media_id: str) -> str:
+    suffix = re.sub(r"[^A-Za-z0-9_-]", "", media_id)[-24:]
+    return f"rhf-{suffix}"[:32]
+
+
+def submit_mass_sendall(
+    access_token: str,
+    media_id: str,
+    *,
+    send_ignore_reprint: int = 1,
+) -> dict:
+    url = f"{MASS_SENDALL_URL}?{urllib.parse.urlencode({'access_token': access_token})}"
+    response = post_json(
+        url,
+        {
+            "filter": {"is_to_all": True},
+            "mpnews": {"media_id": media_id},
+            "msgtype": "mpnews",
+            "send_ignore_reprint": int(send_ignore_reprint),
+            "clientmsgid": mass_clientmsgid(media_id),
+        },
+    )
+    if response.get("errcode", 0) != 0:
+        raise SystemExit(f"Failed to mass/sendall: {json.dumps(response, ensure_ascii=False)}")
+    return response
+
+
+def get_mass_send(access_token: str, msg_id: str | int) -> dict:
+    url = f"{MASS_GET_URL}?{urllib.parse.urlencode({'access_token': access_token})}"
+    return post_json(url, {"msg_id": msg_id})
 
 
 def poll_freepublish_status(
@@ -839,6 +896,20 @@ def main(argv: list[str] | None = None) -> int:
     thumb_temps: list[Path] = []
     try:
         access_token = get_access_token(args.appid, args.app_secret)
+
+        if args.mass_send_media_id:
+            submit = submit_mass_sendall(
+                access_token,
+                args.mass_send_media_id,
+                send_ignore_reprint=args.send_ignore_reprint,
+            )
+            payload = {
+                "mode": "mass_sendall",
+                "media_id": args.mass_send_media_id,
+                "submit": submit,
+            }
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+            return 0
 
         if args.freepublish_media_id:
             submit = submit_freepublish(access_token, args.freepublish_media_id)
