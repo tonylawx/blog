@@ -26,3 +26,5 @@ yarn-error.log*
 # Local-only source material and private rewrite rules
 private/
 .interview-bank-sanitize-rules.json
+__pycache__/
+*.pyc
