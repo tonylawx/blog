@@ -167,24 +167,37 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return args
 
 
-DEFAULT_COVER_INFO = {
-    "crop_percent_list": [
-        {
-            "ratio": "2.35_1",
-            "x1": "0",
-            "y1": "0",
-            "x2": "1",
-            "y2": "1",
-        },
-        {
-            "ratio": "1_1",
-            "x1": "0.2857",
-            "y1": "0",
-            "x2": "0.7143",
-            "y2": "1",
-        },
-    ]
-}
+def wechat_cover_crop_info(*, aspect: float = 2.35) -> dict:
+    """Crop boxes for draft/add. The uploaded thumb must be exactly ``aspect``.
+
+    WeChat news covers require ratio ``2.35_1``. A 21:9 (2.333) full-frame
+    box is narrower than 2.35:1 and returns errcode 53402 (封面裁剪失败).
+    The 1:1 box is the full-height center square of a 2.35:1 image.
+    """
+    span = 1.0 / float(aspect)
+    x1 = (1.0 - span) / 2.0
+    x2 = 1.0 - x1
+    return {
+        "crop_percent_list": [
+            {
+                "ratio": "2.35_1",
+                "x1": "0",
+                "y1": "0",
+                "x2": "1",
+                "y2": "1",
+            },
+            {
+                "ratio": "1_1",
+                "x1": f"{x1:.6f}",
+                "y1": "0",
+                "x2": f"{x2:.6f}",
+                "y2": "1",
+            },
+        ]
+    }
+
+
+DEFAULT_COVER_INFO = wechat_cover_crop_info()
 
 
 def _detect_image_suffix(data: bytes, fallback: str = ".png") -> str:
