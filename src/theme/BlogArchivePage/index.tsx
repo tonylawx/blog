@@ -6,7 +6,7 @@
  *
  * Swizzled from @docusaurus/theme-classic BlogArchivePage. Upstream renders
  * the same string as both the hero title and the hero subtitle ("Archive" /
- * "历史博文"). Keep the large title only.
+ * "归档"). Keep the large title only.
  */
 
 import React, {type ReactNode} from 'react';
