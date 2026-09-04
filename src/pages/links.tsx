@@ -4,6 +4,7 @@ import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {Icon, type IconifyIcon} from '@iconify/react';
 // Utility icons — Material Design Icons
+import airplaneIcon from '@iconify-icons/mdi/airplane';
 import emailIcon from '@iconify-icons/mdi/email-outline';
 import giftIcon from '@iconify-icons/mdi/gift-outline';
 import postIcon from '@iconify-icons/mdi/post-outline';
@@ -87,6 +88,14 @@ const LINKS: LinkItem[] = [
     color: '#9fe870',
     icon: wiseIcon,
     glyphColor: '#9fe870',
+  },
+  {
+    label: {en: 'Airport (Proxy)', zh: '机场'},
+    desc: {en: 'ssr.wtf · High-speed proxy service', zh: 'ssr.wtf · 高速稳定网络加速'},
+    href: 'https://ssr.wtf/auth/register?code=d45365025b',
+    color: '#0284c7',
+    icon: airplaneIcon,
+    glyphColor: '#0284c7',
   },
   {
     label: {en: 'WeChat Official Account', zh: '微信公众号'},
