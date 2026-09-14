@@ -66,14 +66,6 @@ const LINKS: LinkItem[] = [
     img: '/img/theta-icon.png',
   },
   {
-    label: {en: 'Binance Referral', zh: '币安邀请福利'},
-    desc: {en: 'Refer2Earn · USDC rewards', zh: 'Refer2Earn · USDC 奖励活动'},
-    href: 'https://www.bsmkweb.cc/referral/earn-together/refer2earn-usdc/claim?hl=zh-CN&ref=GRO_28502_8G320&utm_source=referral_entrance',
-    color: '#f0b90b',
-    icon: giftIcon,
-    glyphColor: '#f0b90b',
-  },
-  {
     label: {en: 'uSMART Bonus', zh: 'uSMART 开户福利'},
     desc: {en: 'US stock brokerage account bonus', zh: '美股券商开户奖励活动'},
     href: 'https://m.usmartsg66.com/promo/overseas/bonus-dec.html?ICode=sere&langType=3&Id=',
@@ -88,6 +80,14 @@ const LINKS: LinkItem[] = [
     color: '#9fe870',
     icon: wiseIcon,
     glyphColor: '#9fe870',
+  },
+  {
+    label: {en: 'Binance Referral', zh: '币安邀请福利'},
+    desc: {en: 'Refer2Earn · USDC rewards', zh: 'Refer2Earn · USDC 奖励活动'},
+    href: 'https://www.bsmkweb.cc/referral/earn-together/refer2earn-usdc/claim?hl=zh-CN&ref=GRO_28502_8G320&utm_source=referral_entrance',
+    color: '#f0b90b',
+    icon: giftIcon,
+    glyphColor: '#f0b90b',
   },
   {
     label: {en: 'Airport (Proxy)', zh: '机场'},
