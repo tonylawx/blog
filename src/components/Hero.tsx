@@ -1,10 +1,8 @@
 import React from 'react';
 import Link from '@docusaurus/Link';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Translate from '@docusaurus/Translate';
 
 export default function Hero(): JSX.Element {
-  const {siteConfig} = useDocusaurusContext();
   return (
     <header className="home-hero hero">
       <div className="container">
@@ -12,7 +10,9 @@ export default function Hero(): JSX.Element {
           Hi, I'm Tony Law 👋
         </h1>
         <p className="hero__subtitle home-hero__subtitle">
-          {siteConfig.tagline}
+          <Translate id="homepage.tagline">
+            US stock investor · options trader · China nationally certified ski coach
+          </Translate>
         </p>
         <div className="home-hero__actions">
           <Link

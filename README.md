@@ -1,6 +1,6 @@
 # tonylaw.cc
 
-Personal blog + portfolio of Tony Law — software engineer & options trader.
+Personal blog + portfolio of Tony Law — US stock investor, options trader, and China nationally certified ski coach.
 
 Built with [Docusaurus v3](https://docusaurus.io), bilingual (English default / Chinese secondary), deployed on Vercel.
 

@@ -3,7 +3,7 @@ import type {Config} from '@docusaurus/types';
 
 const config: Config = {
   title: 'Tony Law',
-  tagline: 'Software engineer & options trader',
+  tagline: 'US stock investor · options trader · China nationally certified ski coach',
   url: 'https://www.tonylaw.cc',
   baseUrl: '/',
   favicon: 'img/favicon-32.png',
@@ -64,7 +64,7 @@ const config: Config = {
           feedOptions: {
             type: ['rss', 'atom'],
             title: 'Tony Law',
-            description: 'Software engineer & options trader',
+            description: 'US stock investor · options trader · China nationally certified ski coach',
           },
         },
         theme: {

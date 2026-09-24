@@ -1,15 +1,17 @@
 ---
 title: About
-description: About Tony Law — senior full-stack engineer, fintech builder, and options trader.
+description: About Tony Law — U.S. stock investor, options trader, and China nationally certified ski coach.
 slug: about
 ---
 
 # About me
 
-I'm Tony Law, a senior full-stack engineer focused on fintech, cross-border
-payments, payment gateways, and AI-assisted financial tooling. I have built
-production systems across web, mobile, backend APIs, financial product workflows,
-monitoring, and internal platforms.
+I'm Tony Law, a U.S. stock investor and options trader, and a China
+nationally certified ski coach. I'm also a senior full-stack engineer
+focused on fintech, cross-border payments, payment gateways, and
+AI-assisted financial tooling. I have built production systems across
+web, mobile, backend APIs, financial product workflows, monitoring, and
+internal platforms.
 
 My recent work sits at the intersection of software engineering and markets:
 options research tools, AI-assisted U.S. equity analysis, publishing automation,
@@ -112,6 +114,7 @@ See [Projects](/projects) for the full list.
 </p>
 
 - **Language skills:** Cantonese, Mandarin, English
+- **Coaching:** China nationally certified ski coach
 
 ## What I Build Well
 
