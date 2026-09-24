@@ -17,7 +17,7 @@ export default function Home(): JSX.Element {
       description={translate({
         id: 'homepage.tagline',
         message:
-          'US stock investor · options trader · China nationally certified ski coach',
+          'US stock investor · options trader · AI full-stack engineer · China nationally certified ski coach',
       })}
     >
       <main>

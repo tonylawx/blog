@@ -44,11 +44,11 @@ type LinkItem = {
 const PAGE_TEXT: Record<Locale, {description: string; tagline: string}> = {
   en: {
     description: 'All my links in one place — THETA, X, Threads, Telegram, GitHub, email, blog.',
-    tagline: 'US stock investor · options trader · China nationally certified ski coach',
+    tagline: 'US stock investor · options trader · AI full-stack engineer · China nationally certified ski coach',
   },
   zh: {
     description: '我的常用链接：THETA、X、Threads、Telegram、GitHub、邮箱和博客。',
-    tagline: '美股投资者 · 期权交易者 · 中国国职滑雪教练',
+    tagline: '美股投资者 · 期权交易者 · AI 全栈工程师 · 中国国职滑雪教练',
   },
 };
 
