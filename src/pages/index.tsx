@@ -5,14 +5,21 @@ import Hero from '../components/Hero';
 import FeaturedPosts from '../components/FeaturedPosts';
 import ProjectCard from '../components/ProjectCard';
 import {projects} from '../data/projects';
-import Translate from '@docusaurus/Translate';
+import Translate, {translate} from '@docusaurus/Translate';
 import Link from '@docusaurus/Link';
 
 export default function Home(): JSX.Element {
   const {siteConfig} = useDocusaurusContext();
   const featuredProjects = projects.filter((p) => p.featured);
   return (
-    <Layout title={siteConfig.title} description={siteConfig.tagline}>
+    <Layout
+      title={siteConfig.title}
+      description={translate({
+        id: 'homepage.tagline',
+        message:
+          'US stock investor · options trader · AI full-stack engineer · China nationally certified ski coach',
+      })}
+    >
       <main>
         <Hero />
         <FeaturedPosts />

@@ -36,6 +36,9 @@
     "message": "标签",
     "description": "The title of the tag list page"
   },
+  "homepage.tagline": {
+    "message": "美股投资者 · 期权交易者 · AI 全栈工程师 · 中国国职滑雪教练"
+  },
   "Read the blog": {
     "message": "阅读博客"
   },
