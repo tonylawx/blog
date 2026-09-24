@@ -1,13 +1,13 @@
 ---
 title: About
-description: About Tony Law — U.S. stock investor, options trader, AI full-stack engineer, and China nationally certified ski coach.
+description: About Tony Law — U.S. stock investor, options trader, AI full-stack engineer, and China National Ski Instructor.
 slug: about
 ---
 
 # About me
 
 I'm Tony Law, a U.S. stock investor, options trader, and AI full-stack
-engineer, and a China nationally certified ski coach. I focus on
+engineer, and a China National Ski Instructor. I focus on
 fintech, cross-border payments, payment gateways, and AI-assisted
 financial tooling. I have built production systems across web, mobile,
 backend APIs, financial product workflows, monitoring, and internal
@@ -114,7 +114,7 @@ See [Projects](/projects) for the full list.
 </p>
 
 - **Language skills:** Cantonese, Mandarin, English
-- **Coaching:** China nationally certified ski coach
+- **Coaching:** China National Ski Instructor
 
 ## What I Build Well
 
