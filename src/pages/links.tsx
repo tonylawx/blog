@@ -66,6 +66,13 @@ const LINKS: LinkItem[] = [
     img: '/img/theta-icon.png',
   },
   {
+    label: {en: 'Longbridge Skill', zh: '长桥证券 Skill'},
+    desc: {en: 'open.longbridge.com · AI trading skill invite', zh: 'open.longbridge.com · AI 交易 Skill 邀请福利'},
+    href: 'https://open.longbridge.com/zh-HK/skill?invite-code=3GTL1J',
+    color: '#00b8b8',
+    img: '/img/longbridge-icon.svg',
+  },
+  {
     label: {en: 'uSMART Bonus', zh: 'uSMART 开户福利'},
     desc: {en: 'US stock brokerage account bonus', zh: '美股券商开户奖励活动'},
     href: 'https://m.usmartsg66.com/promo/overseas/bonus-dec.html?ICode=sere&langType=3&Id=',
