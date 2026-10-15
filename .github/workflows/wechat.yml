@@ -61,6 +61,12 @@ jobs:
                   return "RhinoFinance"
               return "AI 美股分析师"
 
+          def blog_source_url(slug: str, meta: dict) -> str:
+              if (meta.get("locale") or "") == "en" or slug.endswith("-en"):
+                  return ""
+              post_slug = (meta.get("slug") or slug).removesuffix("-en")
+              return f"https://www.tonylaw.cc/blog/{post_slug}"
+
           def thumb_url(slug: str) -> str:
               repo = os.environ["GITHUB_REPOSITORY"]
               sha = os.environ["GITHUB_SHA"]
@@ -157,6 +163,8 @@ jobs:
                       author,
                       "--thumb-image-url",
                       thumb_url(slug),
+                      "--content-source-url",
+                      blog_source_url(slug, meta),
                   ],
                   check=True,
               )
@@ -178,6 +186,7 @@ jobs:
                       "digest": primary_meta.get("digest") or "",
                       "html_file": str(Path(f"wechat-runs/{primary}/article.wechat.html").resolve()),
                       "thumb_image_url": thumb_url(primary),
+                      "content_source_url": blog_source_url(primary, primary_meta),
                       "need_open_comment": int(primary_meta.get("need_open_comment", 1)),
                       "only_fans_can_comment": int(primary_meta.get("only_fans_can_comment", 0)),
                   },
@@ -187,6 +196,7 @@ jobs:
                       "digest": secondary_meta.get("digest") or "",
                       "html_file": str(Path(f"wechat-runs/{secondary}/article.wechat.html").resolve()),
                       "thumb_image_url": thumb_url(secondary),
+                      "content_source_url": blog_source_url(secondary, secondary_meta),
                       "need_open_comment": int(secondary_meta.get("need_open_comment", 1)),
                       "only_fans_can_comment": int(secondary_meta.get("only_fans_can_comment", 0)),
                   },
