@@ -1,6 +1,6 @@
 ---
 title: Privacy Policy
-description: Privacy Policy for tonylaw.cc operated by Luo Haoyan.
+description: Privacy Policy for tonylaw.cc operated by Tony Law.
 slug: privacy
 ---
 
@@ -9,13 +9,13 @@ slug: privacy
 **Effective Date:** July 31, 2026  
 **Last Updated:** October 20, 2026
 
-This Privacy Policy explains how **tonylaw.cc** ("we", "us", or "our"), operated by **Luo Haoyan**, collects, uses, and safeguards information when you visit and browse our website.
+This Privacy Policy explains how **tonylaw.cc** ("we", "us", or "our"), operated by **Tony Law**, collects, uses, and safeguards information when you visit and browse our website.
 
 ---
 
 ## 1. Operator & Contact
 
-- **Operator:** Luo Haoyan
+- **Operator:** Tony Law
 - **Jurisdiction:** Canada
 - **Mailing Address:** 67 North Park Street, Brantford, ON N3R 6N9, Canada
 - **Contact Email:** [support@tonylaw.cc](mailto:support@tonylaw.cc) / [hello@tonylaw.cc](mailto:hello@tonylaw.cc)
