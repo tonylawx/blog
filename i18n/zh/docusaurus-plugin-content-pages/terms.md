@@ -1,6 +1,6 @@
 ---
 title: 服务条款与免责声明
-description: tonylaw.cc 服务条款与免责声明（由 Luo Haoyan 运营）。
+description: tonylaw.cc 服务条款与免责声明（由 Tony Law 运营）。
 slug: terms
 ---
 
@@ -9,13 +9,13 @@ slug: terms
 **生效日期：** 2026 年 7 月 31 日  
 **最近更新：** 2026 年 10 月 20 日
 
-欢迎访问 **tonylaw.cc**（以下简称“本站”），本站由 **Luo Haoyan**（以下简称“我们”）运营。当您访问或使用本网站时，即表示您已阅读、理解并同意遵守以下条款与声明。
+欢迎访问 **tonylaw.cc**（以下简称“本站”），本站由 **Tony Law**（以下简称“我们”）运营。当您访问或使用本网站时，即表示您已阅读、理解并同意遵守以下条款与声明。
 
 ---
 
 ## 1. 运营者信息
 
-- **运营者：** Luo Haoyan
+- **运营者：** Tony Law
 - **管辖地区：** 加拿大 (Canada)
 - **联系地址：** 67 North Park Street, Brantford, ON N3R 6N9, Canada
 - **联系邮箱：** [support@tonylaw.cc](mailto:support@tonylaw.cc) / [hello@tonylaw.cc](mailto:hello@tonylaw.cc)

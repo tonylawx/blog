@@ -1,6 +1,6 @@
 ---
 title: Terms of Service
-description: Terms of Service and Disclaimers for tonylaw.cc operated by Luo Haoyan.
+description: Terms of Service and Disclaimers for tonylaw.cc operated by Tony Law.
 slug: terms
 ---
 
@@ -9,13 +9,13 @@ slug: terms
 **Effective Date:** July 31, 2026  
 **Last Updated:** October 20, 2026
 
-Welcome to **tonylaw.cc** ("the Site"), operated by **Luo Haoyan** ("we", "us", or "our"). By accessing or using this website, you agree to comply with and be bound by the following terms and disclaimers.
+Welcome to **tonylaw.cc** ("the Site"), operated by **Tony Law** ("we", "us", or "our"). By accessing or using this website, you agree to comply with and be bound by the following terms and disclaimers.
 
 ---
 
 ## 1. Operator Information
 
-- **Operator:** Luo Haoyan
+- **Operator:** Tony Law
 - **Jurisdiction:** Canada
 - **Address:** 67 North Park Street, Brantford, ON N3R 6N9, Canada
 - **Contact:** [support@tonylaw.cc](mailto:support@tonylaw.cc) / [hello@tonylaw.cc](mailto:hello@tonylaw.cc)

@@ -1,6 +1,6 @@
 ---
 title: 隐私政策
-description: tonylaw.cc 隐私政策（由 Luo Haoyan 运营）。
+description: tonylaw.cc 隐私政策（由 Tony Law 运营）。
 slug: privacy
 ---
 
@@ -9,13 +9,13 @@ slug: privacy
 **生效日期：** 2026 年 7 月 31 日  
 **最近更新：** 2026 年 10 月 20 日
 
-本隐私政策说明 **tonylaw.cc**（以下简称“我们”，由 **Luo Haoyan** 运营）在您访问和浏览本网站时，如何收集、使用与保护您的个人信息。
+本隐私政策说明 **tonylaw.cc**（以下简称“我们”，由 **Tony Law** 运营）在您访问和浏览本网站时，如何收集、使用与保护您的个人信息。
 
 ---
 
 ## 1. 运营者与联系方式
 
-- **运营者：** Luo Haoyan
+- **运营者：** Tony Law
 - **管辖地区：** 加拿大 (Canada)
 - **联系地址：** 67 North Park Street, Brantford, ON N3R 6N9, Canada
 - **联系邮箱：** [support@tonylaw.cc](mailto:support@tonylaw.cc) / [hello@tonylaw.cc](mailto:hello@tonylaw.cc)
