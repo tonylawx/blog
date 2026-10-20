@@ -15,6 +15,14 @@ const config: Config = {
     {tagName: 'link', attributes: {rel: 'apple-touch-icon', sizes: '180x180', href: '/img/apple-touch-icon.png'}},
   ],
 
+  scripts: [
+    {
+      src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9680017244944889',
+      async: true,
+      crossorigin: 'anonymous',
+    },
+  ],
+
   // Strict broken-link checking — re-enabled for launch now that all
   // navbar/footer/hero-linked pages (/blog, /projects, /about + locale
   // variants) exist. The build will fail on any dangling link.
@@ -165,6 +173,13 @@ const config: Config = {
             {label: 'Blog', to: '/blog'},
             {label: 'Projects', to: '/projects'},
             {label: 'About', to: '/about'},
+          ],
+        },
+        {
+          title: 'Legal',
+          items: [
+            {label: 'Privacy Policy', to: '/privacy'},
+            {label: 'Terms of Service', to: '/terms'},
           ],
         },
         {
