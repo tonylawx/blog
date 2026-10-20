@@ -1,6 +1,7 @@
 import {useEffect, type ReactNode} from 'react';
 import OriginalRoot from '@theme-original/Root';
 import {Analytics} from '@vercel/analytics/react';
+import MobileLanguageSwitch from '@site/src/components/MobileLanguageSwitch';
 
 const LIGHT_THEME_COLOR = '#ffffff';
 const DARK_THEME_COLOR = '#0f1117';
@@ -39,6 +40,7 @@ export default function Root({children}: {children?: ReactNode}): ReactNode {
   return (
     <OriginalRoot>
       {children}
+      <MobileLanguageSwitch />
       <Analytics />
     </OriginalRoot>
   );
