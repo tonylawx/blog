@@ -84,7 +84,8 @@ jobs:
                       parts = Path(line).parts
                       if len(parts) >= 2 and parts[0] == "wechat-runs":
                           slug = parts[1]
-                          if slug and not slug.startswith(".") and slug not in seen:
+                          run_dir = Path("wechat-runs") / slug
+                          if slug and not slug.startswith(".") and run_dir.is_dir() and slug not in seen:
                               seen.add(slug)
                               slugs.append(slug)
               except subprocess.CalledProcessError:
