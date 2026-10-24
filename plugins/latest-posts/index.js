@@ -19,6 +19,15 @@ const RECENT_POST_COUNT = 5;
 function categoryKey(category) {
   const value = String(category || '').toLowerCase();
   if (
+    value.includes('tech') ||
+    value.includes('科技') ||
+    value.includes('weekly') ||
+    value.includes('周报') ||
+    value.includes('周刊')
+  ) {
+    return 'techWeekly';
+  }
+  if (
     value.includes('market') ||
     value.includes('美股') ||
     value.includes('分析师')

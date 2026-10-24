@@ -56,6 +56,10 @@
     "message": "AI 美股分析师",
     "description": "Blog sidebar category filter label"
   },
+  "theme.blog.sidebar.category.techWeekly": {
+    "message": "科技周报",
+    "description": "Blog sidebar category filter label"
+  },
   "theme.blog.sidebar.category.investing": {
     "message": "投资经验",
     "description": "Blog sidebar category filter label"
