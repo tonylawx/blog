@@ -11,13 +11,14 @@ import type {BlogSidebar, BlogSidebarItem} from '@docusaurus/plugin-content-blog
 import styles from './styles.module.css';
 
 /* ---- Category filter ---- */
-const CATS = ['all', 'markets', 'techWeekly', 'investing', 'aiPractice', 'essays'] as const;
+const CATS = ['all', 'markets', 'techWeekly', 'financeWeekly', 'investing', 'aiPractice', 'essays'] as const;
 type Cat = (typeof CATS)[number];
 
 const CAT_LABELS: Record<Cat, string> = {
   all: 'All',
   markets: 'US Market',
   techWeekly: 'Tech Weekly',
+  financeWeekly: 'Finance Weekly',
   investing: 'Investing',
   aiPractice: 'AI Practice',
   essays: 'Essays',
@@ -34,6 +35,10 @@ function catFor(item: BlogSidebarItem, categoryByPermalink: Record<string, Cat>)
   const title = item.title;
   const t = title;
   const tl = title.toLowerCase();
+  if (
+    ['财经周报', '金融周报', '宏观周报', 'finance weekly', 'macro weekly'].some((k) => tl.includes(k.toLowerCase()))
+  )
+    return 'financeWeekly';
   if (
     ['科技周报', '科技周刊', 'tech weekly', 'ai weekly'].some((k) => tl.includes(k.toLowerCase()))
   )
@@ -109,6 +114,7 @@ function BlogSidebarDesktop({sidebar}: {sidebar: BlogSidebar}): React.ReactNode 
       all: allItems.length,
       markets: 0,
       techWeekly: 0,
+      financeWeekly: 0,
       investing: 0,
       aiPractice: 0,
       essays: 0,
