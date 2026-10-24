@@ -2,6 +2,7 @@ import React, {memo, useState, useMemo} from 'react';
 import clsx from 'clsx';
 import {translate} from '@docusaurus/Translate';
 import {usePluginData} from '@docusaurus/useGlobalData';
+import {useHistory, useLocation} from '@docusaurus/router';
 import {
   useVisibleBlogSidebarItems,
   BlogSidebarItemList,
@@ -94,6 +95,8 @@ const ListComponent = ({items}: {items: BlogSidebarItem[]}) => {
 
 /* ---- Desktop sidebar with category pills above the title ---- */
 function BlogSidebarDesktop({sidebar}: {sidebar: BlogSidebar}): React.ReactNode {
+  const history = useHistory();
+  const location = useLocation();
   const categoryData = usePluginData('latest-posts') as CategoryData | undefined;
   const categoryByPermalink = categoryData?.categoryByPermalink ?? {};
   // Persist selected category across page navigations (component remounts on route change)
@@ -102,13 +105,23 @@ function BlogSidebarDesktop({sidebar}: {sidebar: BlogSidebar}): React.ReactNode 
     const stored = sessionStorage.getItem(STORAGE_KEY) as Cat | null;
     return stored && CATS.includes(stored) ? stored : 'all';
   });
-  const setCat = (c: Cat) => {
-    setCatState(c);
-    try { sessionStorage.setItem(STORAGE_KEY, c); } catch { /* ignore */ }
-  };
 
   // Filter sidebar items by selected category BEFORE visibility filtering
   const allItems = sidebar.items;
+  const setCat = (c: Cat) => {
+    setCatState(c);
+    try { sessionStorage.setItem(STORAGE_KEY, c); } catch { /* ignore */ }
+
+    const targetItems =
+      c === 'all' ? allItems : allItems.filter((i) => catFor(i, categoryByPermalink) === c);
+    const targetItem = targetItems.find((i) => !i.unlisted) ?? targetItems[0];
+    if (targetItem) {
+      const normalize = (p: string) => p.replace(/\/+$/, '');
+      if (normalize(location.pathname) !== normalize(targetItem.permalink)) {
+        history.push(targetItem.permalink);
+      }
+    }
+  };
   const counts = useMemo(() => {
     const c: Record<Cat, number> = {
       all: allItems.length,
