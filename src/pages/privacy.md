@@ -29,6 +29,7 @@ We believe in data minimization. When you access and browse tonylaw.cc, we may c
 1. **Server Logs & Technical Data:** IP address, browser type and version, operating system, referring URL, pages visited, and date/time of visits.
 2. **Cookies & Tracking Technologies:** Standard HTTP cookies and local storage tokens used for site functionality (such as dark/light theme preferences and language preferences).
 3. **Voluntary Communications:** Information you provide when contacting us via email (such as your email address and message contents).
+4. **Age Restriction:** Our website and related applications are intended exclusively for individuals aged 18 or older. We do not knowingly solicit or collect personal information from individuals under the age of 18 (or under 13 in compliance with COPPA). If we learn that personal data of a minor has been collected without verifiable parental consent, we will promptly delete it.
 
 ---
 
@@ -47,7 +48,8 @@ We partner with third-party ad networks, including **Google AdSense**, to displa
 We use trusted third-party service providers to deliver and operate the website:
 
 - **Hosting & CDN:** [Vercel](https://vercel.com/) (application hosting, edge network, and serverless infrastructure).
-- **Analytics & Performance:** Basic anonymous traffic metrics and analytics to understand visitor readership and improve site performance.
+- **Analytics & Performance:** Basic anonymous traffic metrics and analytics (Vercel Web Analytics) to understand readership and improve site performance. We do **not** use session replay, session recording, or keystroke tracking software (such as Hotjar, Microsoft Clarity, FullStory, or LogRocket).
+- **Self-Hosted Assets & Fonts:** Web typography and static assets are served using local and system font stacks or self-hosted assets, avoiding third-party CDN font trackers.
 - **Embedded Content:** External links and embedded widgets (such as GitHub repositories, social media profiles, or financial charts) which may set their own cookies according to their respective privacy policies.
 
 ---

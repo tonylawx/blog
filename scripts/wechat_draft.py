@@ -110,7 +110,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "Order is 头条 first, then 次条…"
         ),
     )
-    parser.add_argument("--author", default="AI 美股分析师", help="WeChat article author name.")
+    parser.add_argument("--author", default="活着的北海", help="WeChat article author name.")
     parser.add_argument("--digest", default="", help="Optional digest/summary.")
     parser.add_argument("--thumb-media-id", default=None, help="Optional cover thumbnail media id.")
     parser.add_argument("--thumb-image", type=Path, default=None, help="Optional local cover image to upload.")
@@ -763,7 +763,7 @@ def load_articles_manifest(path: Path) -> list[dict]:
         articles.append(
             {
                 "title": title,
-                "author": str(item.get("author") or "AI 美股分析师"),
+                "author": str(item.get("author") or "活着的北海"),
                 "digest": str(item.get("digest") or ""),
                 "html_file": Path(html_file),
                 "content_source_url": str(item.get("content_source_url") or ""),
@@ -855,7 +855,7 @@ def create_draft_articles(
         articles.append(
             build_article_payload(
                 title=spec["title"],
-                author=spec.get("author") or "AI 美股分析师",
+                author=spec.get("author") or "活着的北海",
                 digest=spec.get("digest") or "",
                 html=html,
                 content_source_url=spec.get("content_source_url") or "",
