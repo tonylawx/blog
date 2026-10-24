@@ -59,7 +59,7 @@ jobs:
                   return author
               if (meta.get("locale") or "") == "en" or slug.endswith("-en"):
                   return "RhinoFinance"
-              return "AI 美股分析师"
+              return "活着的北海"
 
           def blog_source_url(slug: str, meta: dict) -> str:
               if (meta.get("locale") or "") == "en" or slug.endswith("-en"):

@@ -207,7 +207,7 @@ def stage_articles_json(
 
         remote_item = {
             "title": item.get("title"),
-            "author": item.get("author") or "AI 美股分析师",
+            "author": item.get("author") or "活着的北海",
             "digest": item.get("digest") or "",
             "html_file": remote_html,
             "content_source_url": item.get("content_source_url") or "",

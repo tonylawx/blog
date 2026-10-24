@@ -48,3 +48,28 @@ The site may contain links to external third-party websites or display third-par
 ## 5. Limitation of Liability
 
 To the maximum extent permitted by applicable law, in no event shall the operator, author, or affiliates be liable for any direct, indirect, incidental, consequential, or punitive damages arising out of or in connection with your access to, use of, or reliance upon any content or services provided on this site.
+
+---
+
+## 6. Digital Millennium Copyright Act (DMCA) Notice & Designated Agent
+
+We respect the intellectual property rights of others and expect our users and visitors to do the same. In accordance with the Digital Millennium Copyright Act of 1998 (17 U.S.C. § 512), we respond promptly to claims of copyright infringement committed using our service and maintain a designated agent to receive notifications.
+
+### 6.1 Designated Copyright Agent Contact Information
+- **Designated Agent:** Tony Law (DMCA Agent)
+- **Organization / Service Provider:** tonylaw.cc
+- **Physical Mailing Address:** 67 North Park Street, Brantford, ON N3R 6N9, Canada
+- **Email:** [dmca@tonylaw.cc](mailto:dmca@tonylaw.cc) (with copy to [support@tonylaw.cc](mailto:support@tonylaw.cc))
+
+### 6.2 Submitting a DMCA Notice of Infringement
+If you are a copyright owner or authorized to act on behalf of one, please provide our Designated Agent with a written notice containing the following statutory elements (17 U.S.C. § 512(c)(3)):
+1. **Identification of the copyrighted work** claimed to have been infringed, or a representative list if multiple works are involved.
+2. **Identification of the material** claimed to be infringing, including the specific URL or location on `tonylaw.cc` where the material appears.
+3. **Your contact information**, including your full legal name, physical address, telephone number, and email address.
+4. **Good faith statement:** A statement that you have a good faith belief that use of the material in the manner complained of is not authorized by the copyright owner, its agent, or the law.
+5. **Accuracy and perjury statement:** A statement that the information in the notification is accurate, and under penalty of perjury, that you are authorized to act on behalf of the owner of an exclusive right that is allegedly infringed.
+6. **Physical or electronic signature** of the copyright owner or authorized representative.
+
+### 6.3 Counter-Notification & Repeat Infringer Policy
+If you believe your content was removed or disabled by mistake or misidentification, you may submit a counter-notification complying with 17 U.S.C. § 512(g)(3). In accordance with DMCA Safe Harbor requirements (17 U.S.C. § 512(i)(1)(A)), we maintain a policy to terminate, in appropriate circumstances, accounts or access for users who are found to be repeat infringers.
+
