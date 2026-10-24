@@ -19,6 +19,15 @@ const RECENT_POST_COUNT = 5;
 function categoryKey(category) {
   const value = String(category || '').toLowerCase();
   if (
+    value.includes('finance') ||
+    value.includes('macro') ||
+    value.includes('财经') ||
+    value.includes('金融') ||
+    value.includes('宏观')
+  ) {
+    return 'financeWeekly';
+  }
+  if (
     value.includes('tech') ||
     value.includes('科技') ||
     value.includes('weekly') ||

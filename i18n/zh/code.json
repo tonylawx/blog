@@ -60,6 +60,10 @@
     "message": "科技周报",
     "description": "Blog sidebar category filter label"
   },
+  "theme.blog.sidebar.category.financeWeekly": {
+    "message": "财经周报",
+    "description": "Blog sidebar category filter label"
+  },
   "theme.blog.sidebar.category.investing": {
     "message": "投资经验",
     "description": "Blog sidebar category filter label"
