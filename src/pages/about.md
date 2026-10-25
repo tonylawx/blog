@@ -14,8 +14,8 @@ backend APIs, financial product workflows, monitoring, and internal
 platforms.
 
 My recent work sits at the intersection of software engineering and markets:
-options research tools, AI-assisted U.S. equity analysis, publishing automation,
-and product infrastructure for financial workflows. I care about systems that are
+options research tools, AI-assisted U.S. equity analysis, tech and macro weeklies,
+publishing automation, and product infrastructure for financial workflows. I care about systems that are
 useful in the real world: clear ownership, observable behavior, reliable delivery,
 and interfaces that make complex financial decisions easier to reason about.
 
@@ -32,7 +32,8 @@ Full-stack engineering practice around fintech products and AI-assisted finance
 workflows.
 
 - **Modules:** THETA options risk tooling, AI US Stock Analyst, publishing
-  automation, Hono/Prisma product stack, Python market-workflow scripts.
+  automation, Tech & AI Weekly, Macro & Finance Weekly, Hono/Prisma product stack,
+  Python market-workflow scripts.
 - **Responsibilities:** designed financial product flows, built type-safe
   frontend/backend contracts, maintained automation pipelines, and reviewed
   cross-border payments, KYC/AML, settlement, and serverless architecture.
@@ -79,15 +80,23 @@ Software Developer for R&D management systems.
 
 - **THETA** — options research and risk tooling with broker integration,
   real-time greeks, event-risk views, and AI-assisted report summaries.
+- **[Tech & AI Weekly Skill](https://github.com/tonylawx/tech-ai-weekly-skill)** —
+  research and drafting for tech and AI weeklies, with source checks, cost and
+  supply-chain analysis, and draft validation.
+- **[Macro & Finance Weekly Skill](https://github.com/tonylawx/macro-finance-weekly-skill)** —
+  weekly macro and U.S. equity research, from market reviews and liquidity to
+  upcoming catalysts and key risk levels.
 - **react-ios-multiselect** — an open-source React component for iOS-style
-  multi-select interactions:
-  [tonylawx/react-ios-multiselect](https://github.com/tonylawx/react-ios-multiselect).
-- **AI US Stock Analyst** — a market-calendar-aware workflow that generates U.S.
-  equity briefs, renders publishable HTML, and supports WeChat draft publishing.
-  Open-sourced as an AI-agent (Codex) skill:
-  [tonylawx/us-stock-analyst-skill](https://github.com/tonylawx/us-stock-analyst-skill).
+  single and multi-select interactions, with a keyboard-aware bottom sheet and
+  virtualized options: [documentation and playground](https://tonylawx.github.io/react-ios-multiselect/).
+- **[US Stock Analyst Skill](https://github.com/tonylawx/us-stock-analyst-skill)** —
+  a reusable Codex skill for daily equity notes, with source discipline, earnings
+  and cash-flow checks, price-attribution confidence, and event scenarios.
+- **[Financial English Editor Skill](https://github.com/tonylawx/financial-english-editor-skill)** —
+  rewrites Chinese market commentary into natural financial English while
+  preserving figures, price levels, and the strength of each judgment.
 - **Blog** — this bilingual Docusaurus site for software, markets, and notes from
-  building in public.
+  building in public, with local search and self-hosted Remark42 comments.
 
 See [Projects](/projects) for the full list.
 

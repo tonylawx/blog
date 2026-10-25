@@ -10,7 +10,7 @@ slug: about
 同时长期做金融科技、跨境支付、支付网关和 AI 金融工具，
 做过 Web、移动端、后端 API、金融产品流程、监控系统和内部平台。
 
-我最近的工作主要在软件工程和市场研究的交叉处：期权研究工具、AI 美股分析、自动化发布流程，
+我最近的工作主要在软件工程和市场研究的交叉处：期权研究工具、AI 美股分析、科技与宏观周刊、自动化发布流程，
 以及面向金融业务的产品基础设施。我更关心能在真实环境里跑起来的系统：边界清楚、可观测、
 能稳定交付，并且能把复杂金融决策变得更容易理解。
 
@@ -23,8 +23,8 @@ slug: about
 
 围绕金融科技产品和 AI 辅助金融工作流持续做全栈工程实践。
 
-- **负责模块：** THETA 期权风险工具、AI US Stock Analyst、美股文章自动化发布、Hono/Prisma
-  产品栈、Python 市场工作流脚本。
+- **负责模块：** THETA 期权风险工具、AI US Stock Analyst、科技与 AI 周刊、全球宏观与美股周报、
+  美股文章自动化发布、Hono/Prisma 产品栈、Python 市场工作流脚本。
 - **主要职责：** 设计金融产品流程，搭建类型安全的前后端契约，维护自动化流水线，并系统复盘
   跨境支付、KYC/AML、结算和 Serverless 架构。
 
@@ -59,12 +59,17 @@ slug: about
 ## 精选项目
 
 - **THETA** —— 期权研究与风险工具，支持券商集成、实时 Greeks、事件风险视图和 AI 辅助报告。
-- **react-ios-multiselect** —— 一个开源 React 组件，用于实现 iOS 风格的多选交互：
-  [tonylawx/react-ios-multiselect](https://github.com/tonylawx/react-ios-multiselect)。
-- **AI US Stock Analyst** —— 按美股交易日运行的自动化工作流，生成美股简报、渲染可发布 HTML，
-  并支持发布到微信公众号草稿箱。已开源为 AI Agent（Codex）技能：
-  [tonylawx/us-stock-analyst-skill](https://github.com/tonylawx/us-stock-analyst-skill)。
-- **Blog** —— 这个双语 Docusaurus 站点，用来写软件、市场和公开构建过程中的笔记。
+- **[Tech & AI Weekly Skill](https://github.com/tonylawx/tech-ai-weekly-skill)** —— 科技与 AI 周刊技能，
+  围绕真实事件做多信源核验、成本与供应链分析，生成并校验周刊稿件。
+- **[Macro & Finance Weekly Skill](https://github.com/tonylawx/macro-finance-weekly-skill)** —— 全球宏观与美股周报技能，
+  串联盘面复盘、流动性分析、未来事件与关键风险点位。
+- **react-ios-multiselect** —— 开源 React 单选/多选组件，支持键盘感知的 iOS 底部面板与虚拟列表：
+  [文档与在线演示](https://tonylawx.github.io/react-ios-multiselect/)。
+- **[US Stock Analyst Skill](https://github.com/tonylawx/us-stock-analyst-skill)** —— 可复用的美股日报 Codex 技能，
+  结合信源核验、财报与现金流检查、价格归因置信度和事件情景分析撰写市场笔记。
+- **[Financial English Editor Skill](https://github.com/tonylawx/financial-english-editor-skill)** —— 金融英文编辑技能，
+  将中文市场评论改写为自然的金融英语，保留数字、关键点位与判断强度。
+- **Blog** —— 这个双语 Docusaurus 站点，用来写软件、市场和公开构建过程中的笔记，支持本地搜索与自托管 Remark42 评论。
 
 完整列表见 [项目](/zh/projects)。
 

@@ -27,25 +27,59 @@ export const projects: Project[] = [
     aiAgent: true,
   },
   {
+    name: 'Tech & AI Weekly Skill',
+    description:
+      'An agent skill for researching and drafting tech and AI weeklies, with source checks, cost and supply-chain analysis, and draft validation.',
+    descriptionZh:
+      '科技与 AI 周刊 Agent 技能，围绕真实事件做多信源核验、成本与供应链分析，生成并校验周刊稿件。',
+    tags: ['Agent Skill', 'Python', 'AI', 'Research'],
+    repo: 'https://github.com/tonylawx/tech-ai-weekly-skill',
+    featured: true,
+    aiAgent: true,
+  },
+  {
+    name: 'Macro & Finance Weekly Skill',
+    description:
+      'An agent skill for weekly macro and U.S. equity research, covering liquidity, market reviews, event calendars, and risk levels with draft validation.',
+    descriptionZh:
+      '全球宏观与美股周报 Agent 技能，涵盖盘面复盘、流动性分析、事件日历和关键风险点位，并校验稿件结构。',
+    tags: ['Agent Skill', 'Python', 'Finance', 'Research'],
+    repo: 'https://github.com/tonylawx/macro-finance-weekly-skill',
+    featured: true,
+    aiAgent: true,
+  },
+  {
     name: 'react-ios-multiselect',
     description:
-      'An open-source React component for iOS-style multi-select interactions.',
+      'A React select with a keyboard-aware iOS bottom sheet, virtualized options, and single or multi-select modes. Includes a live playground and stable hooks for agents.',
     descriptionZh:
-      '开源 React 组件，提供 iOS 风格的多选交互体验。',
+      'React 选择器，支持键盘感知的 iOS 底部面板、虚拟列表和单选/多选，提供在线演示与稳定的 Agent 操作钩子。',
     tags: ['React', 'TypeScript', 'Open Source'],
     repo: 'https://github.com/tonylawx/react-ios-multiselect',
+    url: 'https://tonylawx.github.io/react-ios-multiselect/',
     featured: true,
     aiAgent: true,
   },
   {
     name: 'US Stock Analyst Skill',
     description:
-      'A Codex / agent skill that runs daily Tony-style U.S. equity analysis — generating market briefs, publishable HTML, and WeChat draft posts.',
+      'A Codex skill for daily U.S. equity notes, with source discipline, earnings and cash-flow checks, price-attribution confidence, and event scenarios.',
     descriptionZh:
-      'Codex / Agent 技能，每日自动生成美股分析简报、可发布 HTML 和微信公众号草稿。',
+      '美股日报 Codex 技能，结合信源核验、财报与现金流检查、价格归因置信度和事件情景分析撰写市场笔记。',
     tags: ['Python', 'LLM', 'Finance'],
     repo: 'https://github.com/tonylawx/us-stock-analyst-skill',
     featured: true,
+    aiAgent: true,
+  },
+  {
+    name: 'Financial English Editor Skill',
+    description:
+      'An agent skill for rewriting Chinese market commentary into natural financial English while preserving tickers, figures, price levels, and conviction.',
+    descriptionZh:
+      '金融英文编辑 Agent 技能，将中文市场评论改写为自然的金融英语，保留股票代码、数字、关键点位与判断强度。',
+    tags: ['Agent Skill', 'Finance', 'Writing'],
+    repo: 'https://github.com/tonylawx/financial-english-editor-skill',
+    featured: false,
     aiAgent: true,
   },
   {
@@ -60,9 +94,9 @@ export const projects: Project[] = [
   {
     name: 'Blog',
     description:
-      'This site — a bilingual Docusaurus blog with local search and Giscus comments.',
+      'This bilingual Docusaurus site, with local search, article navigation, self-hosted Remark42 comments, and an archive for the publishing workflow.',
     descriptionZh:
-      '本站——基于 Docusaurus 的中英双语博客，支持本地搜索和 Giscus 评论。',
+      '本站——中英双语 Docusaurus 博客，支持本地搜索、文章导航、自托管 Remark42 评论，并承接内容发布归档。',
     tags: ['Docusaurus', 'React', 'MDX'],
     repo: 'https://github.com/tonylawx/blog',
     featured: true,
