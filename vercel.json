@@ -1,5 +1,27 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "build",
-  "framework": "docusaurus-2"
+  "framework": "docusaurus-2",
+  "redirects": [
+    {
+      "source": "/blog/2026-10-26-d75ac5",
+      "destination": "/blog/2026-10-26-ec9cb0",
+      "permanent": true
+    },
+    {
+      "source": "/zh/blog/2026-10-26-d75ac5",
+      "destination": "/zh/blog/2026-10-26-ec9cb0",
+      "permanent": true
+    },
+    {
+      "source": "/blog/2026-10-25-f70dba",
+      "destination": "/blog/2026-10-25-881255",
+      "permanent": true
+    },
+    {
+      "source": "/zh/blog/2026-10-25-f70dba",
+      "destination": "/zh/blog/2026-10-25-881255",
+      "permanent": true
+    }
+  ]
 }
