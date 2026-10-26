@@ -787,6 +787,11 @@ def build_article_payload(
     need_open_comment: int = 1,
     only_fans_can_comment: int = 0,
 ) -> dict:
+    if len(title) > 64:
+        stamp_match = re.search(r"\s+(20\d{6})$", title)
+        stamp = f" {stamp_match.group(1)}" if stamp_match else ""
+        title = title[: 64 - len(stamp)].rstrip() + stamp
+
     article = {
         "title": title,
         "author": author,
