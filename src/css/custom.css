@@ -800,6 +800,15 @@ html.blog-post-page .container.margin-vert--lg > .row > .col.col--2 {
   backdrop-filter: saturate(180%) blur(14px);
   border-bottom: 1px solid #1e293b;
 }
+/* A backdrop filter makes this navbar the containing block for its fixed
+ * sidebar/backdrop, reducing the mobile drawer to the navbar's height. */
+@media (max-width: 996px) {
+  [data-theme='dark'] .navbar {
+    background: #0f1117;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
 @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
   [data-theme='dark'] .navbar {
     background: #0f1117;
