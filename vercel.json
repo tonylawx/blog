@@ -4,6 +4,16 @@
   "framework": "docusaurus-2",
   "redirects": [
     {
+      "source": "/blog/2026-10-27-78e959",
+      "destination": "/blog/2026-10-27-446449",
+      "permanent": true
+    },
+    {
+      "source": "/zh/blog/2026-10-27-78e959",
+      "destination": "/zh/blog/2026-10-27-446449",
+      "permanent": true
+    },
+    {
       "source": "/blog/2026-10-26-d75ac5",
       "destination": "/blog/2026-10-26-ec9cb0",
       "permanent": true
