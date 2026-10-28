@@ -739,6 +739,12 @@ def normalize_article_presentation(html: str) -> str:
 
 def clean_html_for_draft_add(html: str) -> str:
     html = html.replace("\r\n", "\n").replace("\r", "\n").strip()
+    html = re.sub(
+        r"<a\b[^>]*href=[\"'][^\"']*mp\.weixin\.qq\.com/mp/(?:profile_ext|getmasssendmsg)[^\"']*[\"'][^>]*>(.*?)</a>",
+        r"\1",
+        html,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
     html = strip_attrs(html)
     html = flatten_editor_markup(html)
     html = normalize_style_attributes(html)
