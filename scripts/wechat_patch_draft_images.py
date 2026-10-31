@@ -98,7 +98,14 @@ def find_targets(content: str, replacements: list[dict]) -> list[tuple[int, int]
             if same:
                 matches.append((start, end))
         if len(matches) != 1:
-            raise PatchError("Every old image selector must match exactly one IMG/src")
+            hashes = []
+            for _, _, src in ImageSources(content).spans:
+                try:
+                    hashes.append(hashlib.sha256(canonical_src(src).encode()).hexdigest())
+                except PatchError:
+                    pass
+            raise PatchError("Every old image selector must match exactly one IMG/src; "
+                             f"matched={len(matches)}; cn_img_src_sha256={json.dumps(hashes)}")
         targets.append(matches[0])
     return targets
 
@@ -164,8 +171,8 @@ def private_json(path: Path, value: dict) -> None:
         os.fsync(handle.fileno())
 
 
-def locate_drafts(token: str, expected_title: str) -> dict:
-    """Read metadata only to locate editable copies; never selects or updates one."""
+def matching_draft_metadata(token: str, expected_title: str) -> tuple[int, int, list[dict]]:
+    """Read metadata only. Returned media ids remain private worker data."""
     query = urllib.parse.urlencode({"access_token": token})
     offset = 0
     matches = []
@@ -181,7 +188,8 @@ def locate_drafts(token: str, expected_title: str) -> dict:
                 media_id = item.get("media_id")
                 if not isinstance(media_id, str) or not media_id:
                     raise PatchError("Matching draft metadata has no media id")
-                matches.append({"media_id_sha256": hashlib.sha256(media_id.encode()).hexdigest(),
+                matches.append({"media_id": media_id,
+                                "media_id_sha256": hashlib.sha256(media_id.encode()).hexdigest(),
                                 "article_count": len(articles), "title_matches": True,
                                 "update_time": item.get("update_time")})
         offset += len(items)
@@ -189,8 +197,22 @@ def locate_drafts(token: str, expected_title: str) -> dict:
             break
         if not items or offset >= 1000:
             raise PatchError("Draft metadata scan could not finish safely")
+    return total, offset, matches
+
+
+def locate_drafts(token: str, expected_title: str) -> dict:
+    """Only report safe counts/hashes; never selects or updates a matching draft."""
+    total, offset, matches = matching_draft_metadata(token, expected_title)
     return {"mode": "locate-only", "total_draft_count": total, "scanned_draft_count": offset,
-            "matching_draft_count": len(matches), "matches": matches}
+            "matching_draft_count": len(matches),
+            "matches": [{k: v for k, v in m.items() if k != "media_id"} for m in matches]}
+
+
+def resolve_draft_id(token: str, expected_title: str, expected_hash: str) -> str:
+    _, _, matches = matching_draft_metadata(token, expected_title)
+    if len(matches) != 1 or matches[0]["media_id_sha256"] != expected_hash:
+        raise PatchError("The exact-title draft is not unique or its reviewed media-id hash changed")
+    return matches[0]["media_id"]
 
 
 def patch_draft(token: str, media_id: str, manifest: dict, base_dir: Path,
@@ -301,7 +323,10 @@ def main(argv: list[str] | None = None) -> int:
             if args.locate_only:
                 summary = locate_drafts(token, manifest["expected_title"])
             else:
-                summary = patch_draft(token, config["WECHAT_DRAFT_MEDIA_ID"], manifest, args.manifest.parent,
+                media_id = config["WECHAT_DRAFT_MEDIA_ID"]
+                if manifest.get("target_draft_media_id_sha256"):
+                    media_id = resolve_draft_id(token, manifest["expected_title"], manifest["target_draft_media_id_sha256"])
+                summary = patch_draft(token, media_id, manifest, args.manifest.parent,
                                       Path.home() / ".local/state/wechat-chart-patch", apply=args.apply)
             print(json.dumps(summary, ensure_ascii=False, sort_keys=True))
     except (Exception, SystemExit) as exc:
