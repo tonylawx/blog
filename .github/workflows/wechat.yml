@@ -33,13 +33,19 @@ jobs:
         run: |
           python3 - <<'PY'
           import hashlib, os, re, urllib.request
+          class DropRedirectAuth(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, request, fp, code, msg, headers, newurl):
+                  redirected = super().redirect_request(request, fp, code, msg, headers, newurl)
+                  if redirected is not None:
+                      redirected.remove_header('Authorization')
+                  return redirected
           # PR225's successful two-article draft/add, not the earlier daily draft.
           request = urllib.request.Request(
               'https://api.github.com/repos/tonylawx/blog/actions/jobs/123881736962/logs',
               headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
                        'Accept': 'application/vnd.github+json',
                        'X-GitHub-Api-Version': '2022-11-28'})
-          with urllib.request.urlopen(request, timeout=60) as response:
+          with urllib.request.build_opener(DropRedirectAuth()).open(request, timeout=60) as response:
               logs = response.read().decode('utf-8')
           logs = re.sub(r'^\d{4}-\d\d-\d\dT\S+\s?', '', logs, flags=re.M)
           ids = re.findall(r'"draft"\s*:\s*\{\s*"media_id"\s*:\s*"([^"\r\n]+)"', logs)
