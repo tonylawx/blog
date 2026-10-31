@@ -14,6 +14,11 @@ on:
         type: boolean
         default: false
         required: true
+      inspect_only:
+        description: Only inspect field names, empty-value flags and image hashes
+        type: boolean
+        default: false
+        required: true
 
 permissions:
   contents: read
@@ -78,9 +83,13 @@ jobs:
           WECHAT_DRAFT_PROXY_HOST: root@${{ secrets.DROPLET_HOST }}
           APPLY_PATCH: ${{ inputs.apply }}
           LOCATE_ONLY: ${{ inputs.locate_only }}
+          INSPECT_ONLY: ${{ inputs.inspect_only }}
         run: |
           set -eu
-          if [ "$LOCATE_ONLY" = true ]; then
+          if [ "$INSPECT_ONLY" = true ]; then
+            if [ "$APPLY_PATCH" = true ] || [ "$LOCATE_ONLY" = true ]; then exit 1; fi
+            python3 scripts/wechat_patch_draft_images.py --via-droplet --manifest .diagnostics/wechat-20261029-images.json --inspect-only
+          elif [ "$LOCATE_ONLY" = true ]; then
             if [ "$APPLY_PATCH" = true ]; then exit 1; fi
             python3 scripts/wechat_patch_draft_images.py --via-droplet --manifest .diagnostics/wechat-20261029-images.json --locate-only
           elif [ "$APPLY_PATCH" = true ]; then

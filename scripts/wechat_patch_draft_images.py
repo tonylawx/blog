@@ -215,6 +215,28 @@ def resolve_draft_id(token: str, expected_title: str, expected_hash: str) -> str
     return matches[0]["media_id"]
 
 
+def inspect_draft(token: str, media_id: str, expected_title: str) -> dict:
+    query = urllib.parse.urlencode({"access_token": token})
+    draft = checked_call("draft/get", api.post_json, f"{DRAFT_GET_URL}?{query}", {"media_id": media_id})
+    items = draft.get("news_item")
+    if not isinstance(items, list) or len(items) != 2 or items[0].get("title") != expected_title:
+        raise PatchError("Inspect target does not have the expected two-article title")
+    cn, en = items
+    hashes = []
+    for _, _, src in ImageSources(cn.get("content", "")).spans:
+        try:
+            hashes.append(hashlib.sha256(canonical_src(src).encode()).hexdigest())
+        except PatchError:
+            pass
+    return {"mode": "inspect-only", "article_count": 2, "title_matches": True,
+            "cn_field_names": sorted(cn),
+            "cn_empty_fields": sorted(k for k, v in cn.items() if v is None or v == ""),
+            "cn_field_types": {k: type(v).__name__ for k, v in cn.items()},
+            "cn_content_sha256": digest(cn.get("content")),
+            "cn_other_fields_sha256": digest({k: v for k, v in cn.items() if k != "content"}),
+            "cn_img_src_sha256": hashes, "en_sha256": digest(en)}
+
+
 def patch_draft(token: str, media_id: str, manifest: dict, base_dir: Path,
                 backup_dir: Path, *, apply: bool = False) -> dict:
     specs = manifest["replacements"]
@@ -296,6 +318,8 @@ def via_droplet(args: argparse.Namespace, manifest: dict) -> None:
         command = " ".join(shlex.quote(a) for a in ["python3", f"{remote_dir}/wechat_patch_draft_images.py",
                           "--droplet-worker", "--manifest", f"{remote_dir}/manifest.json"] +
                           (["--apply"] if args.apply else []) + (["--locate-only"] if args.locate_only else []))
+        if args.inspect_only:
+            command += " --inspect-only"
         subprocess.run(["ssh", remote, command], input=json.dumps(config), text=True, check=True)
     finally:
         subprocess.run(["ssh", remote, f"rm -rf -- {shlex.quote(remote_dir)}"], check=False,
@@ -310,9 +334,10 @@ def main(argv: list[str] | None = None) -> int:
     mode.add_argument("--droplet-worker", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--apply", action="store_true", help="Upload and update; default only reads/checks")
     parser.add_argument("--locate-only", action="store_true", help="Only scan draft metadata for a matching title")
+    parser.add_argument("--inspect-only", action="store_true", help="Only inspect safe field names, empty flags, and hashes")
     args = parser.parse_args(argv)
-    if args.apply and args.locate_only:
-        parser.error("--locate-only cannot be combined with --apply")
+    if sum((args.apply, args.locate_only, args.inspect_only)) > 1:
+        parser.error("--apply, --locate-only, and --inspect-only are mutually exclusive")
     try:
         manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
         if args.via_droplet:
@@ -326,8 +351,11 @@ def main(argv: list[str] | None = None) -> int:
                 media_id = config["WECHAT_DRAFT_MEDIA_ID"]
                 if manifest.get("target_draft_media_id_sha256"):
                     media_id = resolve_draft_id(token, manifest["expected_title"], manifest["target_draft_media_id_sha256"])
-                summary = patch_draft(token, media_id, manifest, args.manifest.parent,
-                                      Path.home() / ".local/state/wechat-chart-patch", apply=args.apply)
+                if args.inspect_only:
+                    summary = inspect_draft(token, media_id, manifest["expected_title"])
+                else:
+                    summary = patch_draft(token, media_id, manifest, args.manifest.parent,
+                                          Path.home() / ".local/state/wechat-chart-patch", apply=args.apply)
             print(json.dumps(summary, ensure_ascii=False, sort_keys=True))
     except (Exception, SystemExit) as exc:
         message = str(exc) if isinstance(exc, PatchError) else "Patch worker failed; private error details suppressed"
