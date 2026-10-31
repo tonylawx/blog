@@ -62,11 +62,13 @@ class ImageSources(HTMLParser):
         self.source = source
         self.line_starts = [0] + [m.end() for m in re.finditer("\n", source)]
         self.spans: list[tuple[int, int, str]] = []
+        self.attributes: list[list[tuple[str, str | None]]] = []
         self.feed(source)
 
     def handle_starttag(self, tag: str, attrs: list) -> None:
         if tag.lower() != "img":
             return
+        self.attributes.append(attrs)
         raw = self.get_starttag_text()
         assert raw is not None
         row, col = self.getpos()
@@ -223,16 +225,30 @@ def inspect_draft(token: str, media_id: str, expected_title: str) -> dict:
         raise PatchError("Inspect target does not have the expected two-article title")
     cn, en = items
     hashes = []
-    for _, _, src in ImageSources(cn.get("content", "")).spans:
+    parser = ImageSources(cn.get("content", ""))
+    for _, _, src in parser.spans:
         try:
             hashes.append(hashlib.sha256(canonical_src(src).encode()).hexdigest())
         except PatchError:
             pass
+    image_metadata = []
+    for attributes in parser.attributes:
+        source_hashes = {}
+        for name, value in attributes:
+            if name in {"src", "data-src", "data-original"} and value is not None:
+                value = html.unescape(value)
+                normalized = re.sub(r"^http:", "https:", value)
+                source_hashes[name] = hashlib.sha256(normalized.encode()).hexdigest()
+        image_metadata.append({"attribute_names": sorted(n for n, _ in attributes),
+                               "source_attribute_sha256": source_hashes})
     return {"mode": "inspect-only", "article_count": 2, "title_matches": True,
             "cn_field_names": sorted(cn),
             "cn_empty_fields": sorted(k for k, v in cn.items() if v is None or v == ""),
             "cn_field_types": {k: type(v).__name__ for k, v in cn.items()},
             "cn_content_sha256": digest(cn.get("content")),
+            "cn_content_length": len(cn.get("content", "")),
+            "cn_image_metadata": image_metadata,
+            "cover_info_field_names": sorted(cn.get("cover_info", {})),
             "cn_other_fields_sha256": digest({k: v for k, v in cn.items() if k != "content"}),
             "cn_img_src_sha256": hashes, "en_sha256": digest(en)}
 
