@@ -1,234 +1,75 @@
-name: publish-wechat
+# Temporary diagnostic branch only. Replace the already-registered wechat.yml
+# on that branch; do not merge or invoke the normal draft/add workflow.
+name: patch-existing-wechat-images
 on:
-  push:
-    branches: [main]
-    paths: ['wechat-runs/**']
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: Upload images and update the existing draft (false only checks)
+        type: boolean
+        default: false
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: existing-wechat-images-20261029
+  cancel-in-progress: false
 
 jobs:
-  publish:
+  patch:
+    if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-        with:
-          # Need HEAD^ so we can publish every wechat-runs slug touched in this push
-          # (Chinese + English listening draft land together).
-          fetch-depth: 2
       - uses: actions/setup-python@v5
         with: {python-version: '3.13'}
+      - name: locate and mask the existing draft id
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, os, re, urllib.request
+          # PR225's successful two-article draft/add, not the earlier daily draft.
+          request = urllib.request.Request(
+              'https://api.github.com/repos/tonylawx/blog/actions/jobs/123881736962/logs',
+              headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                       'Accept': 'application/vnd.github+json',
+                       'X-GitHub-Api-Version': '2022-11-28'})
+          with urllib.request.urlopen(request, timeout=60) as response:
+              logs = response.read().decode('utf-8')
+          logs = re.sub(r'^\d{4}-\d\d-\d\dT\S+\s?', '', logs, flags=re.M)
+          ids = re.findall(r'"draft"\s*:\s*\{\s*"media_id"\s*:\s*"([^"\r\n]+)"', logs)
+          if len(ids) != 1 or hashlib.sha256(ids[0].encode()).hexdigest() != '8f66fb7a2bae3b06d96e6285b590f11d052da61237217c1bc90a93e74fa4e9b6':
+              raise SystemExit('Source job did not identify the expected existing draft')
+          print('::add-mask::' + ids[0])
+          with open(os.environ['GITHUB_ENV'], 'a') as handle:
+              handle.write('WECHAT_DRAFT_MEDIA_ID=' + ids[0] + '\n')
+          print('Verified existing draft id hash from source job')
+          PY
       - name: configure ssh to droplet
         env:
           DROPLET_SSH_KEY: ${{ secrets.DROPLET_SSH_KEY }}
           DROPLET_HOST: ${{ secrets.DROPLET_HOST }}
         run: |
-          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
           printf '%s\n' "$DROPLET_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H -t ed25519 "$DROPLET_HOST" >> ~/.ssh/known_hosts 2>/dev/null
-      - name: publish touched wechat runs via droplet
+      - name: check or patch existing draft through droplet
         env:
           WECHAT_APPID: ${{ secrets.WECHAT_APPID }}
           WECHAT_APPSECRET: ${{ secrets.WECHAT_APPSECRET }}
           WECHAT_DRAFT_PROXY_HOST: root@${{ secrets.DROPLET_HOST }}
-          GITHUB_TOKEN: ${{ github.token }}
+          APPLY_PATCH: ${{ inputs.apply }}
         run: |
           set -eu
-          # Resolve touched slugs, then publish CN+EN as one 多图文 draft when
-          # both exist (Chinese = 头条, English listening = 次条).
-          python3 - <<'PY'
-          from __future__ import annotations
-
-          import json
-          import os
-          import subprocess
-          import tempfile
-          from pathlib import Path
-
-          def run(args: list[str], *, check: bool = True) -> str:
-              return subprocess.check_output(args, text=True).strip() if check else subprocess.run(
-                  args, check=False, text=True, stdout=subprocess.PIPE
-              ).stdout.strip()
-
-          def load_meta(slug: str) -> dict:
-              return json.loads(Path(f"wechat-runs/{slug}/meta.json").read_text(encoding="utf-8"))
-
-          def author_for(slug: str, meta: dict) -> str:
-              author = (meta.get("author") or "").strip()
-              if author:
-                  return author
-              if (meta.get("locale") or "") == "en" or slug.endswith("-en"):
-                  return "RhinoFinance"
-              return "活着的北海"
-
-          def blog_source_url(slug: str, meta: dict) -> str:
-              if (meta.get("locale") or "") == "en" or slug.endswith("-en"):
-                  return ""
-              post_slug = (meta.get("slug") or slug).removesuffix("-en")
-              return f"https://www.tonylaw.cc/blog/{post_slug}"
-
-          def thumb_url(slug: str) -> str:
-              repo = os.environ["GITHUB_REPOSITORY"]
-              sha = os.environ["GITHUB_SHA"]
-              return f"https://raw.githubusercontent.com/{repo}/{sha}/wechat-runs/{slug}/abstract_cover.png"
-
-          def collect_touched_slugs() -> list[str]:
-              slugs: list[str] = []
-              try:
-                  run(["git", "rev-parse", "--verify", "HEAD^"])
-                  names = run(
-                      ["git", "diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD", "--", "wechat-runs/"]
-                  )
-                  seen: set[str] = set()
-                  for line in names.splitlines():
-                      parts = Path(line).parts
-                      if len(parts) >= 2 and parts[0] == "wechat-runs":
-                          slug = parts[1]
-                          run_dir = Path("wechat-runs") / slug
-                          if slug and not slug.startswith(".") and run_dir.is_dir() and slug not in seen:
-                              seen.add(slug)
-                              slugs.append(slug)
-              except subprocess.CalledProcessError:
-                  pass
-              if not slugs:
-                  root = Path("wechat-runs")
-                  if root.exists():
-                      candidates = sorted(
-                          p.name for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")
-                      )
-                      if candidates:
-                          slugs = [candidates[-1]]
-              if not slugs:
-                  raise SystemExit("no wechat-runs/ found")
-              return slugs
-
-          def publish_units(slugs: list[str]) -> list[dict]:
-              """Pair <slug> + <slug>-en into one multi draft; skip lone -en when paired."""
-              slug_set = set(slugs)
-              units: list[dict] = []
-              seen: set[str] = set()
-              for slug in slugs:
-                  if slug in seen:
-                      continue
-                  if slug.endswith("-en"):
-                      primary = slug[: -len("-en")]
-                      primary_dir = Path(f"wechat-runs/{primary}")
-                      if primary in slug_set or primary_dir.exists():
-                          # Will be (or was) published with the Chinese headline.
-                          if primary not in slug_set and primary_dir.exists():
-                              # EN-only touch: still bundle with existing CN if present.
-                              units.append({"kind": "multi", "primary": primary, "secondary": slug})
-                              seen.add(slug)
-                              seen.add(primary)
-                          continue
-                      units.append({"kind": "single", "slug": slug})
-                      seen.add(slug)
-                      continue
-
-                  secondary = f"{slug}-en"
-                  secondary_dir = Path(f"wechat-runs/{secondary}")
-                  if secondary in slug_set or secondary_dir.exists():
-                      units.append({"kind": "multi", "primary": slug, "secondary": secondary})
-                      seen.add(slug)
-                      seen.add(secondary)
-                  else:
-                      units.append({"kind": "single", "slug": slug})
-                      seen.add(slug)
-              return units
-
-          def publish_single(slug: str) -> None:
-              html = Path(f"wechat-runs/{slug}/article.wechat.html")
-              cover = Path(f"wechat-runs/{slug}/abstract_cover.png")
-              meta_path = Path(f"wechat-runs/{slug}/meta.json")
-              if not html.exists():
-                  raise SystemExit(f"missing {html}")
-              if not cover.exists():
-                  raise SystemExit(f"missing {cover} — Action requires cover in wechat-runs")
-              meta = load_meta(slug)
-              title = meta["title"]
-              author = author_for(slug, meta)
-              locale = meta.get("locale") or ("en" if slug.endswith("-en") else "zh")
-              print(f"publishing_single: {title}")
-              print(f"selected_slug: {slug}")
-              print(f"locale: {locale}")
-              print(f"cover_url: {thumb_url(slug)}")
-              subprocess.run(
-                  [
-                      "python3",
-                      "scripts/wechat_draft_via_droplet.py",
-                      "--html-file",
-                      str(html),
-                      "--title",
-                      title,
-                      "--author",
-                      author,
-                      "--thumb-image-url",
-                      thumb_url(slug),
-                      "--content-source-url",
-                      blog_source_url(slug, meta),
-                  ],
-                  check=True,
-              )
-
-          def publish_multi(primary: str, secondary: str) -> None:
-              for slug in (primary, secondary):
-                  html = Path(f"wechat-runs/{slug}/article.wechat.html")
-                  cover = Path(f"wechat-runs/{slug}/abstract_cover.png")
-                  if not html.exists():
-                      raise SystemExit(f"missing {html}")
-                  if not cover.exists():
-                      raise SystemExit(f"missing {cover} — Action requires cover in wechat-runs")
-              primary_meta = load_meta(primary)
-              secondary_meta = load_meta(secondary)
-              articles = [
-                  {
-                      "title": primary_meta["title"],
-                      "author": author_for(primary, primary_meta),
-                      "digest": primary_meta.get("digest") or "",
-                      "html_file": str(Path(f"wechat-runs/{primary}/article.wechat.html").resolve()),
-                      "thumb_image_url": thumb_url(primary),
-                      "content_source_url": blog_source_url(primary, primary_meta),
-                      "need_open_comment": int(primary_meta.get("need_open_comment", 1)),
-                      "only_fans_can_comment": int(primary_meta.get("only_fans_can_comment", 0)),
-                  },
-                  {
-                      "title": secondary_meta["title"],
-                      "author": author_for(secondary, secondary_meta),
-                      "digest": secondary_meta.get("digest") or "",
-                      "html_file": str(Path(f"wechat-runs/{secondary}/article.wechat.html").resolve()),
-                      "thumb_image_url": thumb_url(secondary),
-                      "content_source_url": blog_source_url(secondary, secondary_meta),
-                      "need_open_comment": int(secondary_meta.get("need_open_comment", 1)),
-                      "only_fans_can_comment": int(secondary_meta.get("only_fans_can_comment", 0)),
-                  },
-              ]
-              print(f"publishing_multi: 头条={primary_meta['title']}")
-              print(f"publishing_multi: 次条={secondary_meta['title']}")
-              print(f"selected_slugs: {primary} + {secondary}")
-              with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".json", delete=False) as handle:
-                  json.dump(articles, handle, ensure_ascii=False, indent=2)
-                  handle.write("\n")
-                  manifest = handle.name
-              try:
-                  subprocess.run(
-                      [
-                          "python3",
-                          "scripts/wechat_draft_via_droplet.py",
-                          "--articles-json",
-                          manifest,
-                      ],
-                      check=True,
-                  )
-              finally:
-                  Path(manifest).unlink(missing_ok=True)
-
-          touched = collect_touched_slugs()
-          print("touched_slugs:", " ".join(touched))
-          units = publish_units(touched)
-          print("publish_units:", json.dumps(units, ensure_ascii=False))
-          for unit in units:
-              if unit["kind"] == "multi":
-                  publish_multi(unit["primary"], unit["secondary"])
-              else:
-                  publish_single(unit["slug"])
-          PY
+          if [ "$APPLY_PATCH" = true ]; then
+            python3 scripts/wechat_patch_draft_images.py --via-droplet --manifest .diagnostics/wechat-20261029-images.json --apply
+          else
+            python3 scripts/wechat_patch_draft_images.py --via-droplet --manifest .diagnostics/wechat-20261029-images.json
+          fi

@@ -1,0 +1,15 @@
+{
+  "expected_title": "科技股跳水，亚马逊与英特尔接棒：周五能守住吗 20261029",
+  "replacements": [
+    {
+      "old_src": "http://mmbiz.qpic.cn/sz_mmbiz_png/TQA8ZoEOOAS3C94BeJQs9vXm8VenMbiaU99Nns16SegpreibAHC6ZHQp5ZKvu200cImyZuom6T3bMrkGfaPFW5Whb2adNUzV4xzrDaXLdVowY/0?from=appmsg",
+      "image": "../static/img/2026-10-29-704381/chart-intc-scenario-layout-20261031.png",
+      "sha256": "71a9d7a9781844604d07492e6172c10a5dfb6de1e7525866f98929d5ac50f7af"
+    },
+    {
+      "old_src": "http://mmbiz.qpic.cn/sz_mmbiz_png/TQA8ZoEOOASNxCzibWDwaNHMsSu2AdAYQI3wWyicLrk0yyuXtTKsJibgfwohY1hm4W2pB1eOibErjXdgmjbGQuhJR0aFE6DYT8FGSnJ9oHknK3U/0?from=appmsg",
+      "image": "../static/img/2026-10-29-704381/chart-msft-scenario-layout-20261031.png",
+      "sha256": "7ef27b412a4cfe3268292dd0ff78662472514d905d8e4c676514298984099169"
+    }
+  ]
+}
