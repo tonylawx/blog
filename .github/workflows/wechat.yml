@@ -9,6 +9,11 @@ on:
         type: boolean
         default: false
         required: true
+      locate_only:
+        description: Only scan metadata for still-editable copies with the exact title
+        type: boolean
+        default: false
+        required: true
 
 permissions:
   contents: read
@@ -72,9 +77,13 @@ jobs:
           WECHAT_APPSECRET: ${{ secrets.WECHAT_APPSECRET }}
           WECHAT_DRAFT_PROXY_HOST: root@${{ secrets.DROPLET_HOST }}
           APPLY_PATCH: ${{ inputs.apply }}
+          LOCATE_ONLY: ${{ inputs.locate_only }}
         run: |
           set -eu
-          if [ "$APPLY_PATCH" = true ]; then
+          if [ "$LOCATE_ONLY" = true ]; then
+            if [ "$APPLY_PATCH" = true ]; then exit 1; fi
+            python3 scripts/wechat_patch_draft_images.py --via-droplet --manifest .diagnostics/wechat-20261029-images.json --locate-only
+          elif [ "$APPLY_PATCH" = true ]; then
             python3 scripts/wechat_patch_draft_images.py --via-droplet --manifest .diagnostics/wechat-20261029-images.json --apply
           else
             python3 scripts/wechat_patch_draft_images.py --via-droplet --manifest .diagnostics/wechat-20261029-images.json

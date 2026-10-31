@@ -30,6 +30,7 @@ except ModuleNotFoundError:
 
 DRAFT_GET_URL = "https://api.weixin.qq.com/cgi-bin/draft/get"
 DRAFT_UPDATE_URL = "https://api.weixin.qq.com/cgi-bin/draft/update"
+DRAFT_BATCHGET_URL = "https://api.weixin.qq.com/cgi-bin/draft/batchget"
 WRITABLE_FIELDS = {
     "article_type", "title", "author", "digest", "content", "content_source_url",
     "thumb_media_id", "show_cover_pic", "need_open_comment", "only_fans_can_comment",
@@ -163,6 +164,35 @@ def private_json(path: Path, value: dict) -> None:
         os.fsync(handle.fileno())
 
 
+def locate_drafts(token: str, expected_title: str) -> dict:
+    """Read metadata only to locate editable copies; never selects or updates one."""
+    query = urllib.parse.urlencode({"access_token": token})
+    offset = 0
+    matches = []
+    while True:
+        response = checked_call("draft/batchget", api.post_json, f"{DRAFT_BATCHGET_URL}?{query}",
+                                {"offset": offset, "count": 20, "no_content": 1})
+        items, total = response.get("item"), response.get("total_count")
+        if not isinstance(items, list) or not isinstance(total, int):
+            raise PatchError("draft/batchget returned an unexpected metadata structure")
+        for item in items:
+            articles = item.get("content", {}).get("news_item", [])
+            if articles and articles[0].get("title") == expected_title:
+                media_id = item.get("media_id")
+                if not isinstance(media_id, str) or not media_id:
+                    raise PatchError("Matching draft metadata has no media id")
+                matches.append({"media_id_sha256": hashlib.sha256(media_id.encode()).hexdigest(),
+                                "article_count": len(articles), "title_matches": True,
+                                "update_time": item.get("update_time")})
+        offset += len(items)
+        if offset >= total:
+            break
+        if not items or offset >= 1000:
+            raise PatchError("Draft metadata scan could not finish safely")
+    return {"mode": "locate-only", "total_draft_count": total, "scanned_draft_count": offset,
+            "matching_draft_count": len(matches), "matches": matches}
+
+
 def patch_draft(token: str, media_id: str, manifest: dict, base_dir: Path,
                 backup_dir: Path, *, apply: bool = False) -> dict:
     specs = manifest["replacements"]
@@ -242,7 +272,8 @@ def via_droplet(args: argparse.Namespace, manifest: dict) -> None:
             subprocess.run(["scp", "-O", *map(str, uploads), f"{remote}:{remote_dir}/"], check=True,
                            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         command = " ".join(shlex.quote(a) for a in ["python3", f"{remote_dir}/wechat_patch_draft_images.py",
-                          "--droplet-worker", "--manifest", f"{remote_dir}/manifest.json"] + (["--apply"] if args.apply else []))
+                          "--droplet-worker", "--manifest", f"{remote_dir}/manifest.json"] +
+                          (["--apply"] if args.apply else []) + (["--locate-only"] if args.locate_only else []))
         subprocess.run(["ssh", remote, command], input=json.dumps(config), text=True, check=True)
     finally:
         subprocess.run(["ssh", remote, f"rm -rf -- {shlex.quote(remote_dir)}"], check=False,
@@ -256,7 +287,10 @@ def main(argv: list[str] | None = None) -> int:
     mode.add_argument("--via-droplet", action="store_true")
     mode.add_argument("--droplet-worker", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--apply", action="store_true", help="Upload and update; default only reads/checks")
+    parser.add_argument("--locate-only", action="store_true", help="Only scan draft metadata for a matching title")
     args = parser.parse_args(argv)
+    if args.apply and args.locate_only:
+        parser.error("--locate-only cannot be combined with --apply")
     try:
         manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
         if args.via_droplet:
@@ -264,8 +298,11 @@ def main(argv: list[str] | None = None) -> int:
         else:
             config = json.load(sys.stdin)
             token = checked_call("access token", lambda: {"token": api.get_access_token(config["WECHAT_APPID"], config["WECHAT_APPSECRET"])})["token"]
-            summary = patch_draft(token, config["WECHAT_DRAFT_MEDIA_ID"], manifest, args.manifest.parent,
-                                  Path.home() / ".local/state/wechat-chart-patch", apply=args.apply)
+            if args.locate_only:
+                summary = locate_drafts(token, manifest["expected_title"])
+            else:
+                summary = patch_draft(token, config["WECHAT_DRAFT_MEDIA_ID"], manifest, args.manifest.parent,
+                                      Path.home() / ".local/state/wechat-chart-patch", apply=args.apply)
             print(json.dumps(summary, ensure_ascii=False, sort_keys=True))
     except (Exception, SystemExit) as exc:
         message = str(exc) if isinstance(exc, PatchError) else "Patch worker failed; private error details suppressed"
