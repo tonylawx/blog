@@ -81,6 +81,44 @@ def validate_rendered_headings(errors: list[str], html: str, artifact: Path) -> 
             fail(errors, f"section heading contains colon in {artifact}: {heading.strip()}")
 
 
+
+# Strict project defaults, not a claim that the platform bans every occurrence
+# of these words. A false positive is a stop-and-review, never a silent edit.
+WECHAT_RISK_PATTERNS: tuple[tuple[str, str], ...] = (
+    (r"(?:稳赚不赔|稳赚包赔|保证盈利|保证收益|必定盈利|必涨无疑|保本保收益|零风险收益|无风险高收益)", "unqualified investment/return guarantee"),
+    (r"(?:guaranteed profits?|guaranteed returns?|risk[- ]free returns?|zero[- ]risk profits?)", "unqualified investment/return guarantee"),
+    (r"(?:扫码(?:加|进|入)?群|加(?:我)?微信(?:领|拿|获取)|私信(?:我)?(?:领|拿|获取)|评论(?:区)?(?:领|拿|获取)|关注(?:后)?(?:领|拿|获取))", "promotional contact/reward/lead CTA"),
+    (r"(?:scan (?:the )?qr(?: code)? to (?:join|unlock)|dm me (?:to|for)|follow to unlock|comment to get access)", "promotional contact/reward/lead CTA"),
+    (r"(?:点击(?:链接|下方|此处)(?:获取|领取|查看)(?:完整|独家|内幕)|下载app(?:查看|领取)|免费领牛股|内幕荐股群)", "bait/redirect or unlicensed stock tip"),
+)
+WECHAT_TITLE_BAIT_RE = re.compile(
+    r"(?:震惊[!！]?|全网沸腾|彻底沸腾|官方紧急通知|紧急通知|突发重磅通知|所有人(?:都)?注意)",
+    flags=re.IGNORECASE,
+)
+WECHAT_QR_FILENAME_RE = re.compile(
+    r"(?:qrcode|qr[-_]code|(?:weixin|wechat|follow|join|group)[-_]?(?:qr|code))",
+    flags=re.IGNORECASE,
+)
+
+
+def validate_wechat_text_risks(errors: list[str], text: str, source: Path) -> None:
+    """Fail on recognizable bait/guaranteed-return/promo phrases; flag for rewrite."""
+    for pattern, description in WECHAT_RISK_PATTERNS:
+        if re.search(pattern, text, flags=re.I):
+            fail(errors, f"WeChat {description} needs editorial rewrite/review: {source}")
+
+
+def validate_wechat_title_and_digest(
+    errors: list[str], title: str, digest: str, meta: Path
+) -> None:
+    for label, value in (("title", title), ("digest", digest)):
+        validate_wechat_text_risks(errors, value, meta)
+        if WECHAT_TITLE_BAIT_RE.search(value):
+            fail(errors, f"WeChat exaggerated or impersonating {label}: {meta}")
+        if re.search(r"(?:https?://|www\.)\S+", value, flags=re.I):
+            fail(errors, f"WeChat URL is not allowed in {label}: {meta}")
+
+
 def validate_wechat_recommendation_content(errors: list[str], html: str, run_dir: Path) -> None:
     """Fail closed on common platform-defined content, interaction and nested redirects.
 
@@ -96,10 +134,22 @@ def validate_wechat_recommendation_content(errors: list[str], html: str, run_dir
     for marker in prohibited:
         if marker.lower() in html.lower():
             fail(errors, f"WeChat promotional/redirect content ({marker}) is not allowed: {run_dir}")
-    if re.search(r'<a\b[^>]*\bhref\s*=\s*["\']\s*(?:https?:)?//', html, flags=re.I):
-        fail(errors, f"WeChat draft contains an external clickable link: {run_dir}")
+    # Any clickable URL is not part of this project's native WeChat article.
+    # An in-page section anchor is the only allowed href.
+    for href in re.findall(r'<a\b[^>]*\bhref\s*=\s*["\']([^"\']*)["\']', html, flags=re.I):
+        if href.strip() and not href.strip().startswith("#"):
+            fail(errors, f"WeChat draft contains a non-native clickable link: {run_dir}")
+    if re.search(r"<(?:script|iframe|form)\b", html, flags=re.I):
+        fail(errors, f"WeChat draft contains unsupported embedded interactive content: {run_dir}")
+    sources = re.findall(r'<img\b[^>]*\bsrc\s*=\s*["\']([^"\']+)["\']', html, flags=re.I)
+    for src in sources:
+        if WECHAT_QR_FILENAME_RE.search(src):
+            fail(errors, f"WeChat draft image resembles a QR/contact asset: {run_dir}: {src}")
     plain_text = re.sub(r"<[^>]+>", "", html)
     plain_text = re.sub(r"\s+", "", plain_text)
+    validate_wechat_text_risks(errors, plain_text, run_dir)
+    if re.search(r"(?:https?://|www\.)\S+", plain_text, flags=re.I):
+        fail(errors, f"WeChat body contains a visible external URL: {run_dir}")
     if len(plain_text) < 180:
         fail(errors, f"WeChat draft appears incomplete (less than 180 text characters): {run_dir}")
 
@@ -156,13 +206,6 @@ def validate_wechat_run(errors: list[str], slug: str) -> None:
         if "#d7e2ff" in html.lower():
             fail(errors, f"WeChat draft HTML section label rules must use #2763e9, not #d7e2ff: {article}")
         validate_rendered_headings(errors, html, article)
-        # Personal essays can explicitly opt out of the finance header banner.
-        header_optional = False
-        if (ROOT / meta).is_file():
-            try:
-                header_optional = json.loads(read_text(meta)).get("header_image_optional") is True
-            except json.JSONDecodeError:
-                pass
         # Banner/QR preflight is unconditional for all WeChat content types.
         validate_wechat_recommendation_content(errors, html, run_dir)
         if is_english and CJK_RE.search(html):
@@ -178,6 +221,9 @@ def validate_wechat_run(errors: list[str], slug: str) -> None:
         else:
             if not str(data.get("title", "")).strip():
                 fail(errors, f"WeChat meta is missing title: {meta}")
+            validate_wechat_title_and_digest(
+                errors, str(data.get("title") or ""), str(data.get("digest") or ""), meta
+            )
             if str(data.get("content_source_url") or "").strip():
                 fail(errors, f"WeChat 阅读原文/content_source_url must be empty: {meta}")
             if is_english and data.get("locale") != "en":
