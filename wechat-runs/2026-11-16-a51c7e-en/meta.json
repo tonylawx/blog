@@ -14,5 +14,7 @@
   "need_open_comment": 1,
   "only_fans_can_comment": 0,
   "seo_masthead": "US Stocks · Options · News · Views",
-  "native_profile_card": "manual_add_in_official_wechat_editor"
+  "native_profile_card": "manual_add_in_official_wechat_editor",
+  "pre_editor_path": "wechat-runs/2026-11-16-a51c7e-en/english_listening.pre-editor.md",
+  "financial_english_editor_skill": ".codex/skills/financial-english-editor/SKILL.md"
 }
