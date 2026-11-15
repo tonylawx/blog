@@ -66,4 +66,4 @@ U.S. retailers may be absorbing costs that shoppers refuse to pay. Chinese facto
 
 When the next results arrive, start with the accounts. Margins and cash flow can tell a different story from export growth and the price of oil. Over the coming week, look for updates in company margins, export prices, energy inventories, freight and insurance costs, the New World rights offering, Mitsui's financing and yen market flows. If those measurements contradict the headline story, the explanation needs to change.
 
-This article is an independent review of publicly available financial information. It is not personalized investment advice and does not promise any investment return.
+Disclaimer: For personal market observation only. Not investment advice. Markets involve risk.
