@@ -44,6 +44,7 @@ class WeChatComplianceTest(unittest.TestCase):
         self.assertFalse((root / ".github/workflows/wechat-freepublish.yml").exists())
         workflow = (root / ".github/workflows/wechat.yml").read_text(encoding="utf-8")
         self.assertIn("--articles-json", workflow)
+        self.assertIn('str(meta.get("digest") or "")', workflow)
         self.assertNotIn("--mass-send-media-id", workflow)
         self.assertNotIn("--freepublish-media-id", workflow)
 
