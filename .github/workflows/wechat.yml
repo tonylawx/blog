@@ -17,6 +17,8 @@ jobs:
           fetch-depth: 2
       - uses: actions/setup-python@v5
         with: {python-version: '3.13'}
+      - name: Verify WeChat compliance regression tests
+        run: python3 -m unittest discover -s tests -p 'test_wechat_compliance.py'
       - name: Preflight validate WeChat content, links, and assets before sending drafts
         run: python3 scripts/validate_blog_artifacts.py
       - name: configure ssh to droplet
@@ -28,7 +30,7 @@ jobs:
           printf '%s\n' "$DROPLET_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H -t ed25519 "$DROPLET_HOST" >> ~/.ssh/known_hosts 2>/dev/null
-      - name: publish touched wechat runs via droplet
+      - name: create review-only WeChat drafts via droplet
         env:
           WECHAT_APPID: ${{ secrets.WECHAT_APPID }}
           WECHAT_APPSECRET: ${{ secrets.WECHAT_APPSECRET }}
