@@ -56,6 +56,44 @@ class WeChatComplianceTest(unittest.TestCase):
         errors = self._validate("<p>扫码查看完整内容</p>")
         self.assertTrue(any("incomplete" in error for error in errors))
 
+    def test_investment_profit_guarantee_is_blocked(self):
+        errors = self._validate(LONG_STORY + "<p>私信领取稳赚不赔的股票。</p>")
+        self.assertTrue(any("investment/return guarantee" in e for e in errors))
+        self.assertTrue(any("promotional contact" in e for e in errors))
+
+    def test_qualified_risk_statement_not_treated_as_profit_promise(self):
+        errors = self._validate(LONG_STORY + "<p>未来价格不确定，无法保证收益。</p>")
+        self.assertEqual(errors, [])
+
+    def test_fake_urgent_official_title_is_blocked(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            errors = []
+            with mock.patch.object(validator, "ROOT", root):
+                validator.validate_wechat_title_and_digest(
+                    errors, "官方紧急通知！美股走势确定了", "", Path("meta.json")
+                )
+            self.assertTrue(any("exaggerated" in e for e in errors))
+
+    def test_digest_stock_group_bait_is_blocked(self):
+        errors = []
+        validator.validate_wechat_title_and_digest(
+            errors, "本周市场结构变化", "扫码进群拿到免费领牛股", Path("meta.json")
+        )
+        self.assertTrue(errors)
+
+    def test_html_javascript_link_is_blocked(self):
+        errors = self._validate(LONG_STORY + '<a href="javascript:alert(1)">查看更多</a>')
+        self.assertTrue(any("external clickable link" in e for e in errors))
+
+    def test_unrecognized_qr_asset_is_blocked(self):
+        errors = self._validate(LONG_STORY + '<img src="assets/qrcode-new.png">')
+        self.assertTrue(any("QR/contact asset" in e for e in errors))
+
+    def test_visible_external_url_is_blocked(self):
+        errors = self._validate(LONG_STORY + "<p>完整数据在 https://outside.example</p>")
+        self.assertTrue(any("visible external URL" in e for e in errors))
+
     def test_relevant_editorial_image_must_exist(self):
         errors = self._validate(LONG_STORY + '<img src="assets/chart-missing.png">')
         self.assertTrue(any("image is missing" in error for error in errors))
