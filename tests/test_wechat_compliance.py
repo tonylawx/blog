@@ -45,15 +45,81 @@ class WeChatComplianceTest(unittest.TestCase):
         workflow = (root / ".github/workflows/wechat.yml").read_text(encoding="utf-8")
         self.assertIn("--articles-json", workflow)
         self.assertIn('str(meta.get("digest") or "")', workflow)
+        self.assertIn('return str(meta.get("content_source_url") or "")', workflow)
         self.assertNotIn("--mass-send-media-id", workflow)
         self.assertNotIn("--freepublish-media-id", workflow)
 
     def test_complete_native_article_passes_without_promo_header(self):
         self.assertEqual(self._validate(LONG_STORY), [])
 
-    def test_external_blog_source_url_is_blocked(self):
-        errors = self._validate(LONG_STORY, source_url="https://www.example.com/blog/story")
-        self.assertTrue(any("content_source_url" in error for error in errors))
+    def test_owned_original_link_is_allowed_only_for_existing_same_article(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            slug = "2026-11-16-abcdef"
+            en = root / "blog" / slug / "index.mdx"
+            zh = root / "i18n/zh/docusaurus-plugin-content-blog" / slug / "index.mdx"
+            en.parent.mkdir(parents=True)
+            zh.parent.mkdir(parents=True)
+            en.write_text("en blog", encoding="utf-8")
+            zh.write_text("zh blog", encoding="utf-8")
+            for locale, suffix in (("zh", slug), ("en", slug + "-en")):
+                url = "https://www.tonylaw.cc" + (
+                    f"/zh/blog/{slug}" if locale == "zh" else f"/blog/{slug}"
+                )
+                data = {"content_source_url": url, "source_link_policy": "same_article_blog"}
+                errors = []
+                with mock.patch.object(validator, "ROOT", root):
+                    validator.validate_wechat_source_link(errors, suffix, data)
+                self.assertEqual(errors, [])
+                for wrong in ("https://www.example.com/blog/story", url + "?utm=tracker", ""):
+                    errors = []
+                    with mock.patch.object(validator, "ROOT", root):
+                        validator.validate_wechat_source_link(
+                            errors, suffix,
+                            {"content_source_url": wrong, "source_link_policy": "same_article_blog"}
+                        )
+                    self.assertTrue(errors)
+            zh.unlink()
+            errors = []
+            with mock.patch.object(validator, "ROOT", root):
+                validator.validate_wechat_source_link(
+                    errors, slug,
+                    {"content_source_url": f"https://www.tonylaw.cc/zh/blog/{slug}",
+                     "source_link_policy": "same_article_blog"},
+                )
+            self.assertTrue(any("missing local blog" in e for e in errors))
+
+    def test_fixed_gray_disclaimer_without_original_link_prompt(self):
+        for locale in ("zh", "en"):
+            slug = "2026-11-16-abcdef" + ("-en" if locale == "en" else "")
+            disclaimer = (
+                validator.WECHAT_GREY_DISCLAIMER_EN if locale == "en"
+                else validator.WECHAT_GREY_DISCLAIMER_CN
+            )
+            html = (
+                '<p style="margin:28px 0 0 0;padding:22px 0 0 0;'
+                'color:#9a9aa8;font-size:12px;line-height:1.8;text-align:center;">'
+                + disclaimer + "</p>"
+            )
+            errors = []
+            validator.validate_wechat_footer(
+                errors, slug, html, {"footer_policy": "rhino-grey-disclaimer-v1"}
+            )
+            self.assertEqual(errors, [])
+            errors = []
+            validator.validate_wechat_footer(
+                errors, slug, html.replace("#9a9aa8", "#222"),
+                {"footer_policy": "rhino-grey-disclaimer-v1"},
+            )
+            self.assertTrue(errors)
+            errors = []
+            validator.validate_wechat_footer(
+                errors, slug, html + html,
+                {"footer_policy": "rhino-grey-disclaimer-v1"},
+            )
+            self.assertTrue(errors)
+
+
 
     def test_qr_footer_and_promo_banner_are_blocked(self):
         html = LONG_STORY + '<img src="assets/wechat-header-ad.jpg">' \
