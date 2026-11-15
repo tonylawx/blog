@@ -82,6 +82,13 @@ class WeChatComplianceTest(unittest.TestCase):
         )
         self.assertTrue(errors)
 
+    def test_digest_read_original_redirect_is_blocked(self):
+        errors = []
+        validator.validate_wechat_title_and_digest(
+            errors, "完整市场分析", "点击阅读原文查看完整版", Path("meta.json")
+        )
+        self.assertTrue(any("promotional contact" in e for e in errors))
+
     def test_html_javascript_link_is_blocked(self):
         errors = self._validate(LONG_STORY + '<a href="javascript:alert(1)">查看更多</a>')
         self.assertTrue(any("external clickable link" in e for e in errors))
