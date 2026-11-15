@@ -9,6 +9,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from urllib.parse import urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -279,6 +280,49 @@ def validate_finance_weekly_editorial(
             fail(errors, f"weekly listening must have sequential numbered chapters: {final_path}")
 
 
+
+WECHAT_GREY_DISCLAIMER_CN = "免责声明：本文仅为个人市场观察和交易复盘，不构成任何投资建议；市场有风险，交易需谨慎。"
+WECHAT_GREY_DISCLAIMER_EN = "Disclaimer: For personal market observation only. Not investment advice. Markets involve risk."
+
+
+def validate_wechat_footer(errors: list[str], slug: str, html: str, metadata: dict) -> None:
+    """Apply the fixed, historical gray footer when the new contract is enabled."""
+    if metadata.get("footer_policy") != "rhino-grey-disclaimer-v1":
+        return
+    notice = WECHAT_GREY_DISCLAIMER_EN if slug.endswith("-en") else WECHAT_GREY_DISCLAIMER_CN
+    matches = re.findall(
+        r'<p\b[^>]*\bstyle="[^"]*color:\s*#9a9aa8[^"]*font-size:\s*12px'
+        r'[^"]*text-align:\s*center[^"]*"[^>]*>([^<]*)</p>',
+        html, flags=re.I,
+    )
+    if matches != [notice]:
+        fail(errors, f"WeChat fixed gray disclaimer is missing, modified or duplicated: {slug}")
+    if "点击阅读原文" in html or "点击原文" in html:
+        fail(errors, f"WeChat gray disclaimer/body must not prompt 点击原文: {slug}")
+
+
+def validate_wechat_source_link(errors: list[str], slug: str, metadata: dict) -> None:
+    """Allow a verified owned-blog 阅读原文 field, not a body CTA or arbitrary redirect."""
+    value = str(metadata.get("content_source_url") or "").strip()
+    if metadata.get("source_link_policy") != "same_article_blog":
+        return  # Legacy runs are not silently rewritten.
+    base = slug[:-3] if slug.endswith("-en") else slug
+    relative = f"/blog/{base}" if slug.endswith("-en") else f"/zh/blog/{base}"
+    canonical = "https://www.tonylaw.cc" + relative
+    if value != canonical:
+        fail(errors, f"WeChat original-source link must match this article's canonical owned blog URL: {slug}")
+        return
+    parts = urlsplit(value)
+    if (parts.scheme != "https" or parts.netloc != "www.tonylaw.cc" or parts.query
+            or parts.fragment or parts.username or parts.password):
+        fail(errors, f"WeChat original-source URL is not a clean HTTPS blog link: {slug}")
+        return
+    english = Path("blog") / base / "index.mdx"
+    chinese = Path("i18n/zh/docusaurus-plugin-content-blog") / base / "index.mdx"
+    for page in (english, chinese):
+        if not (ROOT / page).is_file():
+            fail(errors, f"WeChat 阅读原文 targets a missing local blog article: {page}")
+
 def validate_wechat_run(errors: list[str], slug: str) -> None:
     run_dir = Path("wechat-runs") / slug
     if not (ROOT / run_dir).exists():
@@ -323,8 +367,11 @@ def validate_wechat_run(errors: list[str], slug: str) -> None:
                 meta,
             )
             validate_finance_weekly_editorial(errors, slug, data)
-            if str(data.get("content_source_url") or "").strip():
-                fail(errors, f"WeChat 阅读原文/content_source_url must be empty: {meta}")
+            validate_wechat_source_link(errors, slug, data)
+            validate_wechat_footer(
+                errors, slug,
+                read_text(article) if (ROOT / article).is_file() else "", data,
+            )
             if is_english and data.get("locale") != "en":
                 fail(errors, f"English WeChat meta must set locale=en: {meta}")
             if is_english and CJK_RE.search(str(data.get("title", ""))):

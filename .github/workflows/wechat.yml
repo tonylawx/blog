@@ -66,9 +66,10 @@ jobs:
               return "活着的北海"
 
           def blog_source_url(slug: str, meta: dict) -> str:
-              # Do not create a 阅读原文 redirect. The WeChat article must
-              # stand alone even when a full blog version exists.
-              return ""
+              # Native WeChat 阅读原文 field, never an in-body redirect or CTA.
+              # The preflight validates exact same-article owned-blog URLs
+              # and requires the matching bilingual blog pages to exist.
+              return str(meta.get("content_source_url") or "")
 
           def thumb_url(slug: str) -> str:
               repo = os.environ["GITHUB_REPOSITORY"]
