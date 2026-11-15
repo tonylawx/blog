@@ -165,6 +165,64 @@ class WeChatComplianceTest(unittest.TestCase):
             for e in self._validate(build_html(2), title=generic, digest=digest)
         ))
 
+    def test_weekly_cannot_publish_without_humanizer_and_pre_edit_snapshot(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            slug = "2026-11-16-abcdef"
+            run = root / "wechat-runs" / slug
+            run.mkdir(parents=True)
+            (run / "news_digest.md").write_text("# 【财经周报】测试\n\n正文已经写完。", encoding="utf-8")
+            errors = []
+            with mock.patch.object(validator, "ROOT", root):
+                validator.validate_finance_weekly_editorial(errors, slug, {})
+            self.assertTrue(any("humanizer_zh_applied" in x for x in errors))
+            self.assertTrue(any("missing pre-edit snapshot" in x for x in errors))
+
+            (run / "news_digest.pre-humanizer.md").write_text("# 【财经周报】初稿\n\n初始内容。", encoding="utf-8")
+            metadata = {
+                "humanizer_zh_applied": True,
+                "pre_humanizer_path": f"wechat-runs/{slug}/news_digest.pre-humanizer.md",
+            }
+            errors = []
+            with mock.patch.object(validator, "ROOT", root):
+                validator.validate_finance_weekly_editorial(errors, slug, metadata)
+            self.assertEqual(errors, [])
+
+            (run / "news_digest.md").write_text(
+                "第一层误会，第二层误会，更深一层的矛盾。", encoding="utf-8"
+            )
+            errors = []
+            with mock.patch.object(validator, "ROOT", root):
+                validator.validate_finance_weekly_editorial(errors, slug, metadata)
+            self.assertTrue(any("mechanical scaffolding" in x for x in errors))
+
+    def test_weekly_english_requires_independent_financial_editor_snapshot(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            slug = "2026-11-16-abcdef-en"
+            run = root / "wechat-runs" / slug
+            run.mkdir(parents=True)
+            (run / "english_listening.md").write_text(
+                "# Market\n\nUS Stocks · Options · News · Views\n\n## 0 Market\n\nA clear final script.",
+                encoding="utf-8"
+            )
+            (run / "english_listening.pre-editor.md").write_text(
+                "# Market\n\nUS Stocks · Options · News · Views\n\n## 0 Market\n\nAwkward original.",
+                encoding="utf-8"
+            )
+            metadata = {
+                "financial_english_editor_applied": True,
+                "pre_editor_path": f"wechat-runs/{slug}/english_listening.pre-editor.md",
+            }
+            errors = []
+            with mock.patch.object(validator, "ROOT", root):
+                validator.validate_finance_weekly_editorial(errors, slug, metadata)
+            self.assertEqual(errors, [])
+            errors = []
+            with mock.patch.object(validator, "ROOT", root):
+                validator.validate_finance_weekly_editorial(errors, slug, {})
+            self.assertTrue(any("financial_english_editor_applied" in x for x in errors))
+
     def test_relevant_editorial_image_must_exist(self):
         errors = self._validate(LONG_STORY + '<img src="assets/chart-missing.png">')
         self.assertTrue(any("image is missing" in error for error in errors))
