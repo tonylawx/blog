@@ -87,7 +87,7 @@ def validate_rendered_headings(errors: list[str], html: str, artifact: Path) -> 
 WECHAT_RISK_PATTERNS: tuple[tuple[str, str], ...] = (
     (r"(?:稳赚不赔|稳赚包赔|保证盈利|(?<!不)(?<!无法)(?<!不能)(?<!不会)(?<!不得)(?<!禁止)保证收益|必定盈利|必涨无疑|保本保收益|零风险收益|无风险高收益)", "unqualified investment/return guarantee"),
     (r"(?:guaranteed profits?|guaranteed returns?|risk[- ]free returns?|zero[- ]risk profits?)", "unqualified investment/return guarantee"),
-    (r"(?:扫码(?:加|进|入)?群|加(?:我)?微信(?:领|拿|获取)|私信(?:我)?(?:领|拿|获取)|评论(?:区)?(?:领|拿|获取)|关注(?:后)?(?:领|拿|获取))", "promotional contact/reward/lead CTA"),
+    (r"(?:点击阅读原文|点击查看完整版|阅读全文请|长按识别二维码|扫码(?:查看|获取)(?:完整|全文)|扫码(?:加|进|入)?群|加(?:我)?微信(?:领|拿|获取)|私信(?:我)?(?:领|拿|获取)|评论(?:区)?(?:领|拿|获取)|关注(?:后)?(?:领|拿|获取))", "promotional contact/reward/lead CTA"),
     (r"(?:scan (?:the )?qr(?: code)? to (?:join|unlock)|dm me (?:to|for)|follow to unlock|comment to get access)", "promotional contact/reward/lead CTA"),
     (r"(?:点击(?:链接|下方|此处)(?:获取|领取|查看)(?:完整|独家|内幕)|下载app(?:查看|领取)|免费领牛股|内幕荐股群)", "bait/redirect or unlicensed stock tip"),
 )
