@@ -138,7 +138,7 @@ def validate_wechat_recommendation_content(errors: list[str], html: str, run_dir
     # An in-page section anchor is the only allowed href.
     for href in re.findall(r'<a\b[^>]*\bhref\s*=\s*["\']([^"\']*)["\']', html, flags=re.I):
         if href.strip() and not href.strip().startswith("#"):
-            fail(errors, f"WeChat draft contains a non-native clickable link: {run_dir}")
+            fail(errors, f"WeChat draft contains an external clickable link: {run_dir}")
     if re.search(r"<(?:script|iframe|form)\b", html, flags=re.I):
         fail(errors, f"WeChat draft contains unsupported embedded interactive content: {run_dir}")
     sources = re.findall(r'<img\b[^>]*\bsrc\s*=\s*["\']([^"\']+)["\']', html, flags=re.I)
