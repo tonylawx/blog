@@ -18,6 +18,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+      - name: Test heading and QR-footer regression checks
+        run: python3 -m unittest discover -s scripts -p "test_blog_artifacts_headings_qr.py"
       - name: Validate generated blog artifacts
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
