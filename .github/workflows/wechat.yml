@@ -154,23 +154,23 @@ jobs:
               print(f"selected_slug: {slug}")
               print(f"locale: {locale}")
               print(f"cover_url: {thumb_url(slug)}")
-              subprocess.run(
-                  [
-                      "python3",
-                      "scripts/wechat_draft_via_droplet.py",
-                      "--html-file",
-                      str(html),
-                      "--title",
-                      title,
-                      "--author",
-                      author,
-                      "--thumb-image-url",
-                      thumb_url(slug),
-                      "--content-source-url",
-                      blog_source_url(slug, meta),
-                  ],
-                  check=True,
-              )
+              command = [
+                  "python3",
+                  "scripts/wechat_draft_via_droplet.py",
+                  "--html-file",
+                  str(html),
+                  "--title",
+                  title,
+                  "--author",
+                  author,
+                  "--thumb-image-url",
+                  thumb_url(slug),
+                  "--content-source-url",
+                  blog_source_url(slug, meta),
+              ]
+              if meta.get("update_media_id"):
+                  command += ["--draft-update-media-id", str(meta["update_media_id"])]
+              subprocess.run(command, check=True)
 
           def publish_multi(primary: str, secondary: str) -> None:
               for slug in (primary, secondary):
