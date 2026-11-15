@@ -164,6 +164,8 @@ jobs:
                   title,
                   "--author",
                   author,
+                  "--digest",
+                  str(meta.get("digest") or ""),
                   "--thumb-image-url",
                   thumb_url(slug),
                   "--content-source-url",

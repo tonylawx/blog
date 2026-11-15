@@ -16,7 +16,10 @@ LONG_STORY = "<p>" + "真实的事实和独立分析，正文完整交代判断�
 
 
 class WeChatComplianceTest(unittest.TestCase):
-    def _validate(self, html: str, *, source_url: str = "") -> list[str]:
+    def _validate(
+        self, html: str, *, source_url: str = "",
+        title: str = "有完整事实和结论的标题", digest: str = ""
+    ) -> list[str]:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             run = root / "wechat-runs" / "2026-11-16-abcdef"
@@ -24,7 +27,8 @@ class WeChatComplianceTest(unittest.TestCase):
             (run / "article.wechat.html").write_text(html, encoding="utf-8")
             (run / "abstract_cover.png").write_bytes(b"non-empty cover")
             (run / "meta.json").write_text(json.dumps({
-                "title": "有完整事实和结论的标题",
+                "title": title,
+                "digest": digest,
                 "locale": "zh",
                 "header_image_optional": True,
                 "content_source_url": source_url,
@@ -40,6 +44,7 @@ class WeChatComplianceTest(unittest.TestCase):
         self.assertFalse((root / ".github/workflows/wechat-freepublish.yml").exists())
         workflow = (root / ".github/workflows/wechat.yml").read_text(encoding="utf-8")
         self.assertIn("--articles-json", workflow)
+        self.assertIn('str(meta.get("digest") or "")', workflow)
         self.assertNotIn("--mass-send-media-id", workflow)
         self.assertNotIn("--freepublish-media-id", workflow)
 
@@ -109,6 +114,19 @@ class WeChatComplianceTest(unittest.TestCase):
     def test_visible_external_url_is_blocked(self):
         errors = self._validate(LONG_STORY + "<p>完整数据在 https://outside.example</p>")
         self.assertTrue(any("visible external URL" in e for e in errors))
+
+    def test_finance_weekly_requires_real_search_topics_digest_and_kicker(self):
+        title = "【财经周报】美国通胀、中国出口和油价背后的成本转移 20261116"
+        digest = (
+            "本周精选全球财经重要新闻，包括美国消费者价格与生产成本、中国出口、"
+            "国际能源市场和企业融资。结合现金流与利益冲突，看清谁承担风险以及之后应核实什么。"
+        )
+        html = '<p>全球财经 · 宏观经济 · 国际贸易 · 能源市场 · 企业融资</p>' + LONG_STORY
+        self.assertEqual(self._validate(html, title=title, digest=digest), [])
+        self.assertTrue(any("digest" in e for e in self._validate(html, title=title)))
+        self.assertTrue(any("SEO topic line" in e for e in self._validate(LONG_STORY, title=title, digest=digest)))
+        generic = "【财经周报】全球财经11条新闻 20261116"
+        self.assertTrue(any("searchable financial topics" in e for e in self._validate(html, title=generic, digest=digest)))
 
     def test_relevant_editorial_image_must_exist(self):
         errors = self._validate(LONG_STORY + '<img src="assets/chart-missing.png">')
