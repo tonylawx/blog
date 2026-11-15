@@ -85,7 +85,7 @@ def validate_rendered_headings(errors: list[str], html: str, artifact: Path) -> 
 # Strict project defaults, not a claim that the platform bans every occurrence
 # of these words. A false positive is a stop-and-review, never a silent edit.
 WECHAT_RISK_PATTERNS: tuple[tuple[str, str], ...] = (
-    (r"(?:稳赚不赔|稳赚包赔|保证盈利|保证收益|必定盈利|必涨无疑|保本保收益|零风险收益|无风险高收益)", "unqualified investment/return guarantee"),
+    (r"(?:稳赚不赔|稳赚包赔|保证盈利|(?<!不)(?<!无法)(?<!不能)(?<!不会)(?<!不得)(?<!禁止)保证收益|必定盈利|必涨无疑|保本保收益|零风险收益|无风险高收益)", "unqualified investment/return guarantee"),
     (r"(?:guaranteed profits?|guaranteed returns?|risk[- ]free returns?|zero[- ]risk profits?)", "unqualified investment/return guarantee"),
     (r"(?:扫码(?:加|进|入)?群|加(?:我)?微信(?:领|拿|获取)|私信(?:我)?(?:领|拿|获取)|评论(?:区)?(?:领|拿|获取)|关注(?:后)?(?:领|拿|获取))", "promotional contact/reward/lead CTA"),
     (r"(?:scan (?:the )?qr(?: code)? to (?:join|unlock)|dm me (?:to|for)|follow to unlock|comment to get access)", "promotional contact/reward/lead CTA"),
