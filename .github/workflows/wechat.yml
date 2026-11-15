@@ -17,7 +17,7 @@ jobs:
           fetch-depth: 2
       - uses: actions/setup-python@v5
         with: {python-version: '3.13'}
-      - name: Preflight validate touched WeChat images before sending drafts
+      - name: Preflight validate WeChat content, links, and assets before sending drafts
         run: python3 scripts/validate_blog_artifacts.py
       - name: configure ssh to droplet
         env:
@@ -64,10 +64,9 @@ jobs:
               return "活着的北海"
 
           def blog_source_url(slug: str, meta: dict) -> str:
-              if (meta.get("locale") or "") == "en" or slug.endswith("-en"):
-                  return ""
-              post_slug = (meta.get("slug") or slug).removesuffix("-en")
-              return f"https://www.tonylaw.cc/blog/{post_slug}"
+              # Do not create a 阅读原文 redirect. The WeChat article must
+              # stand alone even when a full blog version exists.
+              return ""
 
           def thumb_url(slug: str) -> str:
               repo = os.environ["GITHUB_REPOSITORY"]
