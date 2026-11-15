@@ -34,6 +34,15 @@ class WeChatComplianceTest(unittest.TestCase):
                 validator.validate_wechat_run(errors, "2026-11-16-abcdef")
             return errors
 
+    def test_no_api_auto_publish_workflow(self):
+        # Group-send/freepublish must remain a real human action in the official editor.
+        root = Path(__file__).resolve().parents[1]
+        self.assertFalse((root / ".github/workflows/wechat-freepublish.yml").exists())
+        workflow = (root / ".github/workflows/wechat.yml").read_text(encoding="utf-8")
+        self.assertIn("--articles-json", workflow)
+        self.assertNotIn("--mass-send-media-id", workflow)
+        self.assertNotIn("--freepublish-media-id", workflow)
+
     def test_complete_native_article_passes_without_promo_header(self):
         self.assertEqual(self._validate(LONG_STORY), [])
 
