@@ -15,3 +15,7 @@
   from `/Users/tonylaw/Documents/us-stock-analyst/scripts/` (analyst is source of truth).
 - The WeChat Action must consume the analyst-produced `article.wechat.html`, not raw rendered HTML and not ad hoc blog-cleaned HTML.
 - If Chinese/English language classification breaks, debug the blog renderer and generated files here; if the source article itself is wrong, fix it in `/Users/tonylaw/Documents/us-stock-analyst`.
+
+- **微信公众号推荐合规基线（2026-11-16）：** 与上游 `tonylawx/us-stock-analyst/docs/wechat-content-compliance.md` 保持一致。公众号正文必须完整且不靠跳转获取结论，默认不包含 THETA/讨论群广告头图、关注二维码、外站链接、“阅读原文”、联系方式或诱导交易。保留普通数据图表和真实资料来源的文字标注。
+- **WeChat Action 严格前检：** `scripts/validate_blog_artifacts.py` 对每个待交付 `wechat-runs/**` 检查短/空稿、促销元素、外链、阅读原文元数据及本地图片；有错误立即退出，不创建/更新草稿。即使使用 `workflow_dispatch`，也不能跳过预检。上游去除营销元素，当前仓库独立复查；通过静态校验不等于官方审核通过，人工仍须复核事实、原创、截图和宣传暗示。
+- 现存/已提交的微信草稿不会随代码调整自动修正；如要发布旧稿，须手动删除导流元素并在公众号后台预览。不要靠批量删文重发处理不予推荐。
