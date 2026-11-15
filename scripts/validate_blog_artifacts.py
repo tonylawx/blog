@@ -119,6 +119,28 @@ def validate_wechat_title_and_digest(
             fail(errors, f"WeChat URL is not allowed in {label}: {meta}")
 
 
+
+
+def validate_finance_weekly_seo(
+    errors: list[str], title: str, digest: str, html: str, source: Path
+) -> None:
+    """Keep editorial discovery metadata; only drop real marketing redirects.
+
+    Searchable, readable topics are not the same as QR or contact CTA.
+    """
+    if not title.startswith("【财经周报】"):
+        return
+    if not re.search(r"(?:通胀|CPI|出口|贸易|油价|能源|融资|汇率|企业|经济|债务|半导体|原油)", title):
+        fail(errors, f"WeChat weekly title lacks searchable financial topics: {source}")
+    chinese_digest = len(re.findall(r"[\u3400-\u9fff]", digest))
+    if chinese_digest < 45 or chinese_digest > 160:
+        fail(errors, f"WeChat weekly digest must explain the news and value in 45-160 Chinese characters: {source}")
+    if "全球财经" not in html[:1800]:
+        fail(errors, f"WeChat weekly first screen is missing its visible editorial SEO topic line: {source}")
+    # No hidden keyword stuffing; normal meaningful headings and source names
+    # belong in the public text and should survive the promo sanitizer.
+
+
 def validate_wechat_recommendation_content(errors: list[str], html: str, run_dir: Path) -> None:
     """Fail closed on common platform-defined content, interaction and nested redirects.
 
@@ -223,6 +245,13 @@ def validate_wechat_run(errors: list[str], slug: str) -> None:
                 fail(errors, f"WeChat meta is missing title: {meta}")
             validate_wechat_title_and_digest(
                 errors, str(data.get("title") or ""), str(data.get("digest") or ""), meta
+            )
+            validate_finance_weekly_seo(
+                errors,
+                str(data.get("title") or ""),
+                str(data.get("digest") or ""),
+                read_text(article) if (ROOT / article).is_file() else "",
+                meta,
             )
             if str(data.get("content_source_url") or "").strip():
                 fail(errors, f"WeChat 阅读原文/content_source_url must be empty: {meta}")
