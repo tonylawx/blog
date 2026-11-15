@@ -230,6 +230,55 @@ def validate_english_post(errors: list[str], slug: str, *, strict_handoff: bool)
             fail(errors, f"missing cover image copied to blog static assets: {cover}")
 
 
+
+def validate_finance_weekly_editorial(
+    errors: list[str], slug: str, metadata: dict
+) -> None:
+    """Prevent the weekly channel from bypassing bilingual editorial passes.
+
+    Applies to finance weekly *source* artifacts; older generic WeChat drafts
+    without a weekly source are unaffected. Human judgment remains essential.
+    """
+    run_dir = Path("wechat-runs") / slug
+    is_english = slug.endswith("-en")
+    name = "english_listening.md" if is_english else "news_digest.md"
+    final_path = run_dir / name
+    if not (ROOT / final_path).is_file():
+        return
+
+    key = "financial_english_editor_applied" if is_english else "humanizer_zh_applied"
+    snapshot_name = "english_listening.pre-editor.md" if is_english else "news_digest.pre-humanizer.md"
+    expected_path = run_dir / snapshot_name
+    meta_key = "pre_editor_path" if is_english else "pre_humanizer_path"
+
+    if metadata.get(key) is not True:
+        fail(errors, f"weekly editorial gate: {key} must be true: {run_dir}")
+    if metadata.get(meta_key) != str(expected_path):
+        fail(errors, f"weekly editorial gate: {meta_key} must point to the saved pre-edit snapshot: {run_dir}")
+    if not (ROOT / expected_path).is_file():
+        fail(errors, f"weekly editorial gate: missing pre-edit snapshot {expected_path}")
+        return
+
+    before = read_text(expected_path)
+    after = read_text(final_path)
+    if before.strip() == after.strip():
+        fail(errors, f"weekly editorial gate: final copy equals its pre-edit snapshot: {final_path}")
+
+    if not is_english:
+        mechanical = (
+            "第一层误会", "第二层误会", "更深一层的矛盾",
+            "这条新闻值得关注的不是", "真正的新闻不是",
+        )
+        leftovers = [phrase for phrase in mechanical if phrase in after]
+        if leftovers:
+            fail(errors, f"weekly editorial gate: unedited mechanical scaffolding {leftovers}: {final_path}")
+    else:
+        if "US Stocks · Options · News · Views" not in after[:420]:
+            fail(errors, f"weekly listening must keep the English brand masthead: {final_path}")
+        if not re.search(r"^## 0 ", after, flags=re.M):
+            fail(errors, f"weekly listening must have sequential numbered chapters: {final_path}")
+
+
 def validate_wechat_run(errors: list[str], slug: str) -> None:
     run_dir = Path("wechat-runs") / slug
     if not (ROOT / run_dir).exists():
@@ -273,6 +322,7 @@ def validate_wechat_run(errors: list[str], slug: str) -> None:
                 read_text(article) if (ROOT / article).is_file() else "",
                 meta,
             )
+            validate_finance_weekly_editorial(errors, slug, data)
             if str(data.get("content_source_url") or "").strip():
                 fail(errors, f"WeChat 阅读原文/content_source_url must be empty: {meta}")
             if is_english and data.get("locale") != "en":

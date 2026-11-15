@@ -26,5 +26,8 @@
     "国际油价",
     "企业融资"
   ],
-  "draft_delivery": "new_draft_after_invalid_media_id"
+  "draft_delivery": "new_draft_after_invalid_media_id",
+  "humanizer_zh_applied": true,
+  "pre_humanizer_path": "wechat-runs/2026-11-16-a51c7e/news_digest.pre-humanizer.md",
+  "humanizer_skill": ".codex/skills/humanizer-zh/SKILL.md"
 }
