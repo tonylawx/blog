@@ -135,10 +135,18 @@ def validate_finance_weekly_seo(
     chinese_digest = len(re.findall(r"[\u3400-\u9fff]", digest))
     if chinese_digest < 45 or chinese_digest > 160:
         fail(errors, f"WeChat weekly digest must explain the news and value in 45-160 Chinese characters: {source}")
-    if "全球财经" not in html[:1800]:
-        fail(errors, f"WeChat weekly first screen is missing its visible editorial SEO topic line: {source}")
-    # No hidden keyword stuffing; normal meaningful headings and source names
-    # belong in the public text and should survive the promo sanitizer.
+    # RhinoFinance brand-wide masthead is fixed across daily and weekly Chinese posts.
+    # Actual topical keywords belong in the title, digest and editorial paragraphs.
+    fixed_seo = "美股 · 期权 · 资讯 · 观点"
+    if fixed_seo not in html[:1800]:
+        fail(errors, f"WeChat weekly first screen is missing fixed brand SEO line: {source}")
+    # This is a presentation contract, not a reason to block normal source terms.
+    required_labels = ("0 · ", "1 · ", "2 · ", "3 · ")
+    if not all(label in html for label in required_labels):
+        fail(errors, f"WeChat weekly must preserve the four-part numbered section layout: {source}")
+    if "background:#2763e9" not in html or "font-size:22px" not in html:
+        fail(errors, f"WeChat weekly must preserve the original blue line and title hierarchy: {source}")
+    # No hidden keyword stuffing; natural sources and semantic topic titles survive.
 
 
 def validate_wechat_recommendation_content(errors: list[str], html: str, run_dir: Path) -> None:
