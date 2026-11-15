@@ -115,16 +115,23 @@ class WeChatComplianceTest(unittest.TestCase):
         errors = self._validate(LONG_STORY + "<p>完整数据在 https://outside.example</p>")
         self.assertTrue(any("visible external URL" in e for e in errors))
 
-    def test_finance_weekly_requires_real_search_topics_digest_and_kicker(self):
+    def test_finance_weekly_keeps_brand_seo_and_original_four_part_layout(self):
         title = "【财经周报】美国通胀、中国出口和油价背后的成本转移 20261116"
         digest = (
-            "本周精选全球财经重要新闻，包括美国消费者价格与生产成本、中国出口、"
-            "国际能源市场和企业融资。结合现金流与利益冲突，看清谁承担风险以及之后应核实什么。"
+            "本周精选全球重要财经新闻，包括美国消费价格、中国出口、国际油价、"
+            "日元干预与企业融资。沿着资金账本分析成本分配，看看谁承担风险。"
         )
-        html = '<p>全球财经 · 宏观经济 · 国际贸易 · 能源市场 · 企业融资</p>' + LONG_STORY
+        masthead = "美股 · 期权 · 资讯 · 观点"
+        section = '<span>0 · MACRO</span><span style="background:#2763e9"></span>' \
+            '<p style="font-size:22px">物价成本</p>'
+        section += '<p>1 · ENERGY</p><p>2 · LIQUIDITY</p><p>3 · FOCUS</p>'
+        html = "<p>" + masthead + "</p>" + section + LONG_STORY
         self.assertEqual(self._validate(html, title=title, digest=digest), [])
         self.assertTrue(any("digest" in e for e in self._validate(html, title=title)))
-        self.assertTrue(any("SEO topic line" in e for e in self._validate(LONG_STORY, title=title, digest=digest)))
+        wrong = html.replace(masthead, "全球财经 · 宏观经济 · 国际贸易 · 能源市场 · 企业融资")
+        self.assertTrue(any("fixed brand SEO" in e for e in self._validate(wrong, title=title, digest=digest)))
+        broken = html.replace("1 · ENERGY", "ENERGY")
+        self.assertTrue(any("four-part" in e for e in self._validate(broken, title=title, digest=digest)))
         generic = "【财经周报】全球财经11条新闻 20261116"
         self.assertTrue(any("searchable financial topics" in e for e in self._validate(html, title=generic, digest=digest)))
 
