@@ -144,14 +144,14 @@ def validate_finance_weekly_seo(
     # Each real H2 section gets one consecutive 0..N label, blue divider and
     # original heading hierarchy. A weekly can have two, four, five, etc.
     labels = re.findall(
-        r"<span\\b[^>]*>\\s*(\\d+)\\s*·\\s*([A-Z][A-Z0-9_-]*)\\s*</span>",
+        r"<span\b[^>]*>\s*(\d+)\s*·\s*([A-Z][A-Z0-9_-]*)\s*</span>",
         html, flags=re.I,
     )
     sequence = [int(number) for number, _ in labels]
     if not labels or sequence != list(range(len(labels))):
         fail(errors, f"WeChat weekly section numbers must be content-driven and consecutive from 0: {source}")
     chapter_titles = re.findall(
-        r'<p\\b[^>]*\\bstyle=["\\'][^"\\']*font-size:\\s*22px[^"\\']*["\\'][^>]*>',
+        r'<p[^>]*font-size:\s*22px[^>]*>',
         html, flags=re.I,
     )
     if len(chapter_titles) != len(labels):
