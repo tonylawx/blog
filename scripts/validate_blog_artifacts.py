@@ -158,7 +158,15 @@ def validate_wechat_run(errors: list[str], slug: str) -> None:
         if "#d7e2ff" in html.lower():
             fail(errors, f"WeChat draft HTML section label rules must use #2763e9, not #d7e2ff: {article}")
         validate_rendered_headings(errors, html, article)
-        validate_wechat_header_image(errors, html, run_dir)
+        # Personal essays can explicitly opt out of the finance header banner.
+        header_optional = False
+        if (ROOT / meta).is_file():
+            try:
+                header_optional = json.loads(read_text(meta)).get("header_image_optional") is True
+            except json.JSONDecodeError:
+                pass
+        if not header_optional:
+            validate_wechat_header_image(errors, html, run_dir)
         validate_wechat_follow_image(errors, html, run_dir)
         if is_english and CJK_RE.search(html):
             fail(errors, f"English WeChat draft HTML contains Chinese characters: {article}")
