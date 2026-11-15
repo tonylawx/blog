@@ -81,34 +81,32 @@ def validate_rendered_headings(errors: list[str], html: str, artifact: Path) -> 
             fail(errors, f"section heading contains colon in {artifact}: {heading.strip()}")
 
 
-def validate_wechat_header_image(errors: list[str], html: str, run_dir: Path) -> None:
-    """The first body image must be the THETA banner, with its staged local asset."""
-    expected = "assets/wechat-header-ad.jpg"
-    sources = [
-        src
-        for _, src in re.findall(
-            r'<img\b[^>]*\bsrc\s*=\s*(["\'])(.*?)\1', html, flags=re.I | re.S
-        )
-    ]
-    if not sources or sources[0] != expected:
-        fail(errors, f"WeChat first body image must be {expected}: {run_dir}")
-    if sources.count(expected) != 1:
-        fail(errors, f"WeChat must contain exactly one header image {expected}: {run_dir}")
-    header = ROOT / run_dir / expected
-    if not header.is_file() or header.stat().st_size == 0:
-        fail(errors, f"WeChat header image asset is missing or empty: {header}")
+def validate_wechat_recommendation_content(errors: list[str], html: str, run_dir: Path) -> None:
+    """Fail closed on common platform-defined content, interaction and nested redirects.
 
-
-def validate_wechat_follow_image(errors: list[str], html: str, run_dir: Path) -> None:
-    """Catch a footer promising a QR code but missing its image or asset."""
-    if "长按识别二维码" in html or "Long press the QR code" in html:
-        if not re.search(r'<img\b[^>]*src=["\']assets/wechat-follow-qr\.png["\']', html, flags=re.I):
-            fail(errors, f"follow QR footer contains text but lacks <img> in {run_dir}")
+    This deterministic gate supplements, never replaces, source verification and
+    human review. A normal editorial citation may name its source in body text.
+    """
+    prohibited = (
+        "wechat-header-ad", "wechat-follow-qr", "长按识别二维码",
+        "Long press the QR code", "点击阅读原文", "点击查看完整版",
+        "阅读全文请", "关注后查看", "分享后查看",
+        "扫码加入", "加微信咨询", "私信领取",
+    )
+    for marker in prohibited:
+        if marker.lower() in html.lower():
+            fail(errors, f"WeChat promotional/redirect content ({marker}) is not allowed: {run_dir}")
+    if re.search(r'<a\b[^>]*\bhref\s*=\s*["\']\s*(?:https?:)?//', html, flags=re.I):
+        fail(errors, f"WeChat draft contains an external clickable link: {run_dir}")
+    plain_text = re.sub(r"<[^>]+>", "", html)
+    plain_text = re.sub(r"\s+", "", plain_text)
+    if len(plain_text) < 180:
+        fail(errors, f"WeChat draft appears incomplete (less than 180 text characters): {run_dir}")
 
     for src in re.findall(r'<img\b[^>]*src=["\'](assets/[^"\']+)["\']', html, flags=re.I):
         image = run_dir / src
         if not (ROOT / image).is_file():
-            fail(errors, f"WeChat content image is missing: {image}")
+            fail(errors, f"WeChat editorial image is missing: {image}")
 
 
 def validate_english_post(errors: list[str], slug: str, *, strict_handoff: bool) -> None:
@@ -165,9 +163,8 @@ def validate_wechat_run(errors: list[str], slug: str) -> None:
                 header_optional = json.loads(read_text(meta)).get("header_image_optional") is True
             except json.JSONDecodeError:
                 pass
-        if not header_optional:
-            validate_wechat_header_image(errors, html, run_dir)
-        validate_wechat_follow_image(errors, html, run_dir)
+        # Banner/QR preflight is unconditional for all WeChat content types.
+        validate_wechat_recommendation_content(errors, html, run_dir)
         if is_english and CJK_RE.search(html):
             fail(errors, f"English WeChat draft HTML contains Chinese characters: {article}")
         if is_english and "US Stocks · Options · News · Views" not in html:
@@ -181,6 +178,8 @@ def validate_wechat_run(errors: list[str], slug: str) -> None:
         else:
             if not str(data.get("title", "")).strip():
                 fail(errors, f"WeChat meta is missing title: {meta}")
+            if str(data.get("content_source_url") or "").strip():
+                fail(errors, f"WeChat 阅读原文/content_source_url must be empty: {meta}")
             if is_english and data.get("locale") != "en":
                 fail(errors, f"English WeChat meta must set locale=en: {meta}")
             if is_english and CJK_RE.search(str(data.get("title", ""))):
