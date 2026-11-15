@@ -115,25 +115,55 @@ class WeChatComplianceTest(unittest.TestCase):
         errors = self._validate(LONG_STORY + "<p>完整数据在 https://outside.example</p>")
         self.assertTrue(any("visible external URL" in e for e in errors))
 
-    def test_finance_weekly_keeps_brand_seo_and_original_four_part_layout(self):
+    def test_finance_weekly_keeps_fixed_seo_and_dynamic_section_layout(self):
         title = "【财经周报】美国通胀、中国出口和油价背后的成本转移 20261116"
         digest = (
             "本周精选全球重要财经新闻，包括美国消费价格、中国出口、国际油价、"
             "日元干预与企业融资。沿着资金账本分析成本分配，看看谁承担风险。"
         )
         masthead = "美股 · 期权 · 资讯 · 观点"
-        section = '<span>0 · MACRO</span><span style="background:#2763e9"></span>' \
-            '<p style="font-size:22px">物价成本</p>'
-        section += '<p>1 · ENERGY</p><p>2 · LIQUIDITY</p><p>3 · FOCUS</p>'
-        html = "<p>" + masthead + "</p>" + section + LONG_STORY
-        self.assertEqual(self._validate(html, title=title, digest=digest), [])
-        self.assertTrue(any("digest" in e for e in self._validate(html, title=title)))
-        wrong = html.replace(masthead, "全球财经 · 宏观经济 · 国际贸易 · 能源市场 · 企业融资")
-        self.assertTrue(any("fixed brand SEO" in e for e in self._validate(wrong, title=title, digest=digest)))
-        broken = html.replace("1 · ENERGY", "ENERGY")
-        self.assertTrue(any("four-part" in e for e in self._validate(broken, title=title, digest=digest)))
+        labels = ("MACRO", "ENERGY", "LIQUIDITY", "RISK", "OUTLOOK")
+
+        def build_html(section_count: int) -> str:
+            sections = "".join(
+                '<section><span>' + str(i) + ' · ' + labels[i] + '</span>'
+                '<span style="background:#2763e9"></span>'
+                '<p style="font-size:22px">内容决定的章节标题</p></section>'
+                for i in range(section_count)
+            )
+            return "<p>" + masthead + "</p>" + sections + LONG_STORY
+
+        # The approved design is a style contract, NOT a fixed four-section count.
+        for section_count in (2, 4, 5):
+            with self.subTest(section_count=section_count):
+                self.assertEqual(
+                    self._validate(build_html(section_count), title=title, digest=digest),
+                    [],
+                )
+
+        self.assertTrue(any(
+            "digest" in e for e in self._validate(build_html(2), title=title)
+        ))
+        wrong_seo = build_html(2).replace(masthead, "全球财经 · 宏观经济 · 国际贸易")
+        self.assertTrue(any(
+            "fixed brand SEO" in e
+            for e in self._validate(wrong_seo, title=title, digest=digest)
+        ))
+        skipped_label = build_html(2).replace("1 · ENERGY", "7 · ENERGY")
+        self.assertTrue(any(
+            "consecutive" in e
+            for e in self._validate(skipped_label, title=title, digest=digest)
+        ))
+        missing_title = build_html(2).replace("font-size:22px", "font-size:20px", 1)
+        self.assertTrue(any(
+            "heading count" in e
+            for e in self._validate(missing_title, title=title, digest=digest)
+        ))
         generic = "【财经周报】全球财经11条新闻 20261116"
-        self.assertTrue(any("searchable financial topics" in e for e in self._validate(html, title=generic, digest=digest)))
+        self.assertTrue(any(
+            "searchable financial topics" in e
+            for e in self._validate(build_html(2), title=generic, digest=digest)
+        ))
 
     def test_relevant_editorial_image_must_exist(self):
         errors = self._validate(LONG_STORY + '<img src="assets/chart-missing.png">')
