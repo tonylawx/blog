@@ -19,12 +19,12 @@
   "story_count": 6,
   "native_profile_card": "manual_add_in_official_wechat_editor",
   "cover_status": "draft_placeholder_replace_before_publication",
-  "update_media_id": "IPNykarmsAcJ_5moE_CzOf3_p6YOofDuoMJ_znJca8ZiyHllCzR39hcsEextD4wx",
   "wechat_template": "rhino-blue-four-part",
   "article_topics": [
     "美国CPI",
     "中国出口",
     "国际油价",
     "企业融资"
-  ]
+  ],
+  "draft_delivery": "new_draft_after_invalid_media_id"
 }
