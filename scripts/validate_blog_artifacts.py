@@ -81,6 +81,24 @@ def validate_rendered_headings(errors: list[str], html: str, artifact: Path) -> 
             fail(errors, f"section heading contains colon in {artifact}: {heading.strip()}")
 
 
+def validate_wechat_header_image(errors: list[str], html: str, run_dir: Path) -> None:
+    """The first body image must be the THETA banner, with its staged local asset."""
+    expected = "assets/wechat-header-ad.jpg"
+    sources = [
+        src
+        for _, src in re.findall(
+            r'<img\b[^>]*\bsrc\s*=\s*(["\'])(.*?)\1', html, flags=re.I | re.S
+        )
+    ]
+    if not sources or sources[0] != expected:
+        fail(errors, f"WeChat first body image must be {expected}: {run_dir}")
+    if sources.count(expected) != 1:
+        fail(errors, f"WeChat must contain exactly one header image {expected}: {run_dir}")
+    header = ROOT / run_dir / expected
+    if not header.is_file() or header.stat().st_size == 0:
+        fail(errors, f"WeChat header image asset is missing or empty: {header}")
+
+
 def validate_wechat_follow_image(errors: list[str], html: str, run_dir: Path) -> None:
     """Catch a footer promising a QR code but missing its image or asset."""
     if "长按识别二维码" in html or "Long press the QR code" in html:
@@ -140,6 +158,7 @@ def validate_wechat_run(errors: list[str], slug: str) -> None:
         if "#d7e2ff" in html.lower():
             fail(errors, f"WeChat draft HTML section label rules must use #2763e9, not #d7e2ff: {article}")
         validate_rendered_headings(errors, html, article)
+        validate_wechat_header_image(errors, html, run_dir)
         validate_wechat_follow_image(errors, html, run_dir)
         if is_english and CJK_RE.search(html):
             fail(errors, f"English WeChat draft HTML contains Chinese characters: {article}")
