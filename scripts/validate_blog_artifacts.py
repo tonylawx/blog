@@ -140,10 +140,22 @@ def validate_finance_weekly_seo(
     fixed_seo = "美股 · 期权 · 资讯 · 观点"
     if fixed_seo not in html[:1800]:
         fail(errors, f"WeChat weekly first screen is missing fixed brand SEO line: {source}")
-    # This is a presentation contract, not a reason to block normal source terms.
-    required_labels = ("0 · ", "1 · ", "2 · ", "3 · ")
-    if not all(label in html for label in required_labels):
-        fail(errors, f"WeChat weekly must preserve the four-part numbered section layout: {source}")
+    # Preserve the visual contract, not an arbitrary number of sections.
+    # Each real H2 section gets one consecutive 0..N label, blue divider and
+    # original heading hierarchy. A weekly can have two, four, five, etc.
+    labels = re.findall(
+        r"<span\\b[^>]*>\\s*(\\d+)\\s*·\\s*([A-Z][A-Z0-9_-]*)\\s*</span>",
+        html, flags=re.I,
+    )
+    sequence = [int(number) for number, _ in labels]
+    if not labels or sequence != list(range(len(labels))):
+        fail(errors, f"WeChat weekly section numbers must be content-driven and consecutive from 0: {source}")
+    chapter_titles = re.findall(
+        r'<p\\b[^>]*\\bstyle=["\\'][^"\\']*font-size:\\s*22px[^"\\']*["\\'][^>]*>',
+        html, flags=re.I,
+    )
+    if len(chapter_titles) != len(labels):
+        fail(errors, f"WeChat weekly chapter heading count must match section labels: {source}")
     if "background:#2763e9" not in html or "font-size:22px" not in html:
         fail(errors, f"WeChat weekly must preserve the original blue line and title hierarchy: {source}")
     # No hidden keyword stuffing; natural sources and semantic topic titles survive.
