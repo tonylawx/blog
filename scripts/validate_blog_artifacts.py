@@ -69,6 +69,30 @@ def path_requires_handoff(path: Path) -> bool:
     )
 
 
+def validate_rendered_headings(errors: list[str], html: str, artifact: Path) -> None:
+    """Prevent bypassing the weekly headline rule during HTML rendering."""
+    headings = re.findall(
+        r'<p\b[^>]*\bfont-size\s*:\s*22px[^>]*>([^<]*)</p>',
+        html,
+        flags=re.I,
+    )
+    for heading in headings:
+        if ":" in heading or "：" in heading:
+            fail(errors, f"section heading contains colon in {artifact}: {heading.strip()}")
+
+
+def validate_wechat_follow_image(errors: list[str], html: str, run_dir: Path) -> None:
+    """Catch a footer promising a QR code but missing its image or asset."""
+    if "长按识别二维码" in html or "Long press the QR code" in html:
+        if not re.search(r'<img\b[^>]*src=["\']assets/wechat-follow-qr\.png["\']', html, flags=re.I):
+            fail(errors, f"follow QR footer contains text but lacks <img> in {run_dir}")
+
+    for src in re.findall(r'<img\b[^>]*src=["\'](assets/[^"\']+)["\']', html, flags=re.I):
+        image = run_dir / src
+        if not (ROOT / image).is_file():
+            fail(errors, f"WeChat content image is missing: {image}")
+
+
 def validate_english_post(errors: list[str], slug: str, *, strict_handoff: bool) -> None:
     post = Path("blog") / slug / "index.mdx"
     if not assert_exists(errors, post, "English blog post"):
@@ -84,7 +108,12 @@ def validate_english_post(errors: list[str], slug: str, *, strict_handoff: bool)
         fail(errors, f"English post contains Chinese characters: {post}; samples: {' | '.join(samples)}")
 
     assert_exists(errors, Path("i18n/zh/docusaurus-plugin-content-blog") / slug / "index.mdx", "Chinese blog post")
-    assert_exists(errors, Path("i18n/zh/docusaurus-plugin-content-blog") / slug / "article.html", "Chinese article HTML")
+    zh_article = Path("i18n/zh/docusaurus-plugin-content-blog") / slug / "article.html"
+    if assert_exists(errors, zh_article, "Chinese article HTML"):
+        validate_rendered_headings(errors, read_text(zh_article), zh_article)
+    en_article = Path("blog") / slug / "article.html"
+    if (ROOT / en_article).is_file():
+        validate_rendered_headings(errors, read_text(en_article), en_article)
     if strict_handoff:
         assert_exists(errors, Path("archive") / f"{slug}.md", "archive Markdown")
 
@@ -110,6 +139,8 @@ def validate_wechat_run(errors: list[str], slug: str) -> None:
             fail(errors, f"WeChat draft HTML does not look like rendered HTML: {article}")
         if "#d7e2ff" in html.lower():
             fail(errors, f"WeChat draft HTML section label rules must use #2763e9, not #d7e2ff: {article}")
+        validate_rendered_headings(errors, html, article)
+        validate_wechat_follow_image(errors, html, run_dir)
         if is_english and CJK_RE.search(html):
             fail(errors, f"English WeChat draft HTML contains Chinese characters: {article}")
         if is_english and "US Stocks · Options · News · Views" not in html:
