@@ -135,10 +135,30 @@ def validate_finance_weekly_seo(
     chinese_digest = len(re.findall(r"[\u3400-\u9fff]", digest))
     if chinese_digest < 45 or chinese_digest > 160:
         fail(errors, f"WeChat weekly digest must explain the news and value in 45-160 Chinese characters: {source}")
-    if "全球财经" not in html[:1800]:
-        fail(errors, f"WeChat weekly first screen is missing its visible editorial SEO topic line: {source}")
-    # No hidden keyword stuffing; normal meaningful headings and source names
-    # belong in the public text and should survive the promo sanitizer.
+    # RhinoFinance brand-wide masthead is fixed across daily and weekly Chinese posts.
+    # Actual topical keywords belong in the title, digest and editorial paragraphs.
+    fixed_seo = "美股 · 期权 · 资讯 · 观点"
+    if fixed_seo not in html[:1800]:
+        fail(errors, f"WeChat weekly first screen is missing fixed brand SEO line: {source}")
+    # Preserve the visual contract, not an arbitrary number of sections.
+    # Each real H2 section gets one consecutive 0..N label, blue divider and
+    # original heading hierarchy. A weekly can have two, four, five, etc.
+    labels = re.findall(
+        r"<span\b[^>]*>\s*(\d+)\s*·\s*([A-Z][A-Z0-9_-]*)\s*</span>",
+        html, flags=re.I,
+    )
+    sequence = [int(number) for number, _ in labels]
+    if not labels or sequence != list(range(len(labels))):
+        fail(errors, f"WeChat weekly section numbers must be content-driven and consecutive from 0: {source}")
+    chapter_titles = re.findall(
+        r'<p[^>]*font-size:\s*22px[^>]*>',
+        html, flags=re.I,
+    )
+    if len(chapter_titles) != len(labels):
+        fail(errors, f"WeChat weekly chapter heading count must match section labels: {source}")
+    if "background:#2763e9" not in html or "font-size:22px" not in html:
+        fail(errors, f"WeChat weekly must preserve the original blue line and title hierarchy: {source}")
+    # No hidden keyword stuffing; natural sources and semantic topic titles survive.
 
 
 def validate_wechat_recommendation_content(errors: list[str], html: str, run_dir: Path) -> None:

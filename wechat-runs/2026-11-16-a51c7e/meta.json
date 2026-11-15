@@ -9,18 +9,22 @@
   "need_open_comment": 1,
   "only_fans_can_comment": 0,
   "seo_keywords": [
-    "财经周报",
-    "全球财经",
-    "美国通胀",
-    "美国CPI",
-    "中国出口",
-    "国际油价",
-    "企业融资"
+    "美股",
+    "期权",
+    "资讯",
+    "观点"
   ],
-  "seo_focus": "全球财经新闻精选：通胀、外贸、能源与资本成本",
+  "seo_focus": "美股 · 期权 · 资讯 · 观点",
   "editorial_approach": "news_curation_cost_ledger_two_turns",
   "story_count": 6,
   "native_profile_card": "manual_add_in_official_wechat_editor",
   "cover_status": "draft_placeholder_replace_before_publication",
-  "update_media_id": "IPNykarmsAcJ_5moE_CzOf3_p6YOofDuoMJ_znJca8ZiyHllCzR39hcsEextD4wx"
+  "update_media_id": "IPNykarmsAcJ_5moE_CzOf3_p6YOofDuoMJ_znJca8ZiyHllCzR39hcsEextD4wx",
+  "wechat_template": "rhino-blue-four-part",
+  "article_topics": [
+    "美国CPI",
+    "中国出口",
+    "国际油价",
+    "企业融资"
+  ]
 }
