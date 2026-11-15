@@ -17,6 +17,8 @@ jobs:
           fetch-depth: 2
       - uses: actions/setup-python@v5
         with: {python-version: '3.13'}
+      - name: Preflight validate touched WeChat images before sending drafts
+        run: python3 scripts/validate_blog_artifacts.py
       - name: configure ssh to droplet
         env:
           DROPLET_SSH_KEY: ${{ secrets.DROPLET_SSH_KEY }}

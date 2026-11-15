@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from validate_blog_artifacts import validate_rendered_headings, validate_wechat_follow_image
+from validate_blog_artifacts import validate_rendered_headings, validate_wechat_follow_image, validate_wechat_header_image
 
 
 class WeeklyHeadingAndFollowQrTest(unittest.TestCase):
@@ -57,6 +57,53 @@ class WeeklyHeadingAndFollowQrTest(unittest.TestCase):
                 errors,
                 '<div>长按识别二维码<img src="assets/wechat-follow-qr.png"/></div>',
                 Path("wechat-runs/test"),
+            )
+            self.assertEqual(errors, [])
+
+
+
+class WeChatHeaderImageTest(unittest.TestCase):
+    def test_missing_header_fails_even_if_charts_and_follow_image_exist(self):
+        with tempfile.TemporaryDirectory() as root, patch("validate_blog_artifacts.ROOT", Path(root)):
+            errors = []
+            validate_wechat_header_image(
+                errors,
+                '<p>Intro</p><img src="assets/chart-example.png"/><img src="assets/wechat-follow-qr.png"/>',
+                Path("wechat-runs/example"),
+            )
+            self.assertTrue(any("first body image" in err for err in errors))
+
+    def test_header_after_chart_is_rejected(self):
+        with tempfile.TemporaryDirectory() as root, patch("validate_blog_artifacts.ROOT", Path(root)):
+            image = Path(root) / "wechat-runs/example/assets/wechat-header-ad.jpg"
+            image.parent.mkdir(parents=True)
+            image.write_bytes(b"\xff\xd8\xff jpeg")
+            errors = []
+            validate_wechat_header_image(
+                errors,
+                '<img src="assets/chart-example.png"/><img src="assets/wechat-header-ad.jpg"/>',
+                Path("wechat-runs/example"),
+            )
+            self.assertTrue(any("first body image" in err for err in errors))
+
+    def test_header_tag_without_file_is_rejected(self):
+        with tempfile.TemporaryDirectory() as root, patch("validate_blog_artifacts.ROOT", Path(root)):
+            errors = []
+            validate_wechat_header_image(
+                errors, '<img src="assets/wechat-header-ad.jpg"/>', Path("wechat-runs/example")
+            )
+            self.assertTrue(any("asset is missing" in err for err in errors))
+
+    def test_first_header_with_staged_image_passes(self):
+        with tempfile.TemporaryDirectory() as root, patch("validate_blog_artifacts.ROOT", Path(root)):
+            image = Path(root) / "wechat-runs/example/assets/wechat-header-ad.jpg"
+            image.parent.mkdir(parents=True)
+            image.write_bytes(b"\xff\xd8\xff jpeg")
+            errors = []
+            validate_wechat_header_image(
+                errors,
+                '<img src="assets/wechat-header-ad.jpg"/><img src="assets/chart-example.png"/>',
+                Path("wechat-runs/example"),
             )
             self.assertEqual(errors, [])
 
