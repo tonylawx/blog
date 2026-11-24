@@ -49,6 +49,29 @@ class WeChatComplianceTest(unittest.TestCase):
         self.assertNotIn("--mass-send-media-id", workflow)
         self.assertNotIn("--freepublish-media-id", workflow)
 
+
+    def test_creator_and_channel_callouts_are_blocked(self):
+        samples = (
+            "视野环球财经的主理人披露，他在周一增持。",
+            "UP主说这只股票值得买。",
+            "The host said he bought the shares.",
+            "The Rhino Finance host disclosed his position.",
+        )
+        for sample in samples:
+            with self.subTest(sample=sample):
+                errors = []
+                validator.validate_source_creator_attribution(errors, LONG_STORY + "<p>" + sample + "</p>", Path("article.html"))
+                self.assertTrue(any("creator/channel attribution is not allowed" in item for item in errors))
+
+    def test_subjective_view_is_allowed_without_creator_name(self):
+        errors = []
+        validator.validate_source_creator_attribution(
+            errors,
+            LONG_STORY + "<p>我的主观观点是，等待价格确认后再考虑加仓。</p>",
+            Path("article.html"),
+        )
+        self.assertEqual(errors, [])
+
     def test_complete_native_article_passes_without_promo_header(self):
         self.assertEqual(self._validate(LONG_STORY), [])
 

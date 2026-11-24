@@ -17,6 +17,13 @@ DATE_SLUG_RE = re.compile(r"^20\d{2}-\d{2}-\d{2}-[0-9a-f]{6}$")
 # English listening WeChat drafts are staged as <date-hash>-en alongside the CN run.
 WECHAT_SLUG_RE = re.compile(r"^20\d{2}-\d{2}-\d{2}-[0-9a-f]{6}(?:-en)?$")
 CJK_RE = re.compile(r"[\u3400-\u9fff]")
+CREATOR_ATTRIBUTION_PATTERNS = (
+    r"视野环球财经", r"Rhino\s*Finance",
+    r"(?:YouTube(?:频道| channel)?|UP主|up主|主播|博主|视频作者|节目主持人|主理人|频道主理人|频道主持人)",
+    r"\bthe\s+(?:host|creator|YouTuber|channel\s+host|channel\s+owner)\b",
+    r"\baccording\s+to\s+(?:the\s+)?(?:host|creator|YouTuber)\b",
+    r"\b(?:host|creator|YouTuber)\s+(?:said|says|disclosed|bought|sold|added|trimmed|holds|held|would)\b",
+)
 
 
 def run_git(args: list[str]) -> str:
@@ -68,6 +75,20 @@ def path_requires_handoff(path: Path) -> bool:
         parts[:1] in {("wechat-runs",), ("archive",)}
         or parts[:2] == ("static", "img")
     )
+
+
+
+def validate_source_creator_attribution(errors: list[str], content: str, artifact: Path) -> None:
+    """Block source-creator call-outs; analysis must stand as the writer's opinion."""
+    for pattern in CREATOR_ATTRIBUTION_PATTERNS:
+        match = re.search(pattern, content or "", flags=re.I)
+        if match:
+            fail(
+                errors,
+                f"creator/channel attribution is not allowed in {artifact}: {match.group(0)}; "
+                "state subjective analysis as a view and do not reproduce third-party holdings",
+            )
+            return
 
 
 def validate_rendered_headings(errors: list[str], html: str, artifact: Path) -> None:
@@ -219,10 +240,17 @@ def validate_english_post(errors: list[str], slug: str, *, strict_handoff: bool)
     assert_exists(errors, Path("i18n/zh/docusaurus-plugin-content-blog") / slug / "index.mdx", "Chinese blog post")
     zh_article = Path("i18n/zh/docusaurus-plugin-content-blog") / slug / "article.html"
     if assert_exists(errors, zh_article, "Chinese article HTML"):
-        validate_rendered_headings(errors, read_text(zh_article), zh_article)
+        zh_html = read_text(zh_article)
+        validate_rendered_headings(errors, zh_html, zh_article)
+        validate_source_creator_attribution(errors, zh_html, zh_article)
     en_article = Path("blog") / slug / "article.html"
     if (ROOT / en_article).is_file():
-        validate_rendered_headings(errors, read_text(en_article), en_article)
+        en_html = read_text(en_article)
+        validate_rendered_headings(errors, en_html, en_article)
+        validate_source_creator_attribution(errors, en_html, en_article)
+    archive = Path("archive") / f"{slug}.md"
+    if (ROOT / archive).is_file():
+        validate_source_creator_attribution(errors, read_text(archive), archive)
     if strict_handoff:
         assert_exists(errors, Path("archive") / f"{slug}.md", "archive Markdown")
 
@@ -334,6 +362,7 @@ def validate_wechat_run(errors: list[str], slug: str) -> None:
     is_english = slug.endswith("-en")
     if assert_exists(errors, article, "WeChat draft HTML"):
         html = read_text(article)
+        validate_source_creator_attribution(errors, html, article)
         if "<html" in html.lower():
             fail(errors, f"WeChat draft HTML should be draft/add body HTML, not a full document: {article}")
         if not re.search(r"<(section|p|div|img|span)\b", html, flags=re.I):
