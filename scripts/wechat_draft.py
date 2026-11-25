@@ -20,6 +20,7 @@ from pathlib import Path
 
 TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/stable_token"
 DRAFT_ADD_URL = "https://api.weixin.qq.com/cgi-bin/draft/add"
+DRAFT_UPDATE_URL = "https://api.weixin.qq.com/cgi-bin/draft/update"
 FREEPUBLISH_SUBMIT_URL = "https://api.weixin.qq.com/cgi-bin/freepublish/submit"
 FREEPUBLISH_GET_URL = "https://api.weixin.qq.com/cgi-bin/freepublish/get"
 MASS_SENDALL_URL = "https://api.weixin.qq.com/cgi-bin/message/mass/sendall"
@@ -111,6 +112,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument("--author", default="活着的北海", help="WeChat article author name.")
+    parser.add_argument("--draft-update-media-id", default=None, help="Existing draft media_id to update in place at index 0; does not create a new draft.")
     parser.add_argument("--digest", default="", help="Optional digest/summary.")
     parser.add_argument("--thumb-media-id", default=None, help="Optional cover thumbnail media id.")
     parser.add_argument("--thumb-image", type=Path, default=None, help="Optional local cover image to upload.")
@@ -888,6 +890,32 @@ def create_draft_articles(
     return response
 
 
+def update_draft(args: argparse.Namespace, access_token: str) -> dict:
+    """Update the first article of an existing WeChat draft; never publish."""
+    html, uploads = prepare_article_html(
+        args.html_file,
+        access_token,
+        sanitize=args.sanitize_for_draft_add,
+        write_cleaned_html=args.write_cleaned_html,
+    )
+    article = build_article_payload(
+        title=args.title,
+        author=args.author,
+        digest=args.digest,
+        html=html,
+        content_source_url=args.content_source_url,
+        thumb_media_id=args.thumb_media_id,
+    )
+    url = f"{DRAFT_UPDATE_URL}?{urllib.parse.urlencode({'access_token': access_token})}"
+    response = post_json(url, {"media_id": args.draft_update_media_id, "index": 0, "articles": article})
+    if response.get("errcode", 0) != 0:
+        raise SystemExit(f"Failed to update draft: {json.dumps(response, ensure_ascii=False)}")
+    response["media_id"] = args.draft_update_media_id
+    if uploads:
+        response["content_image_uploads"] = uploads
+    return response
+
+
 def create_draft(args: argparse.Namespace, access_token: str) -> dict:
     return create_draft_articles(
         [
@@ -1006,8 +1034,8 @@ def main(argv: list[str] | None = None) -> int:
         if not args.thumb_media_id and args.thumb_image:
             thumb_upload = upload_thumb_image(access_token, args.thumb_image)
             args.thumb_media_id = thumb_upload.get("media_id")
-        response = create_draft(args, access_token)
-        payload = {"draft": response}
+        response = update_draft(args, access_token) if args.draft_update_media_id else create_draft(args, access_token)
+        payload = {"draft_update": response, "mode": "update"} if args.draft_update_media_id else {"draft": response}
         if thumb_upload is not None:
             payload["thumb_upload"] = thumb_upload
         print(json.dumps(payload, ensure_ascii=False, indent=2))

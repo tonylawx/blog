@@ -1,0 +1,35 @@
+{
+  "title": "【财经周报】美国通胀、中国出口和油价背后的成本转移 20261116",
+  "author": "活着的北海",
+  "date": "2026-11-16",
+  "slug": "2026-11-16-a51c7e",
+  "locale": "zh",
+  "digest": "本周精选6条高价值全球财经新闻：美国CPI和PPI、中国出口与工业成本、国际油价、美日汇率干预、香港新世界供股、日本半导体材料并购。看懂谁获利、谁承担成本。",
+  "content_source_url": "https://www.tonylaw.cc/zh/blog/2026-11-16-a51c7e",
+  "need_open_comment": 1,
+  "only_fans_can_comment": 0,
+  "seo_keywords": [
+    "美股",
+    "期权",
+    "资讯",
+    "观点"
+  ],
+  "seo_focus": "美股 · 期权 · 资讯 · 观点",
+  "editorial_approach": "news_curation_cost_ledger_two_turns",
+  "story_count": 6,
+  "native_profile_card": "manual_add_in_official_wechat_editor",
+  "cover_status": "draft_placeholder_replace_before_publication",
+  "wechat_template": "rhino-blue-four-part",
+  "article_topics": [
+    "美国CPI",
+    "中国出口",
+    "国际油价",
+    "企业融资"
+  ],
+  "draft_delivery": "new_draft_after_invalid_media_id",
+  "humanizer_zh_applied": true,
+  "pre_humanizer_path": "wechat-runs/2026-11-16-a51c7e/news_digest.pre-humanizer.md",
+  "humanizer_skill": ".codex/skills/humanizer-zh/SKILL.md",
+  "source_link_policy": "same_article_blog",
+  "footer_policy": "rhino-grey-disclaimer-v1"
+}

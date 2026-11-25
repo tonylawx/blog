@@ -17,6 +17,10 @@ jobs:
           fetch-depth: 2
       - uses: actions/setup-python@v5
         with: {python-version: '3.13'}
+      - name: Verify WeChat compliance regression tests
+        run: python3 -m unittest discover -s tests -p 'test_wechat_compliance.py'
+      - name: Preflight validate WeChat content, links, and assets before sending drafts
+        run: python3 scripts/validate_blog_artifacts.py
       - name: configure ssh to droplet
         env:
           DROPLET_SSH_KEY: ${{ secrets.DROPLET_SSH_KEY }}
@@ -26,7 +30,7 @@ jobs:
           printf '%s\n' "$DROPLET_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H -t ed25519 "$DROPLET_HOST" >> ~/.ssh/known_hosts 2>/dev/null
-      - name: publish touched wechat runs via droplet
+      - name: create review-only WeChat drafts via droplet
         env:
           WECHAT_APPID: ${{ secrets.WECHAT_APPID }}
           WECHAT_APPSECRET: ${{ secrets.WECHAT_APPSECRET }}
@@ -62,10 +66,10 @@ jobs:
               return "活着的北海"
 
           def blog_source_url(slug: str, meta: dict) -> str:
-              if (meta.get("locale") or "") == "en" or slug.endswith("-en"):
-                  return ""
-              post_slug = (meta.get("slug") or slug).removesuffix("-en")
-              return f"https://www.tonylaw.cc/blog/{post_slug}"
+              # Native WeChat 阅读原文 field, never an in-body redirect or CTA.
+              # The preflight validates exact same-article owned-blog URLs
+              # and requires the matching bilingual blog pages to exist.
+              return str(meta.get("content_source_url") or "")
 
           def thumb_url(slug: str) -> str:
               repo = os.environ["GITHUB_REPOSITORY"]
@@ -152,23 +156,25 @@ jobs:
               print(f"selected_slug: {slug}")
               print(f"locale: {locale}")
               print(f"cover_url: {thumb_url(slug)}")
-              subprocess.run(
-                  [
-                      "python3",
-                      "scripts/wechat_draft_via_droplet.py",
-                      "--html-file",
-                      str(html),
-                      "--title",
-                      title,
-                      "--author",
-                      author,
-                      "--thumb-image-url",
-                      thumb_url(slug),
-                      "--content-source-url",
-                      blog_source_url(slug, meta),
-                  ],
-                  check=True,
-              )
+              command = [
+                  "python3",
+                  "scripts/wechat_draft_via_droplet.py",
+                  "--html-file",
+                  str(html),
+                  "--title",
+                  title,
+                  "--author",
+                  author,
+                  "--digest",
+                  str(meta.get("digest") or ""),
+                  "--thumb-image-url",
+                  thumb_url(slug),
+                  "--content-source-url",
+                  blog_source_url(slug, meta),
+              ]
+              if meta.get("update_media_id"):
+                  command += ["--draft-update-media-id", str(meta["update_media_id"])]
+              subprocess.run(command, check=True)
 
           def publish_multi(primary: str, secondary: str) -> None:
               for slug in (primary, secondary):
